@@ -6,10 +6,10 @@ TxJS implement execution model based on [RxJS](https://rxjs-dev.firebaseapp.com/
 npm test
 ```` 
 
->TxJS is a collection of class you enable to build an application under node as a set of *components* which communicate between then by *mount-points*.
-The component is a regular [TypeSript](https://www.typescriptlang.org/) class which expose no API. It receive it's commands by RxJS Subject next / subscribe..
+>TxJS is a collection of classes you enable to build an application under nodejs as a set of *components* which communicate between then by *mount-points*.
+The component is a regular [TypeSript](https://www.typescriptlang.org/) class which expose no API. It receive it's commands by a RxJS Subject next / subscribe..
 
-###The main classes are:
+### The main classes are:
 
 - **TxMountPoint** 
     - a class enable two way communication between any two component.
