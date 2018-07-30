@@ -1,5 +1,5 @@
 ## Application Execution Model
-TxJS implement execution model based on [RxJS](https://rxjs-dev.firebaseapp.com/) and [TypeSript](https://www.typescriptlang.org/).
+TxJS implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.com/) and [TypeSript](https://www.typescriptlang.org/).
 
 ##### Running the Tests
 ````
