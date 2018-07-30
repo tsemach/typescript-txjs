@@ -1,0 +1,35 @@
+{
+  "name": "typescript-txjs",
+  "version": "0.0.1",
+  "description": "An applicaiton execution model using RxJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "tsc; mocha dist/tests/**/*.spec.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tsemach/typescript-txjs.git"
+  },
+  "keywords": [
+    "RxJS",
+    "TxJS"
+  ],
+  "author": "Tsemach Mizrachi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tsemach/typescript-txjs/issues"
+  },
+  "homepage": "https://github.com/tsemach/typescript-txjs#readme",
+  "dependencies": {
+    "logging": "^3.2.0",
+    "rxjs": "^6.2.2",
+    "rxjs-compat": "^6.2.2"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "@types/mocha": "^5.2.5",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "ts-node": "^7.0.0"
+  }
+}

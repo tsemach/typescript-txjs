@@ -1,0 +1,89 @@
+
+//import logger = require('logging');
+import createLogger from 'logging'; 
+const logger = createLogger('FeatureName');
+
+import 'mocha';
+import { expect } from 'chai';
+import { TxMountPointRegistry } from '../src/tx-mountpoint-registry';
+import { TxTask } from '../src/tx-task';
+
+describe('Mount Point Class', () => {
+
+  /**
+   * 1) Test send a message via the C1's mount-point (M1).
+   * 2) C1 receive the message on it's mount-point tasks subscribe method.
+   * 3) C1 send a task to C2.
+   * 4) C2 receive the task by it's own mount-point on the tasks Subscribe method.
+   * 5) C2 send reply back to C1 on C1 reply Subscription.
+   */
+
+  class C1Component {
+    mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
+    reply: any;
+
+    constructor() {
+      this.mountpoint.tasks().subscribe(
+        (task) => {
+          logger.info('[C1Component:tasks] got task = ' + JSON.stringify(task, undefined, 2));          
+
+          // C1 got a task then send it C2.
+          let M2 = TxMountPointRegistry.instance.get('GITHUB::GIST::C2');
+
+          M2.tasks().next(new TxTask('get', '', task['data']));
+        }
+      )
+
+      this.mountpoint.reply().subscribe(
+        (reply) => {
+          logger.info('[C1Component:reply] got reply = ' + JSON.stringify(reply, undefined, 2));                    
+
+          this.reply = reply;
+        }
+      )  
+
+    }
+
+    getReply() {
+      return JSON.stringify(this.reply);
+    }
+
+  }  
+
+  class C2Component {
+    mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C2');    
+    task: any;
+
+    constructor() {
+      this.mountpoint.tasks().subscribe(
+        (task) => {
+          logger.info('[C2Component:task] got task = ' + JSON.stringify(task, undefined, 2));
+          this.task = task;
+          
+          // C2 got a task from C1, then send it back to C1 on the reply Subject of M1 mount-point
+          let M1 = TxMountPointRegistry.instance.get('GITHUB::GIST::C1');
+
+          M1.reply().next(new TxTask('get', '', task['data']));
+        }
+      )  
+    }
+
+    getTask() {
+      return this.task;
+    }
+  }  
+
+  it('send tesk from gist-get-filename to gist-get-raw-url', () => {
+    
+    let C1 = new C1Component();
+    let C2 = new C2Component();
+    
+    let M1 = TxMountPointRegistry.instance.get('GITHUB::GIST::C1');    
+    let task = new TxTask('get', '', {from: 'https://api.github.com'});
+
+    M1.tasks().next(task);
+        
+    expect(C1.getReply()).to.equal(JSON.stringify(task));
+  });
+
+});
