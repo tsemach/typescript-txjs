@@ -1,7 +1,7 @@
 
 //import logger = require('logging');
 import createLogger from 'logging'; 
-const logger = createLogger('FeatureName');
+const logger = createLogger('MountPoint');
 
 import 'mocha';
 import { expect } from 'chai';

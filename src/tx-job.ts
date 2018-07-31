@@ -1,4 +1,5 @@
-import logger = require('logging');
+import createLogger from 'logging'; 
+const logger = createLogger('Job');
 
 export class TxJob {
   stack = [];
