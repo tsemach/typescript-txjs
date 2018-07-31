@@ -1,6 +1,18 @@
 ## Application Execution Model
 TxJS implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.com/) and [TypeSript](https://www.typescriptlang.org/).
 
+##### Install
+>TypeScript: you need to have typescript installed see [how](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
+
+To install directly from github use
+````
+> npm install git+http://github.com/tsemach/typescript-txjs.git
+
+or
+
+> npm install git+ssh://github.com/tsemach/typescript-txjs.git
+```` 
+
 ##### Running the Tests
 ````
 npm test
