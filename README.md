@@ -4,6 +4,10 @@ TxJS implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.c
 ##### Install
 >TypeScript: you need to have typescript installed see [how](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
 
+````
+npm install --save rx-txjs
+````
+
 To install directly from github use
 ````
 > npm install git+http://github.com/tsemach/typescript-txjs.git
