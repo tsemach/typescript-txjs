@@ -77,4 +77,8 @@ export class TxJob {
   getIsCompleted() {
     return this.isCompleted;
   }
+
+  getName() {
+    return this.name;
+  }
 }
