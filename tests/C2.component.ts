@@ -7,13 +7,15 @@ import { TxTask } from '../src/tx-task';
 
 export class C2Component {
   mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C2');    
-  task: any;
+  method = '';
+  //task: any;
 
   constructor() {
     this.mountpoint.tasks().subscribe(
       (task) => {
         logger.info('[C2Component:task] got task = ' + JSON.stringify(task, undefined, 2));
-        this.task = task;
+        this.method = task['method'];
+        // this.task = task;
         
         // just send the reply to whom is 'setting' on this reply subject
         this.mountpoint.reply().next(new TxTask('C2', 'ok', task['data']))
@@ -21,7 +23,7 @@ export class C2Component {
     )  
   }
 
-  getTask() {
-    return this.task;
-  }
+  // getTask() {
+  //   return this.task;
+  // }
 }  

@@ -1,12 +1,16 @@
 import createLogger from 'logging'; 
 const logger = createLogger('Job');
 
+import { Subject } from 'rxjs';
 import { TxMountPoint } from './tx-mountpoint';
 
 export class TxJob {
+  isCompleted = new Subject<number>();
+
   stack = [];
+  trace = [];
   
-  constructor(private name: string = '') {    
+  constructor(private name: string = '') {
   }
 
   add(txMountPoint: TxMountPoint) {
@@ -21,15 +25,15 @@ export class TxJob {
            * make the next move, get the next mountpoint from the stack,
            * and send the data to it's tasks subject.
            */
-          let next = this.stack.shift();
+          let next = this.shift();
           logger.info(`[TxJob:add] going to run next task: ${next.name}`);
-          
+                    
           next.tasks().next(data);
-
-          // NOTE: !! need to unsubscribe txMountPoint.
+          
           return;
         }
-        logger.info(`[TxJob:add] complete running all jobs mount points, stack.legth = ${this.stack.length}`);
+        logger.info(`[TxJob:add] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}`);
+        this.finish();
       },
       (err) => {
         logger.info('[TxJob:add] error is called');
@@ -47,9 +51,30 @@ export class TxJob {
 
       return;
     }
-    let current = this.stack.shift();
+    this.trace = [];
+    let current = this.shift();
     logger.info(`[TxJob:execute] going to run ${current.name} mount point`);
     
     current.tasks().next(data);
+  }
+
+  shift() {
+    let current = this.stack.shift();
+    this.trace.push(current);
+
+    return current;
+  }
+
+  finish() {    
+    this.isCompleted.next(this.trace.length);
+
+    this.trace.forEach((e) => {
+      e.reply().unsubscribe();
+    });
+    this.trace = [];
+  }
+
+  getIsCompleted() {
+    return this.isCompleted;
   }
 }

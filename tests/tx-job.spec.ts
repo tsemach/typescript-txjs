@@ -34,9 +34,14 @@ describe('Job Class', () => {
       'create',
       '',
       {something: 'more data here'})
-    );
-        
-    //expect(C1.getReply()).to.equal(JSON.stringify(task));
-  });
+    );        
 
+    setTimeout(() => { 
+      job.getIsCompleted().subscribe(
+        (data) => {          
+          expect(data).to.equal(3);        
+        }
+      )}, 2000);  
+  });
+  
 });
