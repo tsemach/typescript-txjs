@@ -13,7 +13,7 @@ export class TxMountPoint {
   _tasks = new Subject();
   _reply = new Subject();
 
-  constructor(private _name: string) {        
+  constructor(private _name: string) {
   }
 
   get name() {

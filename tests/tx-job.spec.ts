@@ -1,6 +1,6 @@
 
 import createLogger from 'logging'; 
-const logger = createLogger('Job');
+const logger = createLogger('Job-Test');
 
 import 'mocha';
 import { expect } from 'chai';
@@ -26,9 +26,9 @@ describe('Job Class', () => {
     
     let job = new TxJob(); // or create througth the TxJobRegistry
 
-    job.add(TxMountPointRegistry.instance.create('GITHUB::GIST::C1'));
-    job.add(TxMountPointRegistry.instance.create('GITHUB::GIST::C2'));
-    job.add(TxMountPointRegistry.instance.create('GITHUB::GIST::C3'));
+    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
+    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
+    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
 
     job.execute(new TxTask(
       'create',

@@ -1,6 +1,6 @@
 //import logger = require('logging');
 import createLogger from 'logging'; 
-const logger = createLogger('FeatureName');
+const logger = createLogger('Regsitry');
 
 import { TxMountPoint } from './tx-mountpoint';
 

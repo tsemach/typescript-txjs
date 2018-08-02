@@ -19,12 +19,12 @@ npm test
 ```` 
 
 >TxJS is a collection of classes you enable to build an application under nodejs as a set of *components* which communicate between then by *mount-points*.
-The component is a regular [TypeSript](https://www.typescriptlang.org/) class which expose no API. It receive it's commands by a RxJS Subject next / subscribe..
+A component is a regular [TypeSript](https://www.typescriptlang.org/) class which expose no API. It receive it's commands by a RxJS's Subject next / subscribe..
 
 ### The main classes are:
 
 - **TxMountPoint** 
-    - a class enable two way communication between any two component.
+    - a class enable two ways communication between any two components.
     - it include two RxJS subjects one for *tasks* and other for *reply*.
     
     Defining a mount point is as:   

@@ -1,5 +1,5 @@
 import createLogger from 'logging'; 
-const logger = createLogger('Component');
+const logger = createLogger('C1');
 
 import { TxMountPointRegistry } from '../src/tx-mountpoint-registry';
 import { TxTask } from '../src/tx-task';
