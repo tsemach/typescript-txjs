@@ -1,5 +1,6 @@
 #!/bin/bash
 
+project='typescript-txjs'
 find . | sed -e 's/^\.\///g' | grep -v node_modules > project.list.all
 rm -f project.list
 
@@ -9,7 +10,7 @@ do
 	if [ $? -eq 0 ] 
 	then
 		if [ -f $f ]; then
-			echo stam/$f >> project.list
+			echo $project/$f >> project.list
 		fi
 	fi 
 done
