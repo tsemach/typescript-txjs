@@ -10,7 +10,7 @@ do
 	if [ $? -eq 0 ] 
 	then
 		if [ -f $f ]; then
-			echo $project/$f >> project.list
+			echo $f >> project.list
 		fi
 	fi 
 done
