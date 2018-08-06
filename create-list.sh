@@ -9,7 +9,7 @@ do
 	if [ $? -eq 0 ] 
 	then
 		if [ -f $f ]; then
-			echo $f >> project.list
+			echo stam/$f >> project.list
 		fi
 	fi 
 done
