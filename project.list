@@ -1,7 +1,5 @@
-.
 package.json
 .gitignore
-src
 src/tx-job.ts
 src/tx-mountpoint-registry.ts
 src/tx-mountpoint.ts
@@ -9,7 +7,6 @@ src/tx-job-resgitry.ts
 src/tx-task.ts
 src/tx-registry.ts
 src/index.ts
-tests
 tests/C2.component.ts
 tests/tx-job.spec.ts
 tests/C3.component.ts
@@ -18,4 +15,5 @@ tests/C1.component.ts
 README.md
 .npmignore
 package-lock.json
+create-list.sh
 tsconfig.json

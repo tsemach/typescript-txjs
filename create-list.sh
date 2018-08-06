@@ -8,7 +8,9 @@ do
 	git ls-files --error-unmatch $f > /dev/null 2>&1
 	if [ $? -eq 0 ] 
 	then
-		echo $f >> project.list
+		if [ -f $f ]; then
+			echo $f >> project.list
+		fi
 	fi 
 done
 
