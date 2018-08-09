@@ -12,11 +12,11 @@ export class C3Component {
   constructor() {
     this.mountpoint.tasks().subscribe(
       (task) => {
-        logger.info('[C1Component:tasks] got task = ' + JSON.stringify(task, undefined, 2));    
+        logger.info('[C3Component:tasks] got task = ' + JSON.stringify(task, undefined, 2));    
         this.method = task['method'];
 
         // just send the reply to whom is 'setting' on this reply subject
-        this.mountpoint.reply().next(new TxTask('C3', 'ok', task['data']))
+        this.mountpoint.reply().next(new TxTask('from C3', 'ok', task['data']))
       }
     )    
   }

@@ -19,7 +19,7 @@ export class C2Component {
         // this.task = task;
         
         // just send the reply to whom is 'setting' on this reply subject
-        this.mountpoint.reply().next(new TxTask('C2', 'ok', task['data']))
+        this.mountpoint.reply().next(new TxTask('from C2', 'ok', task['data']))
       }
     )  
   }
