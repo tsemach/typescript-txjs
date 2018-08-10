@@ -6,7 +6,7 @@ import { TxMountPoint } from './tx-mountpoint';
 import { TxMountPointRegistry } from '../src/tx-mountpoint-registry';
 
 export const enum TxDirection {
-  forrward = 1,
+  forward = 1,
   backward,
 }    
 
@@ -18,17 +18,24 @@ export class TxJob {
   block = [];  // all the mountpoints added to this job, need to reexecute the job
 
   single = false;
+  revert = false;
   current = null;
   
   constructor(private name: string = '') {
   }
-
+  
   subscribe(txMountPoint: TxMountPoint) {
     logger.info(`[TxJob:subscribe] going to add '${txMountPoint.name}' mount point`);    
     txMountPoint.reply().subscribe(
       (data) => {
         logger.info(`[TxJob:subscribe] got reply from '${data['method']}' method, data = ${JSON.stringify(data, undefined, 2)}`);
         logger.info(`[TxJob:subscribe] before shift to next task, stack.len = ${this.stack.length}`);
+
+        if (this.revert) {
+          this.undoCB(data);
+
+          return;
+        }
       
         if (this.stack.length > 0) {
           /**
@@ -56,35 +63,7 @@ export class TxJob {
     );
   }
 
-  add(txMountPoint: TxMountPoint) {
-    // logger.info(`[TxJob:add] going to add '${txMountPoint.name}' mount point`);    
-    // txMountPoint.reply().subscribe(
-    //   (data) => {
-    //     logger.info(`[TxJob:add] got reply from '${data['method']}' method, data = ${JSON.stringify(data, undefined, 2)}`);
-    //     logger.info(`[TxJob:add] before shift to next task, stack.len = ${this.stack.length}`);
-      
-    //     if (this.stack.length > 0) {
-    //       /**
-    //        * make the next move, get the next mountpoint from the stack,
-    //        * and send the data to it's tasks subject.
-    //        */
-    //       let next = this.shift();
-    //       logger.info(`[TxJob:add] going to run next task: ${next.name}`);
-                    
-    //       next.tasks().next(data);
-          
-    //       return;
-    //     }
-    //     logger.info(`[TxJob:add] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}`);
-    //     this.finish();
-    //   },
-    //   (err) => {
-    //     logger.info('[TxJob:add] error is called');
-    //   },
-    //   () => {
-    //     logger.info('[TxJob:add] complete is called')
-    //   }
-    // );
+  add(txMountPoint: TxMountPoint) {    
     this.subscribe(txMountPoint);
     this.stack.push(txMountPoint);
     this.block.push(txMountPoint);
@@ -113,7 +92,7 @@ export class TxJob {
     this.single = true;
     if (this.stack.length === 0) {
       logger.info(`[TxJob:step] stack.length = 0`);  
-
+      
       return;
     }
     this.current = this.stack.shift();
@@ -124,11 +103,50 @@ export class TxJob {
   continue(data) {
     this.single = false;
     this.current = this.stack.shift();
-    this.current.tasks().next(data);
+    
+    if ( ! this.revert) {
+      this.current.tasks().next(data);
+    }
+    else {
+      this.current.undos().next(data);
+    }
   }
 
-  undo(direction: TxDirection) {
-    console.log("undo: direction = " + direction);
+  undoCB(data) {
+    logger.info(`[TxJob:undoCB] got reply from '${data['method']}' method, data = ${JSON.stringify(data, undefined, 2)}`);
+    logger.info(`[TxJob:undoCB] before shift to next task, stack.len = ${this.stack.length}`);
+      
+    if (this.stack.length > 0) {
+      /**
+       * make the next move, get the next mountpoint from the stack,
+       * and send the data to it's tasks subject.
+       */      
+        let next = this.shift();
+        logger.info(`[TxJob:undoCB] going to undo next task: ${next.name}`);
+      
+        next.undos().next(data);
+      
+      return;
+    }
+    logger.info(`[TxJob:undoCB] complete undo all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}`);
+    this.finish();
+  }
+
+  undo(data, direction: TxDirection = TxDirection.backward) {
+    console.log('[TxJob:undo]: direction = ' + direction);
+
+    this.revert = true;
+    this.stack = [];
+    
+    switch (direction) {
+      case TxDirection.forward: this.stack = this.trace; break;
+      case TxDirection.backward: this.stack = this.trace.reverse(); break;
+    };
+
+    this.trace = [];
+
+    this.current = this.stack.shift();
+    this.current.undos().next(data);
   }
 
   shift() {
@@ -139,19 +157,27 @@ export class TxJob {
   }
 
   reset() {    
-    this.trace = [];  
-    this.stack = this.block;
+    this.stack = [];      
+    this.trace = [];      
+
+    this.block.forEach(mp => {      
+      this.stack.push(mp);                          
+    });
+
     this.current = null;
     this.single = false;
   }
 
-  finish() {    
-    this.isCompleted.next(this.trace.length);
-
-    this.trace.forEach((e) => {
-      e.reply().unsubscribe();
+  release() {
+    this.block.forEach(mp => {      
+      mp.reply().unsubscribe();
     });
-    this.trace = [];
+  }
+
+  finish() {    
+    this.revert = false;
+    this.single = false;
+    this.isCompleted.next(this.trace.length);
   }
 
   toJSON() {
@@ -161,6 +187,7 @@ export class TxJob {
       trace: this.trace.map((e) => {return e.name}).toString(),
       block: this.block.map((e) => {return e.name}).toString(),
       single: this.single,
+      revert: this.revert,
       current: this.getCurrentName()
     }    
   }
@@ -168,6 +195,7 @@ export class TxJob {
   upJSON(json) {    
     this.name = json.name;    
     this.single = json.single;
+    this.revert = json.isUndo;
     this.current = json.current !== '' ? TxMountPointRegistry.instance.get(json.current) : null;
 
     this.stack = [];
@@ -185,7 +213,7 @@ export class TxJob {
         this.subscribe(mp);
         this.trace.push(mp);
       }
-    });  
+    }); 
 
     this.block = [];
     json.block.split(',').forEach(name => {

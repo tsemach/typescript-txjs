@@ -12,6 +12,7 @@ export class TxMountPoint {
 
   _tasks = new Subject();
   _reply = new Subject();
+  _undos = new Subject();
 
   constructor(private _name: string) {
   }
@@ -26,6 +27,10 @@ export class TxMountPoint {
 
   tasks() {
     return this._tasks;
+  }
+
+  undos() {
+    return this._undos;
   }
 
 }
