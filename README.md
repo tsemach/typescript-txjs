@@ -163,7 +163,7 @@ job.continue(new TxTask(
 ````
 
 ### **`TxJob::step`** 
-Run the job's components step by step.
+Run the job's components step by step. each calling to step method run the next component.
 
 #### arguments
 - *TxTask*: an object including your data passing to each component separately.  
