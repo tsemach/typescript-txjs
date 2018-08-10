@@ -203,7 +203,7 @@ job.step(new TxTask(
 ### **`TxJob::reset`** 
 Return the job to it's initial state so it can run again.
 
-####usage
+#### usage
 
 ````typescript
 let job = new TxJob(); // or create througth the TxJobRegistry
