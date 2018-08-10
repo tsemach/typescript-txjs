@@ -21,7 +21,17 @@ export class C2Component {
         // just send the reply to whom is 'setting' on this reply subject
         this.mountpoint.reply().next(new TxTask('from C2', 'ok', task['data']))
       }
-    )  
+    )
+
+    this.mountpoint.undo().subscribe(
+      (task) => {
+          logger.info('[C2Component:undo] got task = ' + JSON.stringify(task, undefined, 2));
+          this.method = task['method'];
+
+          // just send the reply to whom is 'setting' on this reply subject
+          this.mountpoint.reply().next(new TxTask('undo from C2', 'ok', task['data']))
+      }
+    )
   }
 
   // getTask() {

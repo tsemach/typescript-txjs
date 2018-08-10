@@ -113,7 +113,7 @@ the next component.
   - *until*: **{util: 'GITHUB::GIST::C2'}** run until component GITHUB::GIST::C2 then stop.
   use continue to resume the process. 
 
-####usage
+#### usage
 
 ````typescript
 let C1 = new C1Component();
@@ -133,13 +133,13 @@ job.execute(new TxTask(
 );        
 ````
 
-###**`TxJob::continue`** 
+### **`TxJob::continue`** 
 Continue running the job from it's current state, this is useful when rebuild the Job with **`upJSON`** (deserialize)
 
-####arguments
+#### arguments
 - *TxTask*: an object including your data 
 
-####usage
+#### usage
 
 ````typescript
 let job = new TxJob();
@@ -162,13 +162,13 @@ job.continue(new TxTask(
 });
 ````
 
-###**`TxJob::step`** 
+### **`TxJob::step`** 
 Run the job's components step by step.
 
-####arguments
+#### arguments
 - *TxTask*: an object including your data passing to each component separately.  
 
-####usage
+#### usage
 
 ````typescript
 let C1 = new C1Component();
@@ -200,7 +200,7 @@ job.step(new TxTask(
 );
 ````
 
-###**`TxJob::reset`** 
+### **`TxJob::reset`** 
 Return the job to it's initial state so it can run again.
 
 ####usage
@@ -226,6 +226,47 @@ job.execute(new TxTask(
   {something: 'more data here'})
 );  
 ````
+
+### **`TxJob::undo`** 
+Run undo sequence on previous execute / continue.
+The **undo** send undo message to each already executed component in forward or backward order.
+
+The component register on the undo message as:
+````typescript
+this.mountpoint.undo().subscribe(
+  (task) => {
+    logger.info('[C2Component:undo] got task = ' + JSON.stringify(task, undefined, 2));
+    this.method = task['method'];
+
+    // just send the reply to whom is 'setting' on this reply subject
+    this.mountpoint.reply().next(new TxTask('undo from C2', 'ok', task['data']))
+  }
+)
+````
+
+For example if the chain including C1, C2, C3. 
+After the execution, calling to undo with backward order will initiate a sequence 
+of undo call to each component in reverse order, C3, C2, C1. 
+
+#### usage
+
+````typescript
+let job = new TxJob(); // or create througth the TxJobRegistry
+
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+
+job.execute(new TxTask(
+  'create',
+  '',
+  {something: 'more data here'})
+);        
+
+job.undo(backword);
+````
+  
+  
   
   
 
