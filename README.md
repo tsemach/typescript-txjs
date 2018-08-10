@@ -100,14 +100,14 @@ A component is a regular [TypeSript](https://www.typescriptlang.org/) class whic
     - is a simple class include three members 'method', 'status' and 'data'.
     - the task object is travel around all taksks / reply between components.
         
-##API
+## API
 
 ----
-###**`TxJob::execute`** 
+### **`TxJob::execute`** 
 Run all component one after the other, TxTask is passing between components, the output of a component is the input of 
 the next component.
 
-####arguments
+#### arguments
 - *TxTask*: an object including your data
 - options: a directive to execute 
   - *until*: **{util: 'GITHUB::GIST::C2'}** run until component GITHUB::GIST::C2 then stop.
