@@ -100,18 +100,22 @@ A component is a regular [TypeSript](https://www.typescriptlang.org/) class whic
     - is a simple class include three members 'method', 'status' and 'data'.
     - the task object is travel around all taksks / reply between components.
         
-## API
+##API
+
 ----
 ###**`TxJob::execute`** 
-Run all component one after each, the TxTask is passing between components.
+Run all component one after the other, TxTask is passing between components, the output of a component is the input of 
+the next component.
+
 ####arguments
-- TxTask: an object including your data
+- *TxTask*: an object including your data
 - options: a directive to execute 
-  - until: 
+  - *until*: **{util: 'GITHUB::GIST::C2'}** run until component GITHUB::GIST::C2 then stop.
+  use continue to resume the process. 
 
 ####usage
 
-````
+````typescript
 let C1 = new C1Component();
 let C2 = new C2Component();
 let C3 = new C3Component();
@@ -132,9 +136,12 @@ job.execute(new TxTask(
 ###**`TxJob::continue`** 
 Continue running the job from it's current state, this is useful when rebuild the Job with **`upJSON`** (deserialize)
 
+####arguments
+- *TxTask*: an object including your data 
+
 ####usage
 
-````
+````typescript
 let job = new TxJob();
 let from = {
   "name": "GitHub",
@@ -157,9 +164,13 @@ job.continue(new TxTask(
 
 ###**`TxJob::step`** 
 Run the job's components step by step.
+
+####arguments
+- *TxTask*: an object including your data passing to each component separately.  
+
 ####usage
 
-````
+````typescript
 let C1 = new C1Component();
 let C2 = new C2Component();
 let C3 = new C3Component();
@@ -191,9 +202,10 @@ job.step(new TxTask(
 
 ###**`TxJob::reset`** 
 Return the job to it's initial state so it can run again.
+
 ####usage
 
-````
+````typescript
 let job = new TxJob(); // or create througth the TxJobRegistry
 
 job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
