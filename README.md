@@ -1,6 +1,16 @@
 ## Application Execution Model
 TxJS implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.com/) and [TypeSript](https://www.typescriptlang.org/).
 
+#### New API 
+Adding new API for handling a Job, see below for more details
+
+- **`toJSON`**, **`upJSON`** for serialize and deserialize a Job.
+- **`continue`** will conntinue running the job after deserializing.
+- **`step`** running the job step by step, each calling to step run next component.
+- **`add execute options`** add run **until** options to execute and continue so the  job is running until it reach a certain component then stop.
+- **`undo`** run undo on each component in both forward and backward order.
+- **`reset`** set initial state, rerun the job after reset. 
+
 ##### Install
 >TypeScript: you need to have typescript installed see [how](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
 
@@ -90,9 +100,173 @@ A component is a regular [TypeSript](https://www.typescriptlang.org/) class whic
     - is a simple class include three members 'method', 'status' and 'data'.
     - the task object is travel around all taksks / reply between components.
         
-         
+## API
 
-    
+----
+### **`TxJob::execute`** 
+Run all component one after the other, TxTask is passing between components, the output of a component is the input of 
+the next component.
+
+#### arguments
+- *TxTask*: an object including your data
+- options: a directive to execute 
+  - *until*: **{util: 'GITHUB::GIST::C2'}** run until component GITHUB::GIST::C2 then stop.
+  use continue to resume the process. 
+
+#### usage
+
+````typescript
+let C1 = new C1Component();
+let C2 = new C2Component();
+let C3 = new C3Component();
+
+let job = new TxJob(); // or create througth the TxJobRegistry
+
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+
+job.execute(new TxTask(
+  'create',
+  '',
+  {something: 'more data here'})
+);        
+````
+
+### **`TxJob::continue`** 
+Continue running the job from it's current state, this is useful when rebuild the Job with **`upJSON`** (deserialize)
+
+#### arguments
+- *TxTask*: an object including your data 
+
+#### usage
+
+````typescript
+let job = new TxJob();
+let from = {
+  "name": "GitHub",
+  "block": "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
+  "stack": "GITHUB::GIST::C2,GITHUB::GIST::C3",
+  "trace": "GITHUB::GIST::C1",
+  "single": false,
+  "current": "GITHUB::GIST::C2"
+}
+let after = job.upJSON(from).toJSON();
+
+job.continue(new TxTask(
+  'continue',
+  '',
+  {something: 'more data here'})
+);
+
+});
+````
+
+### **`TxJob::step`** 
+Run the job's components step by step.
+
+#### arguments
+- *TxTask*: an object including your data passing to each component separately.  
+
+#### usage
+
+````typescript
+let C1 = new C1Component();
+let C2 = new C2Component();
+let C3 = new C3Component();
+
+let job = new TxJob();
+
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+
+job.step(new TxTask(
+  'step-1',
+  '',
+  {something: 'more data here'})
+);
+
+job.step(new TxTask(
+  'step-2',
+  '',
+  {something: 'more data here'})
+);
+
+job.step(new TxTask(
+  'step-3',
+  '',
+  {something: 'more data here'})
+);
+````
+
+### **`TxJob::reset`** 
+Return the job to it's initial state so it can run again.
+
+####usage
+
+````typescript
+let job = new TxJob(); // or create througth the TxJobRegistry
+
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+
+job.execute(new TxTask(
+  'create',
+  '',
+  {something: 'more data here'})
+);        
+
+job.reset();
+
+job.execute(new TxTask(
+  'create',
+  '',
+  {something: 'more data here'})
+);  
+````
+
+### **`TxJob::undo`** 
+Run undo sequence on previous execute / continue.
+The **undo** send undo message to each already executed component in forward or backward order.
+
+The component register on the undo message as:
+````typescript
+this.mountpoint.undo().subscribe(
+  (task) => {
+    logger.info('[C2Component:undo] got task = ' + JSON.stringify(task, undefined, 2));
+    this.method = task['method'];
+
+    // just send the reply to whom is 'setting' on this reply subject
+    this.mountpoint.reply().next(new TxTask('undo from C2', 'ok', task['data']))
+  }
+)
+````
+
+For example if the chain including C1, C2, C3. 
+After the execution, calling to undo with backward order will initiate a sequence 
+of undo call to each component in reverse order, C3, C2, C1. 
+
+#### usage
+
+````typescript
+let job = new TxJob(); // or create througth the TxJobRegistry
+
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+
+job.execute(new TxTask(
+  'create',
+  '',
+  {something: 'more data here'})
+);        
+
+job.undo(backword);
+````
+  
+  
   
   
 
