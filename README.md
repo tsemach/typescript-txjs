@@ -1,8 +1,8 @@
 ## Application Execution Model
 TxJS implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.com/) and [TypeSript](https://www.typescriptlang.org/).
 
-#### New API 
-Adding new API for handling a Job, see below for more details
+#### What's New 
+Adding new API (sine 0.0.3) for handling a Job, see below for more details
 
 - **`toJSON`**, **`upJSON`** for serialize and deserialize a Job.
 - **`continue`** will conntinue running the job after deserializing.
@@ -163,7 +163,7 @@ job.continue(new TxTask(
 ````
 
 ### **`TxJob::step`** 
-Run the job's components step by step. each calling to step method run the next component.
+Run the job's components step by step.
 
 #### arguments
 - *TxTask*: an object including your data passing to each component separately.  
@@ -195,6 +195,51 @@ job.step(new TxTask(
 
 job.step(new TxTask(
   'step-3',
+  '',
+  {something: 'more data here'})
+);
+````
+
+### **`TxJob::toJSON`** 
+Serialize TxJob to JSON so it can persist and rebuild later on.
+
+#### usage
+
+````typescript
+let job = new TxJob(); // or create througth the TxJobRegistry
+
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+
+let serialize = job.toJSON();
+````
+
+### **`TxJob::upJSON`** 
+Deserialize TxJob from JSON, togther with continue you can stoe the 
+JSON in the database (or some other persistency) then rebuild it.
+
+#### usage
+
+````typescript
+let job = new TxJob(); // or create througth the TxJobRegistry
+
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+
+// run one step, C1Component is running
+job.step(new TxTask(
+  'step-1',
+  '',
+  {something: 'more data here'})
+);
+
+let other = (new TxJob()).upJSON(job.toJSON());
+
+// running the remaining C2Component and C3Component
+other.continue(new TxTask(
+  'continue',
   '',
   {something: 'more data here'})
 );

@@ -73,7 +73,7 @@ describe('Mount Point Class', () => {
     }
   }  
 
-  it('send tesk from gist-get-filename to gist-get-raw-url', () => {
+  it('send task from gist-get-filename to gist-get-raw-url', () => {
     
     let C1 = new C1Component();
     let C2 = new C2Component();
