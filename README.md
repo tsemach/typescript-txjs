@@ -3,10 +3,10 @@ TxJS implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.c
 
 #### What's New 
 
-since 0.0.8 - adding TxComponent creating a component using Angular style decorator.
+**since 0.0.8** - adding TxComponent creating a component using Angular style decorator.
 - **`TxComponent`** add TypeScript decorator. 
 
-since 0.0.3 - adding new API for handling a Job, see below for more details
+**since 0.0.3** - adding new API for handling a Job, see below for more details
 
 - **`toJSON`**, **`upJSON`** for serialize and deserialize a Job.
 - **`continue`** will conntinue running the job after deserializing.
@@ -352,11 +352,6 @@ job.execute(new TxTask(
 
 job.undo(backword);
 ````
-
-
-
-
-
 
 ### **`TxComponent`** 
 Creating a component using Angular component style.
