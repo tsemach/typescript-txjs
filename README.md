@@ -2,7 +2,11 @@
 TxJS implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.com/) and [TypeSript](https://www.typescriptlang.org/).
 
 #### What's New 
-Adding new API (sine 0.0.3) for handling a Job, see below for more details
+
+since 0.0.8 - adding TxComponent creating a component using Angular style decorator.
+- **`TxComponent`** add TypeScript decorator. 
+
+since 0.0.3 - adding new API for handling a Job, see below for more details
 
 - **`toJSON`**, **`upJSON`** for serialize and deserialize a Job.
 - **`continue`** will conntinue running the job after deserializing.
@@ -348,6 +352,68 @@ job.execute(new TxTask(
 
 job.undo(backword);
 ````
+
+
+
+
+
+
+### **`TxComponent`** 
+Creating a component using Angular component style.
+Decorator config:
+* **selector**: the component's mountpoint identifier in the registry.
+* **tasks**: a method run when some tasks message is received from mountpoint.
+* **undos**: a method run when some undos message is received from mountpoint.
+
+````typescript
+@TxComponent({
+  selector: 'DECORATOR::D2',
+  tasks: 'tasks',
+  undos: 'undos'
+})
+export class Component {
+  constructor() {
+    ...      
+  }
+
+  tasks(data) {
+    ...
+    this.mountpoint().reply().next(new TxTask({..})); 
+  }
+
+  undos(data) {
+    ...
+    this.mountpoint().reply().next(new TxTask({..}));
+  }
+}
+````
+
+For example if the chain including C1, C2, C3. 
+After the execution, calling to undo with backward order will initiate a sequence 
+of undo call to each component in reverse order, C3, C2, C1. 
+
+#### usage
+
+````typescript
+let job = new TxJob(); // or create througth the TxJobRegistry
+
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+
+job.execute(new TxTask(
+  'create',
+  '',
+  {something: 'more data here'})
+);        
+
+job.undo(backword);
+````
+
+
+
+
+
 
 ##How to Check Changes on Local Package
 
