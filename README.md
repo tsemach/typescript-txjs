@@ -75,7 +75,45 @@ A component is a regular [TypeSript](https://www.typescriptlang.org/) class whic
        .
     ````
 
-        
+- **TxComponent**
+
+    tx-component.ts is TypeScript decorator helping you defining a component with a mountpoint.
+    the TxComponent decorator implicit add a mountpoint as property and register is under the 
+    'selector' property of the decorator. 
+    Also tasks and undos methods are as specifying in the decorator configuration.
+    >NOTE: due to some hard time the TypeScript decorator is giving me the 'tasks' and 'undos'
+    methods names can't be changes. later on you will be able to define any methods to like. 
+      
+    use it as follow:
+    ````typescript
+    import createLogger from 'logging';
+    const logger = createLogger('Job-Test');
+    
+    import { TxComponent } from '../../src/tx-component';
+    import { TxTask } from '../../src/tx-task';
+    
+    @TxComponent({
+      selector: 'GITHUB::GIST::D1',
+      tasks: 'tasks',
+      undos: 'undos'
+    })
+    export class D1Component {
+      constructor() {
+          logger.info("[D1Component:constructor] ctor ..");      
+      }
+    
+      tasks(data) {
+        logger.info('[D1Component:tasks] is called, data = ' + JSON.stringify(data));
+        this.mountpoint().reply().next(new TxTask('[D1Component:tasks] tasks from D1', 'ok', data['data']));
+      }
+    
+      undos(data) {
+        logger.info('[D1Component:undos] is called, data = ' + JSON.stringify(data));
+        this.mountpoint().reply().next(new TxTask('[D1Component:tasks] undos from D1', 'ok', data['data']));
+      }
+    }
+    ````
+           
 - **TxJob**
     - A class able to store several components and execute them as a chain.
     - First task send to the first component, it's reply send to the second component and so on. 
