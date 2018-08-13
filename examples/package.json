@@ -4,16 +4,13 @@
   "description": "Example using rx-txjs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "typescript": "node dist/github-job.js",
+    "javascript": "node src/javascript"
   },
   "author": "Tsemach Mizrachi <tsemach.mizrachi@gmail.com> (http://tsemach.github.io)",
   "license": "ISC",
-	"scripts": {
-	"typescript": "node dist/github-job.js",
-	"javascript": "node src/javascript"
-	},
   "dependencies": {
     "logging": "^3.2.0",
-    "rx-txjs": "file:../rx-txjs-0.0.3.tgz"
+    "rx-txjs": "file:../rx-txjs-0.0.6.tgz"
   }
 }
