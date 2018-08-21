@@ -9,9 +9,9 @@ import {TxJob} from '../../src/tx-job';
 import {D1Component} from './D1.component';
 import {D2Component} from './D2.component';
 
-const logger = createLogger('Job-Test');
+const logger = createLogger('Job-Decorator-Test');
 
-describe('Job Class', () => {
+describe('Component Decorator Class', () => {
 
   /**
    */
@@ -25,25 +25,35 @@ describe('Job Class', () => {
 
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::D1'));
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::D2'));
-  
+
+    let waitfor = {
+      method: '[D2Component:tasks] tasks from D1',
+      status: 'ok'
+    };
+
+    job.getIsCompleted().subscribe(
+      (data) => {
+        logger.info('[job-decorator-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
+        expect(waitfor['method']).to.equal(data['method']);
+        expect(waitfor['status']).to.equal(data['status']);                
+      });
+
+
     job.execute(new TxTask(
       'decorator',
       '',
       {something: 'decorator more data here'})
     );        
 
+    waitfor = {
+      method: '[D1Component:undos] undos from D1',
+      status: 'ok'
+    };
+
     job.undo(new TxTask(
       'undos',
       '',
-      {something: 'undows more data here'}));
-
-    setTimeout(() => { 
-      job.getIsCompleted().subscribe(
-        (data) => {
-          logger('job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
-          expect(data).to.equal(1);
-        }
-      )}, 2000);  
+      {something: 'undows more data here'}));    
   });
 
 });

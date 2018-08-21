@@ -23,6 +23,8 @@
   },
   "homepage": "https://github.com/tsemach/typescript-txjs#readme",
   "dependencies": {
+    "@types/assert": "0.0.31",
+    "assert": "^1.4.1",
     "logging": "^3.2.0",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.2.2"
