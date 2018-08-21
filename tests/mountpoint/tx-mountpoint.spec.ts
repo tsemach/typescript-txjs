@@ -5,8 +5,8 @@ const logger = createLogger('MountPoint-Test');
 
 import 'mocha';
 import { expect } from 'chai';
-import { TxMountPointRegistry } from '../src/tx-mountpoint-registry';
-import { TxTask } from '../src/tx-task';
+import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
+import { TxTask } from '../../src/tx-task';
 
 describe('Mount Point Class', () => {
 

@@ -1,6 +1,6 @@
 
 import createLogger from 'logging'; 
-const logger = createLogger('TxComponent');
+  const logger = createLogger('TxComponent');
 
 import { TxMountPointRegistry } from './tx-mountpoint-registry';
 import { TxMountPoint } from './tx-mountpoint';
