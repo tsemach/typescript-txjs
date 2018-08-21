@@ -74,13 +74,15 @@ describe('Mount Point Class', () => {
   }  
 
   it('send task from gist-get-filename to gist-get-raw-url', () => {
-    
+   
+    // create the two components and let them register themselfs.
     let C1 = new C1Component();
     let C2 = new C2Component();
     
     let M1 = TxMountPointRegistry.instance.get('GITHUB::GIST::C1');    
     let task = new TxTask('get', '', {from: 'https://api.github.com'});
 
+    // send task on C1 then C1 -> C2 -> C1.
     M1.tasks().next(task);
         
     expect(C1.getReply()).to.equal(JSON.stringify(task));
