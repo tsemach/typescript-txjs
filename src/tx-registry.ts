@@ -4,20 +4,20 @@ const logger = createLogger('Regsitry');
 
 import { TxMountPoint } from './tx-mountpoint';
 
-export class TxRegistry<T> {
-  objects = new Map<string, T>();
+export class TxRegistry<T, K extends string | Symbol> {
+  objects = new Map<K, T>();
 
   constructor() {    
   }
 
-  add(name: string, object: T) {
+  add(name: K, object: T) {
     logger.info("[TxRegistry:add] adding object '" + name + "'" );
     this.objects.set(name, object);
 
     return object;
   }
 
-  get(name) {
+  get(name: K) {
     logger.info(`[TxRegistry:get] getting object ${name}`);
 
     if ( ! this.objects.has(name) ) {

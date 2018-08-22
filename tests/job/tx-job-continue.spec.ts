@@ -12,12 +12,12 @@ import {C3Component} from './C3.component';
 
 const logger = createLogger('Job-Test');
 
-describe('Job Class', () => {
+describe('Job Class - Continue', () => {
 
   /**
    */
 
-  it('check C1-C2-C3 upJSON with continue', () => {
+  it('check C1-C2-C3 upJSON with continue', (done) => {
     let C1 = new C1Component();
     let C2 = new C2Component();
     let C3 = new C3Component();
@@ -40,6 +40,14 @@ describe('Job Class', () => {
     expect(from.single).to.equal(after['single']);
     expect(from.current).to.equal(after['current']);
 
+    job.getIsCompleted().subscribe(
+      (data) => {
+        logger.debug('[job-continue-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));        
+        expect(data['method']).to.equal("from C3");
+        expect(data['status']).to.equal("ok");
+        done();
+      });                
+
     job.continue(new TxTask(
       'continue',
       '',
@@ -48,7 +56,7 @@ describe('Job Class', () => {
     
   });
 
-  it('check C1-C2-C3 upJSON with continue', () => {
+  it('check C1-C2-C3 toJSON with continue', (done) => {
     let C1 = new C1Component();
     let C2 = new C2Component();
     let C3 = new C3Component();
@@ -73,6 +81,14 @@ describe('Job Class', () => {
     expect(from.block).to.equal(after['block']);
     expect(from.single).to.equal(after['single']);
     expect(from.current).to.equal(after['current']);
+
+    job.getIsCompleted().subscribe(
+      (data) => {
+        logger.info('[job-continue-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));        
+        expect(data['method']).to.equal("from C3");
+        expect(data['status']).to.equal("ok");
+        done();
+      });                
 
     job.continue(new TxTask(
       'continue',

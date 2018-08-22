@@ -33,8 +33,15 @@ describe('Job Class', () => {
       '',
       {something: 'more data here'})
     );            
-    console.log("end of first execution");
-
+    logger.info("end of first execution");
+      
+    job.getIsCompleted().subscribe(
+      (data) => {
+        logger.info('[job-undo-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
+        expect(data['method']).to.equal("undo from C1");  
+        expect(data['status']).to.equal("ok");
+      }
+    );
     job.undo(new TxTask(
       'create',
       '',

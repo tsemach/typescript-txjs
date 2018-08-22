@@ -29,19 +29,19 @@ describe('Job Class', () => {
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
 
+    job.getIsCompleted().subscribe(
+      (data) => {
+        logger.info('[job-test:execute] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));        
+        expect(data['method']).to.equal("from C3");
+        expect(data['status']).to.equal("ok");        
+      });                
+          
     job.execute(new TxTask(
       'create',
       '',
       {something: 'more data here'})
     );        
 
-    setTimeout(() => { 
-      job.getIsCompleted().subscribe(
-        (data) => {
-          console.log('job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
-          expect(data).to.equal(3);        
-        }
-      )}, 2000);  
   });
 
   it('check C1-C2-C3 toJSON begining', () => {
@@ -63,7 +63,7 @@ describe('Job Class', () => {
     expect(json.stack).to.equal('GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3');
     expect(json.block).to.equal("GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3");
     expect(json.trace).to.equal('');
-    expect(json.current).to.equal('');    
+    expect(json.current).to.equal('');       
   });
 
   it('check C1-C2-C3 toJSON middle', () => {
@@ -90,7 +90,7 @@ describe('Job Class', () => {
     expect(json.current).to.equal('');    
   });
 
-  it('check C1-C2-C3 upJSON with execute', () => {
+  it('check C1-C2-C3 upJSON with execute', (done) => {
     let C1 = new C1Component();
     let C2 = new C2Component();
     let C3 = new C3Component();
@@ -113,6 +113,14 @@ describe('Job Class', () => {
     expect(from.block).to.equal(after['block']);
     expect(from.current).to.equal(after['current']);
 
+    job.getIsCompleted().subscribe(
+      (data) => {
+        logger.info('[job-test:upJSON] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));        
+        expect(data['method']).to.equal("from C3");
+        expect(data['status']).to.equal("ok"); 
+        done();       
+      });                
+          
     job.execute(new TxTask(
       'create',
       '',

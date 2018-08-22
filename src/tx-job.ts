@@ -52,7 +52,7 @@ export class TxJob {
           return;
         }
         logger.info(`[TxJob:subscribe] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}`);
-        this.finish();
+        this.finish(data);
       },
       (err) => {
         logger.info('[TxJob:subscribe] error is called');
@@ -129,11 +129,11 @@ export class TxJob {
       return;
     }
     logger.info(`[TxJob:undoCB] complete undo all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}`);
-    this.finish();
+    this.finish(data);
   }
 
   undo(data, direction: TxDirection = TxDirection.backward) {
-    console.log('[TxJob:undo]: direction = ' + direction);
+    logger.info('[TxJob:undo]: direction = ' + direction);
 
     this.revert = true;
     this.stack = [];
@@ -174,10 +174,10 @@ export class TxJob {
     });
   }
 
-  finish() {    
+  finish(data) {    
     this.revert = false;
-    this.single = false;
-    this.isCompleted.next(this.trace.length);
+    this.single = false;    
+    this.isCompleted.next(data);
   }
 
   toJSON() {
@@ -218,7 +218,6 @@ export class TxJob {
     this.block = [];
     json.block.split(',').forEach(name => {
       if (name !== '') {
-        console.log("BLOCK : name = " + name) ;
         this.block.push(TxMountPointRegistry.instance.get(name));
       }
     });    

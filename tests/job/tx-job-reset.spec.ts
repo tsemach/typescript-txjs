@@ -10,11 +10,11 @@ import {C1Component} from './C1.component';
 import {C2Component} from './C2.component';
 import {C3Component} from './C3.component';
 
-const logger = createLogger('Job-Test');
+const logger = createLogger('Job-Reset-Test');
 
 describe('Job Class', () => {
 
-  it('check running C1-C2-C3 job chain', async () => {
+  it('check running C1-C2-C3 job chain', async (done) => {
     
     let C1 = new C1Component();
     let C2 = new C2Component();
@@ -31,7 +31,16 @@ describe('Job Class', () => {
       '',
       {something: 'more data here'})
     );            
-    console.log("end of first execution");
+    logger.info("end of first execution");
+
+    job.getIsCompleted().subscribe(
+      (data) => {
+        logger.info('[job-reset-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
+        expect(data['method']).to.equal("from C3");
+        expect(data['status']).to.equal("ok");
+        done();
+      }
+    );
     
     job.reset();
     job.execute(new TxTask(
@@ -39,14 +48,7 @@ describe('Job Class', () => {
       '',
       {something: 'more data here'})
     );            
-    console.log("end of second execution");    
-
-    job.getIsCompleted().subscribe(
-      (data) => {
-        console.log('job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
-        expect(data).to.equal(3);        
-      }
-    );
+    logger.info("end of second execution");    
     
   });
 });
