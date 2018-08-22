@@ -6,7 +6,7 @@ const logger = createLogger('MountPointRegistry');
 import { TxRegistry } from './tx-registry';
 import { TxMountPoint } from './tx-mountpoint';
 
-export class TxMountPointRegistry extends TxRegistry<TxMountPoint> {
+export class TxMountPointRegistry extends TxRegistry<TxMountPoint, string> {
   private static _instance: TxMountPointRegistry;
 
   private constructor() {
