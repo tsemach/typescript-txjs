@@ -7,6 +7,7 @@ import 'mocha';
 import { expect } from 'chai';
 import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
 import { TxTask } from '../../src/tx-task';
+import {TxMountPoint} from '../../src/tx-mountpoint';
 
 describe('Mount Point Class', () => {
 
@@ -86,6 +87,22 @@ describe('Mount Point Class', () => {
     M1.tasks().next(task);
         
     expect(C1.getReply()).to.equal(JSON.stringify(task));
+  });
+
+  it('check mountpoint name as string | symbol', () => {
+
+    let mountpoint: TxMountPoint;
+
+    mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
+
+    console.log('mountpoint name is - \'' + mountpoint.name + '\'');
+    expect(mountpoint.name).to.equal('GITHUB::GIST::C1');
+
+    mountpoint = TxMountPointRegistry.instance.create(Symbol('GITHUB::GIST::C1'));
+
+    console.log('mountpoint name is - \'' + mountpoint.name + '\'');
+    expect(mountpoint.name).to.equal('Symbol(GITHUB::GIST::C1)');
+
   });
 
 });

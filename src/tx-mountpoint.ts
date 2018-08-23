@@ -14,11 +14,14 @@ export class TxMountPoint {
   _reply = new Subject();
   _undos = new Subject();
 
-  constructor(private _name: string) {
+  constructor(private _name: string | Symbol) {
   }
 
   get name() {
-    return this._name
+    if (typeof this._name === 'string') {
+      return this._name;
+    }
+    return this._name.toString();
   }
 
   reply() {
