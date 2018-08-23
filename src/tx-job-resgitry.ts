@@ -5,7 +5,7 @@ import { TxJob } from './tx-job';
 /**
  * TxJobRegistry - is class store TxJob by their names.
  */
-export class TxJobRegistry extends TxRegistry<TxJob> {
+export class TxJobRegistry extends TxRegistry<TxJob, string> {
   private static _instance: TxJobRegistry
 
   private constructor() {

@@ -3,6 +3,9 @@ TxJS implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.c
 
 ### What's New 
 
+**since 0.0.15** 
+- Adding Symbol support as mountpoint identifier. see TxMountPoint below for more details
+
 **since 0.0.8** - adding TxComponent creating a component using Angular style decorator.
 - **`TxComponent`** adding Angular style TypeScript decorator for more convenient way of 
  creating a component. 
@@ -58,6 +61,7 @@ In the package by **`npm install --save rx-txjs`**
 import { TxMountPoint, TxMountPointRegistry, TxTask } from 'rx-txjs';
 
 export class Component {
+  // NOTE: you can use Symbol('GITHUB::GIST::C1') as mountpoint identifier as well as a string.
   mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
 
   constructor() {
@@ -135,14 +139,33 @@ module.exports = new Component();
 # Classes
 
 - ## **TxMountPoint** 
-    - a class enable two ways communication between any two components.
-    - it include two RxJS subjects one for *tasks* and other for *reply*.
+  - a class enable two ways communication between any two components.
+  - it include two RxJS subjects one for *tasks* and other for *reply*.
     
-    Defining a mount point is as:   
-    ````typscript    
-    // get a new mount-point under the name 'GITHUB::GIST::C2' and save on the registry
-    mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C2');    
-    ````
+  Defining a mount point is as:   
+  ````typscript    
+  // get a new mount-point under the name 'GITHUB::GIST::C2' and save on the registry
+  mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C2');    
+  ````
+  Mountpoint objects are kept in TxMountPointRegistry by their identifier (a selector) which could be a string or a Symbol.
+
+  The example above it using a string as identifier but this one is working as well:
+  ````typscript    
+  // get a new mount-point under the name 'GITHUB::GIST::C2' and save on the registry
+  mountpoint = TxMountPointRegistry.instance.create(Symbol('GITHUB::GIST::C2');
+  ````
+
+  >NOTE: when you use Symbol make sure they all define in one central place otherwise you will not able to restore a mountpoint since the Symbol will change. For example:
+
+  ````typescript
+  class Names {
+    static GITHUB_GIST_C1 = Symbol('GITHUB_GIST_C1');
+    static GITHUB_GIST_C2 = Symbol('GITHUB_GIST_C2');
+  }
+  mountpoint = TxMountPointRegistry.instance.create(Names.GITHUB_GIST_C1);
+  ````
+
+  ````
 
 - **Component**
     - is any regular class which has a mount-point.

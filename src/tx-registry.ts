@@ -11,17 +11,17 @@ export class TxRegistry<T, K extends string | Symbol> {
   }
 
   add(name: K, object: T) {
-    logger.info("[TxRegistry:add] adding object '" + name + "'" );
+    logger.info("[TxRegistry:add] adding object '" + name.toString() + "'" );
     this.objects.set(name, object);
 
     return object;
   }
 
   get(name: K) {
-    logger.info(`[TxRegistry:get] getting object ${name}`);
+    logger.info(`[TxRegistry:get] getting object ${name.toString()}`);
 
     if ( ! this.objects.has(name) ) {
-      throw ReferenceError(`object '${name}' is not exist in the registry`);
+      throw ReferenceError(`object '${name.toString()}' is not exist in the registry`);
     }
     return this.objects.get(name);    
   }
