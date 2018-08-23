@@ -24,7 +24,7 @@ TxJS implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.c
 ### Plan Features for Next Version
 - **ExecuteOptions**: an object able to influence on the execution of the components like 'run until' or 'stop if' etc.
 - **Component-to-Component**: a comunication between components which are not on the same process. This will encapsulate  communication between components via some communication channel like message queue or HTTP, For example in case of microservices architechture  where one component need to send a message to other component on a different service and get reply back. 
-- **Symbols**: use Symbols as component selector (identifier).
+- **Symbols**: use Symbols as component selector (identifier) - **DONE with 0.0.15**
 ----
 ## Install
 >TypeScript: you need to have typescript installed see [how](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
