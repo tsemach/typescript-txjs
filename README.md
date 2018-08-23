@@ -1,11 +1,13 @@
-## Application Execution Model
+# Application Execution Model
 TxJS implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.com/) and [TypeSript](https://www.typescriptlang.org/).
 
-#### What's New 
+### What's New 
 
 **since 0.0.8** - adding TxComponent creating a component using Angular style decorator.
 - **`TxComponent`** adding Angular style TypeScript decorator for more convenient way of 
  creating a component. 
+- Add documentation.
+- Fix minor bugs. 
 
 **since 0.0.3** - adding new API for handling a Job, see below for more details
 
@@ -16,12 +18,12 @@ TxJS implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.c
 - **`undo`** run undo on each component in both forward and backward order.
 - **`reset`** set initial state, rerun the job after reset. 
 
-#### Plan Features for Next Version
-- **ExecuteOption**: an object able to influence on the execution of the components like 'run until' or 'stop if' etc.
+### Plan Features for Next Version
+- **ExecuteOptions**: an object able to influence on the execution of the components like 'run until' or 'stop if' etc.
 - **Component-to-Component**: a comunication between components which are not on the same process. This will encapsulate  communication between components via some communication channel like message queue or HTTP, For example in case of microservices architechture  where one component need to send a message to other component on a different service and get reply back. 
 - **Symbols**: use Symbols as component selector (identifier).
-
-#### Install
+----
+## Install
 >TypeScript: you need to have typescript installed see [how](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
 
 ````
@@ -36,18 +38,103 @@ or
 
 > npm install git+ssh://github.com/tsemach/typescript-txjs.git
 ```` 
-
-#### Running the Tests
+----
+### Running the Tests
 ````
 npm test
 ```` 
 
 >TxJS is a collection of classes you enable to build an application under nodejs as a set of *components* which communicate between then by *mount-points*.
 A component is a regular [TypeSript](https://www.typescriptlang.org/) class which expose no API. It receive it's commands by a RxJS's Subject next / subscribe..
+----
+## Quick Start
+In the package by **`npm install --save rx-txjs`**
 
-### The main classes are:
+### For TypeScript users:
 
-- **TxMountPoint** 
+* Creating a component
+````typescript
+
+import { TxMountPoint, TxMountPointRegistry, TxTask } from 'rx-txjs';
+
+export class Component {
+  mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
+
+  constructor() {
+    this.mountpoint.tasks().subscribe(
+      (task) => {
+        console.log('[Component:tasks] got task = ' + JSON.stringify(task, undefined, 2));                  
+
+        // just send the reply to whom is 'setting' on this reply subject
+        this.mountpoint.reply().next(new TxTask('from Component', 'ok', task['data']))
+      }
+    )
+
+    this.mountpoint.undos().subscribe(
+      (data) => {
+          console.log('[Component:undo] going to undo my stuff, data = ' + JSON.stringify(data, undefined, 2));
+          this.method = task['method'];
+
+          // just send the reply to whom is 'setting' on this reply subject
+          this.mountpoint.reply().next(new TxTask('from Component', 'ok', data['data']))
+      }
+    )
+  }
+
+}  
+````
+
+* Creating a Job
+````typescript
+  let job = new TxJob();
+
+  job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
+  job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
+  job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+
+  job.execute(new TxTask(
+    'create',
+    '',
+    {something: 'more data here'})
+  );  
+````
+
+### For JavaScript users:
+
+* Creating a component
+````javascript
+const txjs = require('rx-txjs');
+
+/**
+ * a simple component register it's mountpoint after tne name 'COMPONENT'
+ * 
+ * To communicate with the component do:
+ * 
+ * let mp = txjs.TxMountPointRegistry.instance.get('COMPONENT'); 
+ * mp.next(new TxTask('test', 'status', data = {}));
+ */
+class Component {
+
+  constructor() {
+    this.mountpoint = txjs.TxMountPointRegistry.instance.create('COMPONENT');    
+  
+    this.mountpoint.tasks().subscribe(
+      (task) => {
+        console.log('[G2Component:tasks] got task = ' + JSON.stringify(task, undefined, 2));          
+        
+        this.mountpoint.reply().next(new txjs.TxTask('Component', '', task['data']));
+      }
+    )
+  }
+}  
+
+module.exports = new Component();
+````
+
+----
+# Classes
+
+- ## **TxMountPoint** 
     - a class enable two ways communication between any two components.
     - it include two RxJS subjects one for *tasks* and other for *reply*.
     
@@ -84,8 +171,32 @@ A component is a regular [TypeSript](https://www.typescriptlang.org/) class whic
        .
        .
     ````
+----
+- ## **TxMountPointRegistry**
+  A singlton class repository keep mapping of mountpoint's name or symbol --> mountpoint object instance.
+  The registry is use to create to create a now mountpoint object and store it's reference in the repository.
 
-- **TxComponent**
+  ### usages
+
+  * Create new mountpoint object and save is in the registory for later access it by other objects.
+  ````typescript
+  // create a new mountpoint object with a given name 'GITHUB:G1'
+  mountpoint = TxMountPointRegistry.instance.create('GITHUB::G1');
+  ````
+  * Add an existing mountpoint by it's name | sybmol.
+  ````typescript
+  // add a mountpoint object with the name 'GITHUB:G1' into the registry
+  let mountpoint = new TxMountPoint('GITHUB::G1');
+  TxMountPointRegistry.instance.add(mountpoint.name, mountpoint);
+  ````
+
+  * Get an existing mountpoint by it's name | sybmol.
+  ````typescript
+  // create a new mountpoint object with a given name 'GITHUB:G1'
+  mountpoint = TxMountPointRegistry.instance.get('GITHUB::G1');
+  ````
+----
+- ## **TxComponent**
 
     tx-component.ts is TypeScript decorator helping you defining a component with a mountpoint.
     the TxComponent decorator implicit add a mountpoint as property and register is under the 
@@ -123,8 +234,8 @@ A component is a regular [TypeSript](https://www.typescriptlang.org/) class whic
       }
     }
     ````
-           
-- **TxJob**
+----           
+- ## **TxJob**
     - A class able to store several components and execute them as a chain.
     - First task send to the first component, it's reply send to the second component and so on. 
 
@@ -144,13 +255,12 @@ A component is a regular [TypeSript](https://www.typescriptlang.org/) class whic
       {something: 'more data here'})
     );
      ````
-- **TxTask** 
+- ## **TxTask** 
     - is a simple class include three members 'method', 'status' and 'data'.
     - the task object is travel around all taksks / reply between components.
-        
-## API
-
 ----
+## Job API
+
 ### **`TxJob::execute`** 
 Run all component one after the other, TxTask is passing between components, the output of a component is the input of 
 the next component.
@@ -358,8 +468,8 @@ job.execute(new TxTask(
 
 job.undo(backword);
 ````
-
-### **`TxComponent`** 
+----
+## **`TxComponent`** 
 Creating a component using Angular component style.
 Decorator config:
 * **selector**: the component's mountpoint identifier in the registry.
@@ -410,12 +520,7 @@ job.execute(new TxTask(
 
 job.undo(backword);
 ````
-
-
-
-
-
-
+----
 ##How to Check Changes on Local Package
 
 Change and test locally the package for publish to npm.
