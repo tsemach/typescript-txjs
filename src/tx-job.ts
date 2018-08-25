@@ -195,7 +195,7 @@ export class TxJob {
   upJSON(json) {    
     this.name = json.name;    
     this.single = json.single;
-    this.revert = json.isUndo;
+    this.revert = json.revert;
     this.current = json.current !== '' ? TxMountPointRegistry.instance.get(json.current) : null;
 
     this.stack = [];
