@@ -138,7 +138,7 @@ module.exports = new Component();
 ----
 # Classes
 
-- ## **TxMountPoint** 
+##**TxMountPoint** 
   - a class enable two ways communication between any two components.
   - it include two RxJS subjects one for *tasks* and other for *reply*.
     
@@ -195,7 +195,7 @@ module.exports = new Component();
        .
     ````
 ----
-- ## **TxMountPointRegistry**
+##**TxMountPointRegistry**
   A singlton class repository keep mapping of mountpoint's name or symbol --> mountpoint object instance.
   The registry is use to create to create a now mountpoint object and store it's reference in the repository.
 
@@ -219,7 +219,7 @@ module.exports = new Component();
   mountpoint = TxMountPointRegistry.instance.get('GITHUB::G1');
   ````
 ----
-- ## **TxComponent**
+##**TxComponent**
 
     tx-component.ts is TypeScript decorator helping you defining a component with a mountpoint.
     the TxComponent decorator implicit add a mountpoint as property and register is under the 
@@ -258,7 +258,7 @@ module.exports = new Component();
     }
     ````
 ----           
-- ## **TxJob**
+##**TxJob**
     - A class able to store several components and execute them as a chain.
     - First task send to the first component, it's reply send to the second component and so on. 
 
@@ -266,11 +266,17 @@ module.exports = new Component();
     ````typescript
     import { TxMountPointRegistry } from '../src/tx-mountpoint-registry';
 
+    class Names {
+      static GITHUB_GIST_C1 = Symbol('GITHUB_GIST_C1');
+      static GITHUB_GIST_C2 = Symbol('GITHUB_GIST_C2');
+      static GITHUB_GIST_C3 = Symbol('GITHUB_GIST_C3');
+    }
+
     let job = new TxJob(); // or create througth the TxJobRegistry
 
-    job.add(TxMountPointRegistry.instance.create('GITHUB::GIST::C1'));
-    job.add(TxMountPointRegistry.instance.create('GITHUB::GIST::C2'));
-    job.add(TxMountPointRegistry.instance.create('GITHUB::GIST::C3'));
+    job.add(TxMountPointRegistry.instance.create(Names.GITHUB_GIST_C1));
+    job.add(TxMountPointRegistry.instance.create(Names.GITHUB_GIST_C2));
+    job.add(TxMountPointRegistry.instance.create(Names.GITHUB_GIST_C3));
 
     job.execute(new TxTask(
       'create',
@@ -278,7 +284,7 @@ module.exports = new Component();
       {something: 'more data here'})
     );
      ````
-- ## **TxTask** 
+##**TxTask** 
     - is a simple class include three members 'method', 'status' and 'data'.
     - the task object is travel around all taksks / reply between components.
 ----
@@ -301,6 +307,7 @@ let C1 = new C1Component();
 let C2 = new C2Component();
 let C3 = new C3Component();
 
+// NOTE: you can use Symbols as well (see TxJob above).
 let job = new TxJob(); // or create througth the TxJobRegistry
 
 job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
