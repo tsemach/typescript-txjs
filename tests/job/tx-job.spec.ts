@@ -32,13 +32,14 @@ describe('Job Class', () => {
     job.getIsCompleted().subscribe(
       (data) => {
         logger.info('[job-test:execute] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));        
-        expect(data['method']).to.equal("from C3");
-        expect(data['status']).to.equal("ok");        
+        expect(data['head']['method']).to.equal("from C3");
+        expect(data['head']['status']).to.equal("ok");        
       });                
           
-    job.execute(new TxTask(
-      'create',
-      '',
+    job.execute(new TxTask({
+        method: 'create',
+        status: ''
+      },
       {something: 'more data here'})
     );        
 
@@ -116,14 +117,15 @@ describe('Job Class', () => {
     job.getIsCompleted().subscribe(
       (data) => {
         logger.info('[job-test:upJSON] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));        
-        expect(data['method']).to.equal("from C3");
-        expect(data['status']).to.equal("ok"); 
+        expect(data['head']['method']).to.equal("from C3");
+        expect(data['head']['status']).to.equal("ok"); 
         done();       
       });                
           
-    job.execute(new TxTask(
-      'create',
-      '',
+    job.execute(new TxTask({
+        method: 'create',
+        status: ''
+      },
       {something: 'more data here'})
     );
     
@@ -152,9 +154,10 @@ describe('Job Class', () => {
     expect(from.single).to.equal(after['single']);
     expect(from.current).to.equal(after['current']);
 
-    job.continue(new TxTask(
-      'continue',
-      '',
+    job.continue(new TxTask({
+        method: 'continue',
+        status: ''
+      },
       {something: 'more data here'})
     );
     
@@ -186,9 +189,10 @@ describe('Job Class', () => {
     expect(from.single).to.equal(after['single']);
     expect(from.current).to.equal(after['current']);
 
-    job.continue(new TxTask(
-      'continue',
-      '',
+    job.continue(new TxTask({
+        method: 'continue',
+        status: ''
+      },
       {something: 'more data here'})
     );
     
@@ -205,21 +209,24 @@ describe('Job Class', () => {
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
     
-    job.step(new TxTask(
-      'step-1',
-      '',
+    job.step(new TxTask({
+        method: 'step-1',
+        status: ''
+      },
       {something: 'more data here'})
     );
 
-    job.step(new TxTask(
-      'step-2',
-      '',
+    job.step(new TxTask({
+      method: 'step-2',
+      status: ''
+      },
       {something: 'more data here'})
     );
 
-    job.step(new TxTask(
-      'step-3',
-      '',
+    job.step(new TxTask({
+        method: 'step-3',
+        status: ''
+      },
       {something: 'more data here'})
     );
     

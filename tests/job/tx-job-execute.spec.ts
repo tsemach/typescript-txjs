@@ -42,14 +42,15 @@ describe('Job Class', () => {
     job.getIsCompleted().subscribe(
       (data) => {
         console.log('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
-        expect(data['method']).to.equal("from C3");
-        expect(data['status']).to.equal("ok");
+        expect(data['head']['method']).to.equal("from C3");
+        expect(data['head']['status']).to.equal("ok");
         done();
       });                
 
-    job.execute(new TxTask(
-      'create',
-      '',
+    job.execute(new TxTask({
+        method: 'create',
+        status: ''
+      },
       {something: 'more data here'})
     );        
   });
@@ -80,14 +81,15 @@ describe('Job Class', () => {
     job.getIsCompleted().subscribe(
       (data) => {
         logger.info('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));        
-        expect(data['method']).to.equal("from C3");
-        expect(data['status']).to.equal("ok");
+        expect(data['head']['method']).to.equal("from C3");
+        expect(data['head']['status']).to.equal("ok");
         done();
       });                
 
-    job.execute(new TxTask(
-      'create',
-      '',
+    job.execute(new TxTask({
+        method: 'create',
+        status: ''
+      },
       {something: 'more data here'})
     );
     

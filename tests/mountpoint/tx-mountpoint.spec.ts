@@ -31,7 +31,7 @@ describe('Mount Point Class', () => {
           // C1 got a task then send it C2.
           let M2 = TxMountPointRegistry.instance.get('GITHUB::GIST::C2');
 
-          M2.tasks().next(new TxTask('get', '', task['data']));
+          M2.tasks().next(new TxTask({method: 'get', status: ''}, task['data']));
         }
       )
 
@@ -64,7 +64,7 @@ describe('Mount Point Class', () => {
           // C2 got a task from C1, then send it back to C1 on the reply Subject of M1 mount-point
           let M1 = TxMountPointRegistry.instance.get('GITHUB::GIST::C1');
 
-          M1.reply().next(new TxTask('get', '', task['data']));
+          M1.reply().next(new TxTask({method: 'get', status: ''}, task['data']));
         }
       )  
     }
@@ -81,7 +81,7 @@ describe('Mount Point Class', () => {
     let C2 = new C2Component();
     
     let M1 = TxMountPointRegistry.instance.get('GITHUB::GIST::C1');    
-    let task = new TxTask('get', '', {from: 'https://api.github.com'});
+    let task = new TxTask({method: 'get', status: ''}, {from: 'https://api.github.com'});
 
     // send task on C1 then C1 -> C2 -> C1.
     M1.tasks().next(task);
