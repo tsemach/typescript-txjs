@@ -41,7 +41,7 @@ describe('Job Class', () => {
           logger.info('[C1Component:tasks] got task = ' + JSON.stringify(task, undefined, 2));
 
 
-          this.mountpoint.reply().next(new TxTask('from C1Component', 'ok', task['data']));
+          this.mountpoint.reply().next(new TxTask({method: 'from C1Component', status: 'ok'}, task['data']));
         });
     }
 
@@ -56,7 +56,7 @@ describe('Job Class', () => {
           logger.info('[C2Component:tasks] got task = ' + JSON.stringify(task, undefined, 2));
 
 
-          this.mountpoint.reply().next(new TxTask('from C2Component', 'ok', task['data']));
+          this.mountpoint.reply().next(new TxTask({method: 'from C2Component', status: 'ok'}, task['data']));
         });
     }
 
@@ -76,14 +76,15 @@ describe('Job Class', () => {
     job.getIsCompleted().subscribe(
       (data) => {
         console.log('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
-        expect(data['method']).to.equal("from C2Component");
-        expect(data['status']).to.equal("ok");
+        expect(data['head']['method']).to.equal("from C2Component");
+        expect(data['head']['status']).to.equal("ok");
         done();
       });                
 
-    job.execute(new TxTask(
-      'create',
-      '',
+    job.execute(new TxTask({
+      method: 'create',
+      status: ''
+      },
       {something: 'more data here'})
     );        
   });

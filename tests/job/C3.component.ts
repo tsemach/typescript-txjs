@@ -16,7 +16,7 @@ export class C3Component {
         this.method = task['method'];
 
         // just send the reply to whom is 'setting' on this reply subject
-        this.mountpoint.reply().next(new TxTask('from C3', 'ok', task['data']))
+        this.mountpoint.reply().next(new TxTask({method: 'from C3', status: 'ok'}, task['data']))
       }
     )    
 
@@ -26,7 +26,7 @@ export class C3Component {
           this.method = task['method'];
 
           // just send the reply to whom is 'setting' on this reply subject
-          this.mountpoint.reply().next(new TxTask('undo from C3', 'ok', task['data']))
+          this.mountpoint.reply().next(new TxTask({method: 'undo from C3', status: 'ok'}, task['data']))
       }
     )    
   }

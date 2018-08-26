@@ -1,32 +1,22 @@
 
-export class TxTask {
-  method: string;
-  status: string;
+export class TxTask<T> {  
+  head: T;
   data: any;
 
-  constructor(method='', status='', data={}) {
-    this.method = method;
-    this.status = status;
+  constructor(head: T, data={}) {
+    this.head = head; 
     this.data = data;
   }
 
-  getMethod() {
-    return this.method;
+  getHead() {
+    return this.head;
   }
 
-  setMethod(_method) {
-    this.method =_method;
+  setHead(head) {
+    this.head = head;
   }
 
-  getStatus() {
-    return this.status;
-  }
-
-  setStatus(_status) {
-    this.status = this.status;
-  }
-
-  getData() {
+  getdata() {
     return this.data;
   }
 

@@ -34,14 +34,15 @@ describe('Component Decorator Class', () => {
     job.getIsCompleted().subscribe(
       (data) => {
         logger.info('[job-decorator-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
-        expect(waitfor['method']).to.equal(data['method']);
-        expect(waitfor['status']).to.equal(data['status']);                
+        expect(waitfor['method']).to.equal(data['head']['method']);
+        expect(waitfor['status']).to.equal(data['head']['status']);                
       });
 
 
-    job.execute(new TxTask(
-      'decorator',
-      '',
+    job.execute(new TxTask({
+        method: 'decorator',
+        status: ''
+      },
       {something: 'decorator more data here'})
     );        
 
@@ -50,9 +51,10 @@ describe('Component Decorator Class', () => {
       status: 'ok'
     };
 
-    job.undo(new TxTask(
-      'undos',
-      '',
+    job.undo(new TxTask({
+        method: 'undos',
+        status: ''
+      },
       {something: 'undows more data here'}));    
   });
 

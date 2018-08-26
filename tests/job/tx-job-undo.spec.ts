@@ -28,9 +28,10 @@ describe('Job Class', () => {
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
     
-    job.execute(new TxTask(
-      'create',
-      '',
+    job.execute(new TxTask({
+        method: 'create',
+        status: ''
+      },
       {something: 'more data here'})
     );            
     logger.info("end of first execution");
@@ -38,13 +39,14 @@ describe('Job Class', () => {
     job.getIsCompleted().subscribe(
       (data) => {
         logger.info('[job-undo-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
-        expect(data['method']).to.equal("undo from C1");  
-        expect(data['status']).to.equal("ok");
+        expect(data['head']['method']).to.equal("undo from C1");  
+        expect(data['head']['status']).to.equal("ok");
       }
     );
-    job.undo(new TxTask(
-      'create',
-      '',
+    job.undo(new TxTask({
+        method: 'create',
+        status: ''
+      },
       {something: 'more data here'}));
   }); 
 });

@@ -43,14 +43,15 @@ describe('Job Class - Continue', () => {
     job.getIsCompleted().subscribe(
       (data) => {
         logger.debug('[job-continue-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));        
-        expect(data['method']).to.equal("from C3");
-        expect(data['status']).to.equal("ok");
+        expect(data['head']['method']).to.equal("from C3");
+        expect(data['head']['status']).to.equal("ok");
         done();
       });                
 
-    job.continue(new TxTask(
-      'continue',
-      '',
+    job.continue(new TxTask({
+        method: 'continue',
+        status: ''
+      },
       {something: 'more data here'})
     );
     
@@ -72,7 +73,7 @@ describe('Job Class - Continue', () => {
     }
     job.upJSON(from);
 
-    console.log('job = ' + JSON.stringify(job.toJSON(), undefined, 2));
+    logger.info('job = ' + JSON.stringify(job.toJSON(), undefined, 2));
     let after = job.toJSON();
 
     expect(from.name).to.equal(after['name']);
@@ -82,17 +83,23 @@ describe('Job Class - Continue', () => {
     expect(from.single).to.equal(after['single']);
     expect(from.current).to.equal(after['current']);
 
+    interface Head {
+      method: string;
+      status: string;
+    }
+
     job.getIsCompleted().subscribe(
-      (data) => {
-        logger.info('[job-continue-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));        
-        expect(data['method']).to.equal("from C3");
-        expect(data['status']).to.equal("ok");
+      (task) => {        
+        logger.info('[job-continue-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(task, undefined, 2));        
+        expect(task['head']['method']).to.equal("from C3");
+        expect(task['head']['status']).to.equal("ok");
         done();
       });                
 
-    job.continue(new TxTask(
-      'continue',
-      '',
+    job.continue(new TxTask({
+        method: 'continue',
+        status: ''
+      },
       {something: 'more data here'})
     );
     

@@ -16,11 +16,11 @@ export class D1Component {
 
   tasks(data) {
     logger.info('[D1Component:tasks] is called, data = ' + JSON.stringify(data));
-    this.mountpoint().reply().next(new TxTask('[D1Component:tasks] tasks from D1', 'ok', data['data']));
+    this.mountpoint().reply().next(new TxTask({method: '[D1Component:tasks] tasks from D1', status: 'ok'}, data['data']));
   }
 
   undos(data) {
     logger.info('[D1Component:undos] is called, data = ' + JSON.stringify(data));
-    this.mountpoint().reply().next(new TxTask('[D1Component:undos] undos from D1', 'ok', data['data']));
+    this.mountpoint().reply().next(new TxTask({method: '[D1Component:undos] undos from D1', status: 'ok'}, data['data']));
   }
 }

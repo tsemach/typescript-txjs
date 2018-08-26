@@ -30,28 +30,31 @@ describe('Job Class', () => {
     job.getIsCompleted().subscribe(
       (data) => {
         logger.info('[job-step-by-step-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));        
-        expect(data['method']).to.equal("from C3");
-        expect(data['status']).to.equal("ok");        
+        expect(data['head']['method']).to.equal("from C3");
+        expect(data['head']['status']).to.equal("ok");        
         done();
       });
 
-    job.step(new TxTask(
-      'step-1',
-      '',
+    job.step(new TxTask({
+        method: 'step-1',
+        status: ''
+      },
       {something: 'more data here'})
     );
     expect(job.stack.length).to.equal(2);
     
-    job.step(new TxTask(
-      'step-2',
-      '',
+    job.step(new TxTask({
+        method: 'step-2',
+        status: ''
+      },
       {something: 'more data here'})
     );
     expect(job.stack.length).to.equal(1);
 
-    job.step(new TxTask(
-      'step-3',
-      '',
+    job.step(new TxTask({
+        method: 'step-3',
+        status: ''
+      },
       {something: 'more data here'})
     );
     expect(job.stack.length).to.equal(0);    
