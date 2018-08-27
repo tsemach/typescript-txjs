@@ -9,6 +9,7 @@ import {TxJob} from '../../src/tx-job';
 import {C1Component} from './C1.component';
 import {C2Component} from './C2.component';
 import {C3Component} from './C3.component';
+import * as short from 'short-uuid';
 
 const logger = createLogger('Job-Test');
 
@@ -19,9 +20,9 @@ describe('Job Class', () => {
 
   it('check running C1-C2-C3 job chain', () => {
     
-    let C1 = new C1Component();
-    let C2 = new C2Component();
-    let C3 = new C3Component();
+    new C1Component();
+    new C2Component();
+    new C3Component();
     
     let job = new TxJob(); // or create througth the TxJobRegistry
 
@@ -92,17 +93,20 @@ describe('Job Class', () => {
   });
 
   it('check C1-C2-C3 upJSON with execute', (done) => {
-    let C1 = new C1Component();
-    let C2 = new C2Component();
-    let C3 = new C3Component();
+    new C1Component();
+    new C2Component();
+    new C3Component();
+    let uuid = short().new();
 
     let job = new TxJob();
     let from = {
       "name": "GitHub",
+      "uuid": uuid,
       "block": "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
       "stack": "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
-      "single": 0,
       "trace": "",
+      "single": false,
+      "revert": false,
       "current": ""
     }
     let after = job.upJSON(from).toJSON();
@@ -132,17 +136,20 @@ describe('Job Class', () => {
   });
 
   it('check C1-C2-C3 upJSON with continue', () => {
-    let C1 = new C1Component();
-    let C2 = new C2Component();
-    let C3 = new C3Component();
+    new C1Component();
+    new C2Component();
+    new C3Component();
+    let uuid = short().new();
 
     let job = new TxJob();
     let from = {
       "name": "GitHub",
+      "uuid": uuid,
       "block": "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
       "stack": "GITHUB::GIST::C2,GITHUB::GIST::C3",
       "trace": "GITHUB::GIST::C1",
       "single": false,
+      "revert": false,
       "current": "GITHUB::GIST::C2"
     }
     let after = job.upJSON(from).toJSON();
@@ -164,17 +171,20 @@ describe('Job Class', () => {
   });
 
   it('check C1-C2-C3 upJSON with continue', () => {
-    let C1 = new C1Component();
-    let C2 = new C2Component();
-    let C3 = new C3Component();
+    new C1Component();
+    new C2Component();
+    new C3Component();
+    let uuid = short().new();
 
     let job = new TxJob();
     let from = {
       "name": "GitHub",
+      "uuid": uuid,
       "block": "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
       "stack": "GITHUB::GIST::C2,GITHUB::GIST::C3",
       "trace": "GITHUB::GIST::C1",
       "single": false,
+      "revert": false,
       "current": "GITHUB::GIST::C2"
     }
     job.upJSON(from);

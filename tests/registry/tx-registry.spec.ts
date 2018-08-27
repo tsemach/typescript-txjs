@@ -2,6 +2,8 @@
 //import logger = require('logging');
 import createLogger from 'logging'; 
 const logger = createLogger('Registry-Test');
+import * as short from 'short-uuid';
+const translator = short();
 
 import 'mocha';
 import { expect } from 'chai';
@@ -10,36 +12,29 @@ import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
 
 describe('Registry Classes - TxJobRegistry, TxMountPointRegitry', () => {
   
-  class Component {
-    name: 'SaveMe'
-    constructor() {      
-    }
-
-    getName() {
-      return 'SaveMe';
-    }
-  }  
-
   before(function() {
-
+    translator.new();
   });
 
-  it('check ', () => {
-   
-    mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
-
-
-    // // create the two components and let them register themselfs.
-    // let C1 = new C1Component();
-    // let C2 = new C2Component();
+  it('check TxMountPointRegistry', () => {
+    let n = translator.new()
+    console.log('short.uuid()      = ' + short.uuid());
+    console.log('short.uuid()      = ' + short.uuid());
+    console.log('translator.new() = ' + n);
+    console.log('translator.toUUID = ' + translator.toUUID(n));
+    console.log('translator.fromUUID = ' + translator.fromUUID('08690cfa-95df-4c76-aa3b-fb715830d6e4'));
+    console.log('translator.fromUUID = ' + short().new());
     
-    // let M1 = TxMountPointRegistry.instance.get('GITHUB::GIST::C1');    
-    // let task = new TxTask('get', '', {from: 'https://api.github.com'});
+    let MP1 = TxMountPointRegistry.instance.create('WORK::C1');
+    let MP2 = TxMountPointRegistry.instance.get('WORK::C1');
 
-    // // send task on C1 then C1 -> C2 -> C1.
-    // M1.tasks().next(task);
-        
-    // expect(C1.getReply()).to.equal(JSON.stringify(task));
+     expect(MP1.name).to.equal('WORK::C1');
+     expect(MP1.name).to.equal('WORK::C1');
+  });
+
+  it('check TxJobRegistry', () => {
+   
+
   });
 
 });

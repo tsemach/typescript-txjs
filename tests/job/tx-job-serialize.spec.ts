@@ -6,6 +6,7 @@ import { assert } from 'chai';
 import {TxMountPointRegistry} from '../../src/tx-mountpoint-registry';
 import {TxTask} from '../../src/tx-task';
 import {TxJob} from '../../src/tx-job';
+import * as short from 'short-uuid';
 
 const logger = createLogger('Job-Serialize-Test');
 
@@ -89,6 +90,7 @@ describe('Job Class - Serialize', () => {
     new C1Component();
     new C2Component();
     new C3Component();
+    let uuid = short().new();
 
     /**
      * load job where GITHUB_GIST_C1 is already called so need to continue from GITHUB_GIST_C2
@@ -96,11 +98,14 @@ describe('Job Class - Serialize', () => {
      */
     let job = new TxJob();
     let from = {
-        "block": "Symbol(GITHUB_GIST_C1),Symbol(GITHUB_GIST_C2),Symbol(GITHUB_GIST_C3)",
-        "stack": "Symbol(GITHUB_GIST_C2),Symbol(GITHUB_GIST_C3)",
-        "trace": "Symbol(GITHUB_GIST_C1)",
-        "single": false,
-        "current": "Symbol(GITHUB_GIST_C2)"
+      "name": 'GITHUB',
+      "uuid": uuid,
+      "block": "Symbol(GITHUB_GIST_C1),Symbol(GITHUB_GIST_C2),Symbol(GITHUB_GIST_C3)",
+      "stack": "Symbol(GITHUB_GIST_C2),Symbol(GITHUB_GIST_C3)",
+      "trace": "Symbol(GITHUB_GIST_C1)",
+      "single": false,
+      "revert": false,
+      "current": "Symbol(GITHUB_GIST_C2)"
     };
     let after = job.upJSON(from).toJSON();
     logger.info('[upJSON] after = ' + JSON.stringify(after, undefined, 2));

@@ -1,9 +1,13 @@
 import createLogger from 'logging'; 
 const logger = createLogger('Job');
+import * as short from 'short-uuid';
+const uuid = short();
 
 import { Subject } from 'rxjs';
 import { TxMountPoint } from './tx-mountpoint';
-import { TxMountPointRegistry } from '../src/tx-mountpoint-registry';
+import { TxMountPointRegistry } from './tx-mountpoint-registry';
+import { TxJobRegistry } from './tx-job-resgitry';
+import { TxJobJSON } from "./tx-job-json";
 
 export const enum TxDirection {
   forward = 1,
@@ -12,6 +16,8 @@ export const enum TxDirection {
 
 export class TxJob {
   isCompleted = new Subject<number>();
+
+  uuid = uuid.new();
 
   stack = [];  // mountpoints needs to be run
   trace = [];  // mountpoints already run
@@ -22,6 +28,7 @@ export class TxJob {
   current = null;
   
   constructor(private name: string = '') {
+    TxJobRegistry.instance.add(this.uuid, this);
   }
   
   subscribe(txMountPoint: TxMountPoint) {
@@ -180,9 +187,10 @@ export class TxJob {
     this.isCompleted.next(data);
   }
 
-  toJSON() {
+  toJSON(): TxJobJSON {
     return {
       name: this.name,
+      uuid: this.uuid,
       stack: this.stack.map((e) => {return e.name}).toString(),
       trace: this.trace.map((e) => {return e.name}).toString(),
       block: this.block.map((e) => {return e.name}).toString(),
@@ -192,8 +200,9 @@ export class TxJob {
     }    
   }
 
-  upJSON(json) {    
-    this.name = json.name;    
+  upJSON(json: TxJobJSON) {
+    this.name = json.name;
+    this.uuid = json.uuid;
     this.single = json.single;
     this.revert = json.revert;
     this.current = json.current !== '' ? TxMountPointRegistry.instance.get(json.current) : null;
@@ -240,4 +249,7 @@ export class TxJob {
     return this.name;
   }
   
+  getUuid() {
+    return this.uuid;
+  }
 }
