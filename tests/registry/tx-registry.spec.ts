@@ -6,8 +6,9 @@ const logger = createLogger('Registry-Test');
 import 'mocha';
 import { expect } from 'chai';
 import { TxRegistry } from '../../src/tx-registry';
+import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
 
-describe('Registry Class', () => {
+describe('Registry Classes - TxJobRegistry, TxMountPointRegitry', () => {
   
   class Component {
     name: 'SaveMe'
@@ -23,9 +24,10 @@ describe('Registry Class', () => {
 
   });
 
-  it('send task from gist-get-filename to gist-get-raw-url', () => {
+  it('check ', () => {
    
-    
+    mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
+
 
     // // create the two components and let them register themselfs.
     // let C1 = new C1Component();
