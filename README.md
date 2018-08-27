@@ -1,9 +1,58 @@
 # Application Execution Model
-TxJS implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.com/) and [TypeSript](https://www.typescriptlang.org/).
+**TxJS** implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.com/) and [TypeSript](https://www.typescriptlang.org/).
+In many cases an applciation needs to preform a flow (some job) which is a collection of small "steps" ( a component).
+This get complicated when some of the steps are asynchronous specially in nodejs environment.    
 
-### What's New 
+So this module aim to provide a set of classes helping to solve such a problem.
+
+* **Component** - is one of the building block of a job. it is a regular class (usually a singleton) which does some work. 
+BUT a component has NO API to activate its work, you can say that components are `floating in the air`. 
+The only way to communicate with a component is by *send it a message*.
+
+* **MountPoint** - is a class which has two way communication channels with the world. 
+A component use a mountpoint to get messages from the world and to send messages back reply. 
+Mountpoint is using two RxJs Subjects to get message and to send back replies.
+
+* **Job** - is a class store a collection of components which are running one by another to 
+for fill a complete flow. Output of previous component is the input to the next one. 
+A job use the component's mountpoint to send it task to the component getting reply back and 
+send to next one. 
+
+    >One of strong feature of a Job to serialize / deserialize. In the middle of a Job execution 
+    you serialize it to a JSON, store it then later on rebuild it and continue it execution 
+    in the exect point where it stop. 
+    
+
+* **MountPoint Repository** - A class generate and store mountpoints by their names or Symbols.
+So by getting the mountpoint from the registry you can use it to communicate with a component.
+
+* **Task** - a wrapper object you data travel between the components during exection. It include 
+a head property and data property. The head is a generic type where the data is any type. 
+
+* **Job Registry** - a class store Job by their uuid.             
+
+## Plan Features for Next Version
+- **ExecuteOptions** - an object able to influence on the execution of the components like 'run until' or 'stop if' etc.
+
+- **Component-to-Component** - a communication between components which are not on the same 
+process. This will encapsulate  communication between components via some communication channel like message queue or HTTP, For example in case of microservices architechture  where one component need to send a message to other component on a different service and get reply back. 
+
+- **Record / Repaly** - able to save all the data passing between components of certain Job's 
+execution and keep track of what component receive what data. Then the ability to play it back 
+to all components, to a single one or to a group of components. This tool is great for regression tests.
+
+- **External Storage Adapter** - add an interface so Job cab be store itself to external storage. 
+   
+
+## Conribution
+You can send me pull request on [GitHub] (https://github.com/tsemach/typescript-txjs) or you can 
+email me [here](mailto:tsemach.mizrachi@gmail.com) any feedback, ideas are most or even better
+if you like to contribute you are more then a welcome.   
+ 
+## What's New 
 
 **since 0.0.15** 
+- Change TxTask to be generic type of the header. 
 - Adding Symbol support as mountpoint identifier. see TxMountPoint below for more details
 
 **since 0.0.8** - adding TxComponent creating a component using Angular style decorator.
@@ -21,10 +70,6 @@ TxJS implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.c
 - **`undo`** run undo on each component in both forward and backward order.
 - **`reset`** set initial state, rerun the job after reset. 
 
-### Plan Features for Next Version
-- **ExecuteOptions**: an object able to influence on the execution of the components like 'run until' or 'stop if' etc.
-- **Component-to-Component**: a comunication between components which are not on the same process. This will encapsulate  communication between components via some communication channel like message queue or HTTP, For example in case of microservices architechture  where one component need to send a message to other component on a different service and get reply back. 
-- **Symbols**: use Symbols as component selector (identifier) - **DONE with 0.0.15**
 ----
 ## Install
 >TypeScript: you need to have typescript installed see [how](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
@@ -32,15 +77,6 @@ TxJS implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.c
 ````
 npm install --save rx-txjs
 ````
-
-To install directly from github use
-````
-> npm install git+http://github.com/tsemach/typescript-txjs.git
-
-or
-
-> npm install git+ssh://github.com/tsemach/typescript-txjs.git
-```` 
 ----
 ### Running the Tests
 ````
@@ -286,7 +322,29 @@ module.exports = new Component();
      ````
 ##**TxTask** 
     - is a simple class include three members 'method', 'status' and 'data'.
-    - the task object is travel around all taksks / reply between components.
+    - the task object is travel around all taksks / reply between components.    
+
+Example of using a TxTask with generic head:
+````typescript
+    type Head = {
+      source: string;
+      method: string;
+      status: string;
+    }
+  
+    type Data = { 
+      data: string
+    }
+
+    let t = new TxTask<Head>({source: 'other', method: 'doit', status: 'ok'}, {data: 'this is again my data'});
+  
+    let h: Head = t.head;
+    let d: Data = t.data;
+
+    assert.deepEqual({source: 'other', method: 'doit', status: 'ok'}, h);
+    assert.deepEqual({data: 'this is again my data'}, d);
+````
+
 ----
 ## Job API
 
