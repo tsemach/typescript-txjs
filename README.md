@@ -201,8 +201,6 @@ module.exports = new Component();
   mountpoint = TxMountPointRegistry.instance.create(Names.GITHUB_GIST_C1);
   ````
 
-  ````
-
 - **Component**
     - is any regular class which has a mount-point.
     - it register it's own mount point on TxMountPointRegistry under some name.
@@ -257,91 +255,94 @@ module.exports = new Component();
 ----
 ##**TxComponent**
 
-    tx-component.ts is TypeScript decorator helping you defining a component with a mountpoint.
-    the TxComponent decorator implicit add a mountpoint as property and register is under the 
-    'selector' property of the decorator. 
-    Also tasks and undos methods are as specifying in the decorator configuration.
-    >NOTE: due to some hard time the TypeScript decorator is giving me the 'tasks' and 'undos'
-    methods names can't be changes. later on you will be able to define any methods to like. 
-      
-    use it as follow:
-    ````typescript
-    import createLogger from 'logging';
-    const logger = createLogger('Job-Test');
+tx-component.ts is TypeScript decorator helping you defining a component with a mountpoint.
+the TxComponent decorator implicit add a mountpoint as property and register is under the 
+'selector' property of the decorator. 
+Also tasks and undos methods are as specifying in the decorator configuration.
+
+>NOTE: due to some hard time the TypeScript decorator is giving me the 'tasks' and 'undos'
+methods names can't be changes. later on you will be able to define any methods to like. 
+  
+Use it as follow:
     
-    import { TxComponent } from '../../src/tx-component';
-    import { TxTask } from '../../src/tx-task';
-    
-    @TxComponent({
-      selector: 'GITHUB::GIST::D1',
-      tasks: 'tasks',
-      undos: 'undos'
-    })
-    export class D1Component {
-      constructor() {
-          logger.info("[D1Component:constructor] ctor ..");      
-      }
-    
-      tasks(data) {
-        logger.info('[D1Component:tasks] is called, data = ' + JSON.stringify(data));
-        this.mountpoint().reply().next(new TxTask('[D1Component:tasks] tasks from D1', 'ok', data['data']));
-      }
-    
-      undos(data) {
-        logger.info('[D1Component:undos] is called, data = ' + JSON.stringify(data));
-        this.mountpoint().reply().next(new TxTask('[D1Component:tasks] undos from D1', 'ok', data['data']));
-      }
-    }
-    ````
+````typescript
+import createLogger from 'logging';
+const logger = createLogger('Job-Test');
+
+import { TxComponent } from '../../src/tx-component';
+import { TxTask } from '../../src/tx-task';
+
+@TxComponent({
+  selector: 'GITHUB::GIST::D1',
+  tasks: 'tasks',
+  undos: 'undos'
+})
+export class D1Component {
+  constructor() {
+      logger.info("[D1Component:constructor] ctor ..");      
+  }
+
+  tasks(data) {
+    logger.info('[D1Component:tasks] is called, data = ' + JSON.stringify(data));
+    this.mountpoint().reply().next(new TxTask('[D1Component:tasks] tasks from D1', 'ok', data['data']));
+  }
+
+  undos(data) {
+    logger.info('[D1Component:undos] is called, data = ' + JSON.stringify(data));
+    this.mountpoint().reply().next(new TxTask('[D1Component:tasks] undos from D1', 'ok', data['data']));
+  }
+}
+````
+
 ----           
 ##**TxJob**
-    - A class able to store several components and execute them as a chain.
-    - First task send to the first component, it's reply send to the second component and so on. 
+- A class able to store several components and execute them as a chain.
+- First task send to the first component, it's reply send to the second component and so on. 
 
-    For example a job may looks like that:                
-    ````typescript
-    import { TxMountPointRegistry } from '../src/tx-mountpoint-registry';
+For example a job may looks like that:                
+````typescript
+import { TxMountPointRegistry } from '../src/tx-mountpoint-registry';
 
-    class Names {
-      static GITHUB_GIST_C1 = Symbol('GITHUB_GIST_C1');
-      static GITHUB_GIST_C2 = Symbol('GITHUB_GIST_C2');
-      static GITHUB_GIST_C3 = Symbol('GITHUB_GIST_C3');
-    }
+class Names {
+  static GITHUB_GIST_C1 = Symbol('GITHUB_GIST_C1');
+  static GITHUB_GIST_C2 = Symbol('GITHUB_GIST_C2');
+  static GITHUB_GIST_C3 = Symbol('GITHUB_GIST_C3');
+}
 
-    let job = new TxJob(); // or create througth the TxJobRegistry
+let job = new TxJob(); // or create througth the TxJobRegistry
 
-    job.add(TxMountPointRegistry.instance.create(Names.GITHUB_GIST_C1));
-    job.add(TxMountPointRegistry.instance.create(Names.GITHUB_GIST_C2));
-    job.add(TxMountPointRegistry.instance.create(Names.GITHUB_GIST_C3));
+job.add(TxMountPointRegistry.instance.create(Names.GITHUB_GIST_C1));
+job.add(TxMountPointRegistry.instance.create(Names.GITHUB_GIST_C2));
+job.add(TxMountPointRegistry.instance.create(Names.GITHUB_GIST_C3));
 
-    job.execute(new TxTask(
-      'create',
-      '',
-      {something: 'more data here'})
-    );
-     ````
+job.execute(new TxTask(
+  'create',
+  '',
+  {something: 'more data here'})
+);
+ ````
 ##**TxTask** 
-    - is a simple class include three members 'method', 'status' and 'data'.
-    - the task object is travel around all taksks / reply between components.    
+- is a simple class include three members 'method', 'status' and 'data'.
+- the task object is travel around all taksks / reply between components.    
 
 Example of using a TxTask with generic head:
 ````typescript
-    type Head = {
-      source: string;
-      method: string;
-      status: string;
-    }
-  
-    type Data = { 
-      data: string
-    }
+type Head = {
+  source: string;
+  method: string;
+  status: string;
+}
 
-    let t = new TxTask<Head>({source: 'other', method: 'doit', status: 'ok'}, {data: 'this is again my data'});
-  
-    let h: Head = t.head;
-    let d: Data = t.data;
+type Data = { 
+  data: string
+}
 
-    assert.deepEqual({source: 'other', method: 'doit', status: 'ok'}, h);
+let t = new TxTask<Head>({source: 'other', method: 'doit', status: 'ok'}, {data: 'this is again my data'});
+
+let h: Head = t.head;
+let d: Data = t.data;
+
+assert.deepEqual({source: 'other', method: 'doit', status: 'ok'}, h);
     assert.deepEqual({data: 'this is again my data'}, d);
 ````
 
