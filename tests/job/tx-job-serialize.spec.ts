@@ -74,7 +74,7 @@ describe('Job Class - Serialize', () => {
     src.add(TxMountPointRegistry.instance.get(Names.GITHUB_GIST_C2));
     logger.info('[toJSON | upJSON] src.toJSON = ' + JSON.stringify(src.toJSON(), undefined, 2));
 
-    let dst= new TxJob();
+    let dst = new TxJob();
 
     dst.upJSON(src.toJSON());
 

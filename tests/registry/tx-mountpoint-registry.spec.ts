@@ -7,10 +7,10 @@ const translator = short();
 
 import 'mocha';
 import { expect } from 'chai';
-import { TxRegistry } from '../../src/tx-registry';
+
 import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
 
-describe('Registry Classes - TxJobRegistry, TxMountPointRegitry', () => {
+describe('Registry Classes - TxMountPointRegitry', () => {
   
   before(function() {
     translator.new();
