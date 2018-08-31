@@ -28,6 +28,7 @@ export class TxJob {
   current = null;
   
   constructor(private name: string = '') {
+    console.log("UUID: " + this.uuid);
     TxJobRegistry.instance.add(this.uuid, this);
   }
   
@@ -249,7 +250,7 @@ export class TxJob {
     return this.name;
   }
   
-  getUuid() {
+  getUuid(): string {
     return this.uuid;
   }
 }

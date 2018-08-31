@@ -9,7 +9,7 @@ import { TxJobPersistAdapter } from "./tx-job-persist-adapter";
 export class TxJobRegistry extends TxRegistry<TxJob, string> {
 
   private static _instance: TxJobRegistry;
-  private driver: TxJobPersistAdapter = null;
+  private _driver: TxJobPersistAdapter = null;
 
   private constructor() {
     super();
@@ -29,18 +29,21 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
     return this.add(name, job);
   }
 
-  setDriver(driver: TxJobPersistAdapter) {
-    this.driver = driver;
+  get driver() {
+    return this._driver;
+  }
+
+  set driver(_driver: TxJobPersistAdapter) {
+    this._driver = _driver;
   }
 
   async persist(job: TxJob) {
-1    await this.driver.save(job.uuid, job.toJSON(), job.getName());
+    return await this.driver.save(job.uuid, job.toJSON(), job.getName());
   }
 
-  async rebuild(uuid: 'string') {
+  async rebuild(uuid: string) {
     let json = await this.driver.read(uuid);
 
-    let job = new TxJob();
-    job.upJSON(json);
+    return new TxJob().upJSON(json);
   }
 }
