@@ -1,20 +1,23 @@
 import createLogger from 'logging';
+const logger = createLogger('Job-Execute-Test');
+
 import 'mocha';
 import {expect} from 'chai';
 
 import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
+import { TxJobExecutionOptions } from "../../src/tx-job-execution-options";
 import { TxTask } from '../../src/tx-task';
 import { TxJob } from '../../src/tx-job';
+import { TxJobRegistry } from "../../src";
 
-import {C1Component} from './C1.component';
-import {C2Component} from './C2.component';
-import {C3Component} from './C3.component';
+import { C1Component } from './C1.component';
+import { C2Component } from './C2.component';
+import { C3Component } from './C3.component';
+import { Persist } from "./pesist-driver";
+
 import * as short from 'short-uuid';
 
-const logger = createLogger('Job-Test');
-
 describe('Job Class', () => {
-
   let a = 0;
   before(() => {
     return new Promise((resolve) => {
@@ -28,13 +31,17 @@ describe('Job Class', () => {
   /**
    */
 
-  it('check running C1-C2-C3 job chain', (done) => {
+  it('tx-job-execute.spec: check running C1-C2-C3 job chain', (done) => {
+    logger.info('running: tx-job-execute.spec: check running C1-C2-C3 job chain');
+
+    let persist = new Persist();
+    TxJobRegistry.instance.driver = persist;
+
+    new C1Component();
+    new C2Component();
+    new C3Component();
     
-    let C1 = new C1Component();
-    let C2 = new C2Component();
-    let C3 = new C3Component();
-    
-    let job = new TxJob(); // or create througth the TxJobRegistry
+    let job = new TxJob('job-1'); // or create through the TxJobRegistry
 
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
@@ -45,6 +52,10 @@ describe('Job Class', () => {
         console.log('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
         expect(data['head']['method']).to.equal("from C3");
         expect(data['head']['status']).to.equal("ok");
+        expect(job.current.name).to.equal('GITHUB::GIST::C3');
+        expect(persist.read(job.getUuid()).uuid).to.equal(job.getUuid());
+        expect(persist.read(job.getUuid()).current).to.equal('GITHUB::GIST::C3');
+
         done();
       });                
 
@@ -52,11 +63,17 @@ describe('Job Class', () => {
         method: 'create',
         status: ''
       },
-      {something: 'more data here'})
+      {something: 'more data here'}
+      ),
+      {
+        persist: {ison: true}
+      } as TxJobExecutionOptions
     );        
   });
 
-  it('check C1-C2-C3 upJSON with execute', (done) => {
+  it('tx-job-continue-spec: check C1-C2-C3 upJSON with execute', (done) => {
+    logger.info('running: tx-job-execute.spec: check C1-C2-C3 upJSON with execute');
+
     new C1Component();
     new C2Component();
     new C3Component();
@@ -88,6 +105,7 @@ describe('Job Class', () => {
         logger.info('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));        
         expect(data['head']['method']).to.equal("from C3");
         expect(data['head']['status']).to.equal("ok");
+
         done();
       });                
 
@@ -99,4 +117,5 @@ describe('Job Class', () => {
     );
     
   });
+
 });

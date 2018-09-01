@@ -42,6 +42,21 @@ export class TxRegistry<T, K extends string | Symbol> {
     return this.objects.get(name);    
   }
 
+  has(name: K) {
+    if (typeof name === 'string') {
+      if (this.names.has(name)) {
+        return this.objects.has(this.names.get(name));
+      }
+    }
+
+    return this.objects.has(name);
+  }
+
+  del(name: K) {
+    this.objects.delete(name);
+    this.names.delete(name.toString());
+  }
+
   getNames() {
     let names = [];
 

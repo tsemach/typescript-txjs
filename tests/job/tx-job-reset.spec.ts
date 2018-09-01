@@ -1,4 +1,6 @@
 import createLogger from 'logging';
+const logger = createLogger('Job-Reset-Test');
+
 import 'mocha';
 import {expect} from 'chai';
 
@@ -10,11 +12,9 @@ import {C1Component} from './C1.component';
 import {C2Component} from './C2.component';
 import {C3Component} from './C3.component';
 
-const logger = createLogger('Job-Reset-Test');
-
 describe('Job Class', () => {
 
-  it('check running C1-C2-C3 job chain', async (done) => {
+  it('check job-reset.spec: running C1-C2-C3 job chain', async (done) => {
     
     let C1 = new C1Component();
     let C2 = new C2Component();

@@ -208,37 +208,18 @@ describe('Job Class', () => {
     
   });
   
-  it('check C1-C2-C3 upJSON with step ', () => {
-    let C1 = new C1Component();
-    let C2 = new C2Component();
-    let C3 = new C3Component();
+  it('tx-job-spec: check job release', () => {
+    new C1Component();
+    new C2Component();
+    new C3Component();
 
-    let job = new TxJob();
+    let job = new TxJob('job-1');
 
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
     
-    job.step(new TxTask({
-        method: 'step-1',
-        status: ''
-      },
-      {something: 'more data here'})
-    );
+    job.release();
 
-    job.step(new TxTask({
-      method: 'step-2',
-      status: ''
-      },
-      {something: 'more data here'})
-    );
-
-    job.step(new TxTask({
-        method: 'step-3',
-        status: ''
-      },
-      {something: 'more data here'})
-    );
-    
   });
 });

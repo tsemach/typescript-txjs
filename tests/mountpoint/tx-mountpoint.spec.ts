@@ -74,7 +74,7 @@ describe('Mount Point Class', () => {
     }
   }  
 
-  it('send task from gist-get-filename to gist-get-raw-url', () => {
+  it('mountpoint.spec: send task from gist-get-filename to gist-get-raw-url', () => {
    
     // create the two components and let them register themselfs.
     let C1 = new C1Component();
@@ -89,7 +89,7 @@ describe('Mount Point Class', () => {
     expect(C1.getReply()).to.equal(JSON.stringify(task));
   });
 
-  it('check mountpoint name as string | symbol', () => {
+  it('mountpoint.spec: check mountpoint name as string | symbol', () => {
 
     let mountpoint: TxMountPoint;
 

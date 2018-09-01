@@ -26,7 +26,7 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
       return job;
     }
     
-    return this.add(name, job);
+    return this.add(job.uuid, job);
   }
 
   get driver() {
@@ -38,6 +38,9 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
   }
 
   async persist(job: TxJob) {
+    if ( ! this.driver ) {
+      throw 'try to persist but driver is null';
+    }
     return await this.driver.save(job.uuid, job.toJSON(), job.getName());
   }
 
@@ -46,4 +49,10 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
 
     return new TxJob().upJSON(json);
   }
+
+  replace(oldUuid: string, newUuid: string, job: TxJob) {
+    this.del(oldUuid);
+    this.add(newUuid, job);
+  }
+
 }

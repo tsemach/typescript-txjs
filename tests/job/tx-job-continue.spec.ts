@@ -1,4 +1,6 @@
 import createLogger from 'logging';
+const logger = createLogger('Job-Continue-Test');
+
 import 'mocha';
 import {expect} from 'chai';
 
@@ -10,14 +12,12 @@ import {C2Component} from './C2.component';
 import {C3Component} from './C3.component';
 import * as short from 'short-uuid';
 
-const logger = createLogger('Job-Test');
-
 describe('Job Class - Continue', () => {
 
   /**
    */
 
-  it('check C1-C2-C3 upJSON with continue', (done) => {
+  it('tx-job-continue-spec: check C1-C2-C3 upJSON with continue', (done) => {
     new C1Component();
     new C2Component();
     new C3Component();
@@ -61,7 +61,7 @@ describe('Job Class - Continue', () => {
     
   });
 
-  it('check C1-C2-C3 toJSON with continue', (done) => {
+  it('tx-job-continue-spec: check C1-C2-C3 toJSON with continue', (done) => {
     let C1 = new C1Component();
     let C2 = new C2Component();
     let C3 = new C3Component();
@@ -77,7 +77,7 @@ describe('Job Class - Continue', () => {
       "single": false,
       "revert": false,
       "current": "GITHUB::GIST::C2"
-    }
+    };
     job.upJSON(from);
 
     logger.info('job = ' + JSON.stringify(job.toJSON(), undefined, 2));

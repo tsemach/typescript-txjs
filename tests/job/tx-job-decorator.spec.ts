@@ -1,4 +1,6 @@
 import createLogger from 'logging';
+const logger = createLogger('Job-Decorator-Test');
+
 import 'mocha';
 import {expect} from 'chai';
 
@@ -9,14 +11,12 @@ import {TxJob} from '../../src/tx-job';
 import {D1Component} from './D1.component';
 import {D2Component} from './D2.component';
 
-const logger = createLogger('Job-Decorator-Test');
-
 describe('Component Decorator Class', () => {
 
   /**
    */
 
-  it('check running decorator D1-D2 job chain', () => {
+  it('tx-job-continue-spec: check job-decorator.spec: running decorator D1-D2 job chain', () => {
     
     let D1 = new D1Component();
     let D2 = new D2Component();    

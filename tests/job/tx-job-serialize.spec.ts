@@ -1,4 +1,6 @@
 import createLogger from 'logging';
+const logger = createLogger('Job-Serialize-Test');
+
 import 'mocha';
 import { expect } from 'chai';
 import { assert } from 'chai';
@@ -7,8 +9,6 @@ import {TxMountPointRegistry} from '../../src/tx-mountpoint-registry';
 import {TxTask} from '../../src/tx-task';
 import {TxJob} from '../../src/tx-job';
 import * as short from 'short-uuid';
-
-const logger = createLogger('Job-Serialize-Test');
 
 describe('Job Class - Serialize', () => {
 
@@ -63,7 +63,7 @@ describe('Job Class - Serialize', () => {
   /**
    */
 
-  it('check toJSON | upJSON serialize', (done) => {
+  it('check job-serialize.spec: toJSON | upJSON serialize', (done) => {
 
     new C1Component();
     new C2Component();
@@ -85,7 +85,7 @@ describe('Job Class - Serialize', () => {
 
   });
 
-  it('check upJSON serialize with continue', (done) => {
+  it('check job-serialize.spec: upJSON serialize with continue', (done) => {
 
     new C1Component();
     new C2Component();
