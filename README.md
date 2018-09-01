@@ -1,4 +1,34 @@
 # Application Execution Model
+
+## What's New 
+**since 0.0.21**
+- **`TxExecuteOption`** add execution options object able to influence the execution flow.
+- **`Option: run until`** an exection option of running a job until it reaching a certain component.
+- **`Option: presis on / off`** an exection option to presis the job state on external presistence adapter.
+- **`Option: presis destroy`** together with 'run until' option, destory the job when it reach to a cetrain job determine by exection options.
+- **`External Storage Adapter`** full persistence support, see description below. 
+- **`Job Registry`** adding job registry as part of persistence solution.  
+ 
+**since 0.0.15** 
+- Change TxTask to be generic type of the header. 
+- Adding Symbol support as mountpoint identifier. see TxMountPoint below for more details
+
+**since 0.0.8** - adding TxComponent creating a component using Angular style decorator.
+- **`TxComponent`** adding Angular style TypeScript decorator for more convenient way of 
+ creating a component. 
+- Add documentation.
+- Fix minor bugs. 
+
+**since 0.0.3** - adding new API for handling a Job, see below for more details
+
+- **`toJSON`**, **`upJSON`** for serialize and deserialize a Job.
+- **`continue`** will conntinue running the job after deserializing.
+- **`step`** running the job step by step, each calling to step run next component.
+- **`add execute options`** add run **until** options to execute and continue so the  job is running until it reach a certain component then stop.
+- **`undo`** run undo on each component in both forward and backward order.
+- **`reset`** set initial state, rerun the job after reset. 
+
+## Description
 **TxJS** implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.com/) and [TypeSript](https://www.typescriptlang.org/).
 In many cases an applciation needs to preform a flow (some job) which is a collection of small "steps" ( a component).
 This get complicated when some of the steps are asynchronous specially in nodejs environment.    
@@ -29,10 +59,82 @@ So by getting the mountpoint from the registry you can use it to communicate wit
 * **Task** - a wrapper object you data travel between the components during exection. It include 
 a head property and data property. The head is a generic type where the data is any type. 
 
-* **Job Registry** - a class store Job by their uuid.             
+* **Job Registry** - a class store Job by their uuid.
+
+## How To Use It
+First create a component/s see the quick start for example.
+On the most simple case you just communicate with the component by: 
+
+````typescript
+mountpoint = TxMountPointRegistry.instance.create(<component-name>);
+mountpoint.tasks().next(TxTask(...));
+```` 
+
+Of course you can create sevral components communicate with them regardless of any job execution.
+Use the TxMountPointRegitry to retreive the component's mountpoint.
+- **mountpoint.tasks().next(new TxTask(head, data))** - sending taks to a component. 
+
+Use the TxMountPointRegitry to retreive the component's mountpoint.
+- **mountpoint.reply().next(new TxTask(head, data))** - sending reply to a component usually the one that send the tasks. 
+
+Use the TxMountPointRegitry to retreive the component's mountpoint.
+- **mountpoint.tasks().subscribe((data) => {..})** - to receive tasks from anyone
+
+Use the TxMountPointRegitry to retreive the component's mountpoint.
+- **mountpoint.reply().subscribe((data) => {..})** - to receive reply from onyone.  
+
+#### Adding Job
+##### TxJob Creation and Running
+
+To contruct a set a component running one after the other you can use the Job class.
+- First create: `let job = new Job('job-1')`
+- Then add some component to it by using add method: `job.add(TxMountPointRegistry.instnace.get(<component-name>)`
+- Finaly you can run by *execute* | *step* | *continue* methods.
+
+##### TxJob events
+TxJob send two events **isCompleted** and **isStopped**.
+- **isCompleted** - is send when all components where executed. use job.getIsCompleted().subscribe(..);
+- **isStopped** - on single step, after each step is completed. use job.getIsStopped().subscribe(..);
+
+## Persistence
+The presistence enable you to serialize a certain job, store it in some external storage then reconstruct later one and continue the execution (by *continue* method) right in the same place. To use the pesistence you have two options one using the *TxJobPersistAdapter* other use low level *job.toJSON* and *job.upJSON* methods.
+
+##### Using TxPersistenceAdapter
+- create a class which implements TxJobPersistAdapter. Implement save and read method. 
+- `TxJobPersistAdapter.save(uuid: string, json: TxJobJSON, name?: string)`: this will called by the framwork when a job needs to persist.
+- `TxJobPersistAdapter.read(uuid: string): TxJobJSON`: this will call by framework when it need to reconstruct a Job.
+- register you class on the *TxJobRegistry* as follow:
+  ````
+  let persist = new Persist(); // class that implements TxJobPersistAdapter
+  TxJobRegistry.instance.driver = persist;
+  ```` 
+This will store the job state before execute each component. The method save is up to you your storage implementation.
+Usually persistence goes with with *run-until* execution option. Using execute with run-until:
+````
+// execute the job until it reach component <component-name | component Symbol>
+job.execute(new TxTask({
+    method: 'create',    
+  },
+  {something: 'more data here'}
+  ),
+  {
+    persist: {ison: true, destroy: true},
+    execute: {until: <component-name | component-Symbol>}
+  } as TxJobExecutionOptions
+);
+````
+
+Once a job is persist it's state saved on the storage and removed from registry (if *persist.destroy* is true)
+So to continue the exection you need to do:
+````
+// on any part in the code
+let job = TxJobRegistry.instance.rebuild(uuid); // rebuild the job accorsing to it's uuid;
+
+Job.continue(new TxTask(..));
+````
 
 ## Plan Features for Next Version
-- **ExecuteOptions** - an object able to influence on the execution of the components like 'run until' or 'stop if' etc.
+- **ExecuteOptions** - **done since 0.0.21** an object able to influence on the execution of the components like 'run until' or 'stop if' etc.
 
 - **Component-to-Component** - a communication between components which are not on the same 
 process. This will encapsulate  communication between components via some communication channel like message queue or HTTP, For example in case of microservices architechture  where one component need to send a message to other component on a different service and get reply back. 
@@ -41,35 +143,15 @@ process. This will encapsulate  communication between components via some commun
 execution and keep track of what component receive what data. Then the ability to play it back 
 to all components, to a single one or to a group of components. This tool is great for regression tests.
 
-- **External Storage Adapter** - add an interface so Job cab be store itself to external storage. 
-   
+- **External Storage Adapter** - **done since 0.0.21** add an interface so Job cab be store itself to external storage.
 
+- **MountPoint Names String Literal** - change mountpoint names to be TypeScript string literal instead of just string.   
+   
 ## Conribution
 You can send me pull request on [GitHub] (https://github.com/tsemach/typescript-txjs) or you can 
 email me [here](mailto:tsemach.mizrachi@gmail.com) any feedback, ideas are most or even better
 if you like to contribute you are more then a welcome.   
  
-## What's New 
-
-**since 0.0.15** 
-- Change TxTask to be generic type of the header. 
-- Adding Symbol support as mountpoint identifier. see TxMountPoint below for more details
-
-**since 0.0.8** - adding TxComponent creating a component using Angular style decorator.
-- **`TxComponent`** adding Angular style TypeScript decorator for more convenient way of 
- creating a component. 
-- Add documentation.
-- Fix minor bugs. 
-
-**since 0.0.3** - adding new API for handling a Job, see below for more details
-
-- **`toJSON`**, **`upJSON`** for serialize and deserialize a Job.
-- **`continue`** will conntinue running the job after deserializing.
-- **`step`** running the job step by step, each calling to step run next component.
-- **`add execute options`** add run **until** options to execute and continue so the  job is running until it reach a certain component then stop.
-- **`undo`** run undo on each component in both forward and backward order.
-- **`reset`** set initial state, rerun the job after reset. 
-
 ----
 ## Install
 >TypeScript: you need to have typescript installed see [how](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
@@ -444,6 +526,52 @@ job.step(new TxTask(
   'step-3',
   '',
   {something: 'more data here'})
+);
+````
+
+### **`TxJov::execute|continue with TxJobExecutionOptions`** 
+Use TxJobExecutionOptions to change execution default behavior.
+The object is as follow:
+````typescript
+export interface TxJobExecutionOptions {
+  persist: {
+    ison: boolean;
+    destroy: boolean;
+  };
+  execute: {
+    until: string;
+  }
+}
+````
+#### parameters
+- *persist.ison*: define if need to persist a job before calling to every component.
+- *persist.destory*: define if need to completed destory the job when a job is reaching to it's execute.until component.
+- *execute.until*: define the component's mountpoint name (sring | symbol) where need to stop and destory if persist.destory is on.
+
+#### usage
+
+````typescript
+let C1 = new C1Component();
+let C2 = new C2Component();
+let C3 = new C3Component();
+
+// NOTE: you can use Symbols as well (see TxJob above).
+let job = new TxJob(); // or create througth the TxJobRegistry
+
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
+job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+
+job.execute(new TxTask({
+    method: 'create',
+    status: ''
+  },
+  {something: 'more data here'}
+  ),
+  {
+    persist: {ison: true, destroy: true},
+    execute: {until: 'GITHUB::GIST::C2'}
+  } as TxJobExecutionOptions
 );
 ````
 
