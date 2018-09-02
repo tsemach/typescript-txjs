@@ -20,7 +20,7 @@ export class Persist implements TxJobPersistAdapter {
   save(uuid: string, json: TxJobJSON, name?: string): boolean {
     logger.info("saving: name = " + name);
     logger.info("saving: uuid = " + uuid);
-    logger.info("saving: data = " + JSON.stringify(json));
+    logger.info("saving: data = " + JSON.stringify(json, undefined, 2));
 
     this.jobs.set(uuid, json);
 

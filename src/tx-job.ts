@@ -126,6 +126,30 @@ export class TxJob {
     runme.tasks().next(data);
   }
 
+  async continue(data, options: TxJobExecutionOptions = defaultOptions) {
+    this.single = false;
+    this.options = options;
+    if (this.stack.length === 0) {
+      logger.info(`[TxJob:continue] stack.length = 0`);
+
+      return;
+    }
+
+    //this.current = this.stack.shift();
+    //this.current = this.shift();
+
+    if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
+      await TxJobRegistry.instance.persist(this);
+    }
+
+    if (this.revert) {
+      this.current.undos().next(data);
+    }
+    else {
+      this.current.tasks().next(data);
+    }
+  }
+
   /**
    * run the components step by step, after each step the control return to user
    * the call to step again to run next component.
@@ -148,23 +172,6 @@ export class TxJob {
     }
 
     this.current.tasks().next(data);
-  }
-
-  async continue(data, options: TxJobExecutionOptions = defaultOptions) {
-    this.single = false;
-    this.options = options;
-    this.current = this.stack.shift();
-
-    if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
-      await TxJobRegistry.instance.persist(this);
-    }
-
-    if (this.revert) {
-      this.current.undos().next(data);
-    }
-    else {
-      this.current.tasks().next(data);
-    }
   }
 
   async undoCB(data) {
@@ -258,6 +265,7 @@ export class TxJob {
   }
 
   upJSON(json: TxJobJSON) {
+    console.log("JOB::upJSON: " + this.uuid);
     TxJobRegistry.instance.replace(this.uuid, json.uuid, this);
 
     this.name = json.name;
@@ -269,24 +277,30 @@ export class TxJob {
     this.stack = [];
     json.stack.split(',').forEach(name => {
       if (name !== '') {
-        this.add(TxMountPointRegistry.instance.get(name));
+        console.log("JOB:upJSON: in stack " + name);
+        this.stack.push(TxMountPointRegistry.instance.get(name));
       }
-    });    
+    });
 
     this.trace = [];
     json.trace.split(',').forEach(name => {      
       if (name !== '') {
-        let mp = TxMountPointRegistry.instance.get(name)
-  
-        this.subscribe(mp);
-        this.trace.push(mp);
+        console.log("JOB:upJSON: in track " + name);
+        this.trace.push(TxMountPointRegistry.instance.get(name));
       }
     }); 
 
     this.block = [];
     json.block.split(',').forEach(name => {
+      console.log("JOB:upJSON: blokc = json.block = " + json.block);
+      console.log("JOB:upJSON: name = " + name);
       if (name !== '') {
-        this.block.push(TxMountPointRegistry.instance.get(name));
+
+        console.log("JOB:upJSON: in loop of block json.block = " + json.block);
+        let mp = TxMountPointRegistry.instance.get(name);
+
+        this.subscribe(mp);
+        this.block.push(mp);
       }
     });
 

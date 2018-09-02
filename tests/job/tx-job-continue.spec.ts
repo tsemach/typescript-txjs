@@ -18,6 +18,7 @@ describe('Job Class - Continue', () => {
    */
 
   it('tx-job-continue-spec: check C1-C2-C3 upJSON with continue', (done) => {
+    logger.info('tx-job-continue-spec: check C1-C2-C3 upJSON with continue');
     new C1Component();
     new C2Component();
     new C3Component();
@@ -62,9 +63,10 @@ describe('Job Class - Continue', () => {
   });
 
   it('tx-job-continue-spec: check C1-C2-C3 toJSON with continue', (done) => {
-    let C1 = new C1Component();
-    let C2 = new C2Component();
-    let C3 = new C3Component();
+    logger.info('tx-job-continue-spec: check C1-C2-C3 toJSON with continue');
+    new C1Component();
+    new C2Component();
+    new C3Component();
     let uuid = short().new();
 
     let job = new TxJob();
@@ -104,7 +106,7 @@ describe('Job Class - Continue', () => {
         done();
       });                
 
-    job.continue(new TxTask({
+    job.continue(new TxTask<Head>({
         method: 'continue',
         status: ''
       },

@@ -171,4 +171,57 @@ describe('Job Class', () => {
     );
     
   });
+
+  it('tx-job-execute-until.spec: check stopping at C2 with destroy then rebuild and continue', (done) => {
+    logger.info('running: tx-job-execute-until.spec: check stopping at C2 with destroy then rebuild and continue');
+    let persist = new Persist();
+    TxJobRegistry.instance.driver = persist;
+
+    new C1Component();
+    new C2Component();
+    new C3Component();
+
+    let job1 = new TxJob('job-1'); // or create through the TxJobRegistry
+
+    job1.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
+    job1.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
+    job1.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+
+    job1.getIsStopped().subscribe(
+      async (data) => {
+        logger.info('[job-execute-until-test] job.getIsStopped: run until - data:' + JSON.stringify(data, undefined, 2));
+        expect(data['head']['method']).to.equal("from C1");
+        expect(data['head']['status']).to.equal("ok");
+        expect(persist.read(job1.getUuid()).uuid).to.equal(job1.getUuid());
+        expect(persist.read(job1.getUuid()).current).to.equal('GITHUB::GIST::C2');
+        expect(TxJobRegistry.instance.has(job1.getUuid())).to.equal(false);
+
+        let job2 = await TxJobRegistry.instance.rebuild(job1.getUuid());
+        job2.getIsCompleted().subscribe(
+          (data) => {
+            console.log("CONTINUE JOB2 = " + JSON.stringify(data, undefined, 2));
+
+            done();
+          });
+        job2.continue(new TxTask({
+            method: 'continue',
+            status: ''
+          },
+          {something: 'more data here'}));
+
+      });
+
+    job1.execute(new TxTask({
+        method: 'create',
+        status: ''
+      },
+      {something: 'more data here'}
+      ),
+      {
+        persist: {ison: true, destroy: true},
+        execute: {until: 'GITHUB::GIST::C2'}
+      } as TxJobExecutionOptions
+    );
+  });
+
 });

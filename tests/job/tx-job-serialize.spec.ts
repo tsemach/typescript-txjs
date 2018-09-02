@@ -64,6 +64,7 @@ describe('Job Class - Serialize', () => {
    */
 
   it('check job-serialize.spec: toJSON | upJSON serialize', (done) => {
+    logger.info('tx-job-serialize.spec: check job-serialize.spec: toJSON | upJSON serialize');
 
     new C1Component();
     new C2Component();
@@ -86,6 +87,7 @@ describe('Job Class - Serialize', () => {
   });
 
   it('check job-serialize.spec: upJSON serialize with continue', (done) => {
+    logger.info('tx-job-serialize.spec: check job-serialize.spec: upJSON serialize with continue');
 
     new C1Component();
     new C2Component();
@@ -101,7 +103,7 @@ describe('Job Class - Serialize', () => {
       "name": 'GITHUB',
       "uuid": uuid,
       "block": "Symbol(GITHUB_GIST_C1),Symbol(GITHUB_GIST_C2),Symbol(GITHUB_GIST_C3)",
-      "stack": "Symbol(GITHUB_GIST_C2),Symbol(GITHUB_GIST_C3)",
+      "stack": "Symbol(GITHUB_GIST_C3)",
       "trace": "Symbol(GITHUB_GIST_C1)",
       "single": false,
       "revert": false,
