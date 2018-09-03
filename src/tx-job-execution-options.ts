@@ -33,7 +33,7 @@ export class TxJobExecutionOptionsChecker {
     return options.persist.ison === true;
   }
 
-  static isUntil(options, name: string) {
+  static isUntil(options: TxJobExecutionOptions, name: string) {
     if (options.execute === undefined ) {
       return false;
     }
@@ -43,7 +43,7 @@ export class TxJobExecutionOptionsChecker {
     return options.execute.until === name;
   }
 
-  static isDestroy(options) {
+  static isDestroy(options: TxJobExecutionOptions) {
     if ( ! TxJobExecutionOptionsChecker.isPersist(options) ) {
       return false;
     }

@@ -1,5 +1,6 @@
 import createLogger from 'logging'; 
 const logger = createLogger('Job');
+
 import * as short from 'short-uuid';
 const uuid = short();
 
@@ -8,6 +9,7 @@ import { TxMountPoint } from './tx-mountpoint';
 import { TxMountPointRegistry } from './tx-mountpoint-registry';
 import { TxJobRegistry } from './tx-job-resgitry';
 import { TxJobJSON } from "./tx-job-json";
+import { TxTask } from "./tx-task";
 import { TxJobExecutionOptions, TxJobExecutionOptionsChecker } from "./tx-job-execution-options";
 
 export const enum TxDirection {
@@ -23,14 +25,16 @@ let defaultOptions: TxJobExecutionOptions = {
 } as TxJobExecutionOptions;
 
 export class TxJob {
-  isCompleted = new Subject();
-  isStopped = new Subject();
+  isCompleted = new Subject();  // notify when the whole execution is completed.
+  isStopped = new Subject();    // notify when execution reach to it's run-until component.
+  onComponent = new Subject();  // notify the world on any coming in subscribe callback (reply from component).
 
   uuid = uuid.new();
 
-  stack = [];  // mountpoints needs to be run
-  trace = [];  // mountpoints already run
-  block = [];  // all the mountpoints added to this job, useful when need to reexecute the job
+  stack = [];       // mountpoints needs to be run
+  trace = [];       // mountpoints already run
+  block = [];       // all the mountpoints added to this job, useful when need to reexecute the job
+  subscribers = []; // a list of all the subscribes job is registered.
 
   single = false;
   revert = false;
@@ -40,14 +44,15 @@ export class TxJob {
   constructor(private name: string = '') {
     TxJobRegistry.instance.add(this.uuid, this);
   }
-  
-  subscribe(txMountPoint: TxMountPoint) {
-    logger.info(`[TxJob:subscribe] going to add '${txMountPoint.name}' mount point`);    
-    txMountPoint.reply().subscribe(
-      async (data) => {
-        logger.info(`[TxJob:subscribe] got reply, data = ${JSON.stringify(data, undefined, 2)}`);
-        logger.info(`[TxJob:subscribe] before shift to next task, stack.len = ${this.stack.length}`);
 
+  subscribe(txMountPoint: TxMountPoint) {
+    logger.info(`[TxJob:subscribe] [${this.name}] going to add '${txMountPoint.name}' mount point`);
+    const subscribed = txMountPoint.reply().subscribe(
+      async (data) => {
+        logger.info(`[TxJob:subscribe] [${this.name}] got reply, data = ${JSON.stringify(data, undefined, 2)}`);
+        logger.info(`[TxJob:subscribe] [${this.name}] before shift to next task, stack.len = ${this.stack.length}`);
+
+        this.onComponent.next(new TxTask<{name: string}>({name: txMountPoint.name}, {data: data}));
         if (this.revert) {
           this.undoCB(data);
 
@@ -55,7 +60,7 @@ export class TxJob {
         }
       
         if (this.stack.length === 0) {
-          logger.info(`[TxJob:subscribe] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}`);
+          logger.info(`[TxJob:subscribe] [${this.name}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}`);
           this.finish(data);
 
           return;
@@ -70,21 +75,20 @@ export class TxJob {
          * and send the data to it's tasks subject.
          */
         let next = this.shift();
-        logger.info(`[TxJob:subscribe] going to run next task: ${next.name}`);
+        logger.info(`[TxJob:subscribe] [${this.name}] going to run next task: ${next.name}`);
 
         if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
           await TxJobRegistry.instance.persist(this);
         }
 
         if (TxJobExecutionOptionsChecker.isUntil(this.options, next.name)) {
-          logger.info(`[TxJob:subscribe] found execute.until, on ${next.name} mount point`);
+          logger.info(`[TxJob:subscribe] [${this.name}] found execute.until, on ${next.name} mount point`);
 
           if (TxJobExecutionOptionsChecker.isDestroy(this.options)) {
-            logger.info(`[TxJob:subscribe] going to destroy job \'${this.getUuid()}\', on ${next.name} mount point`);
+            logger.info(`[TxJob:subscribe] [${this.name}] going to destroy job \'${this.getUuid()}\', on ${next.name} mount point`);
 
             this.release();
           }
-
           this.getIsStopped().next(data);
 
           return;
@@ -93,12 +97,13 @@ export class TxJob {
         next.tasks().next(data);
       },
       (err) => {
-        logger.info('[TxJob:subscribe] error is called');
+        logger.info(`[TxJob:subscribe] [${this.name}] error is called`);
       },
       () => {
-        logger.info('[TxJob:subscribe] complete is called')
+        logger.info(`[TxJob:subscribe] [${this.name}] complete is called`)
       }
     );
+    this.subscribers .push(subscribed);
   }
 
   add(txMountPoint: TxMountPoint) {    
@@ -135,19 +140,16 @@ export class TxJob {
       return;
     }
 
-    //this.current = this.stack.shift();
-    //this.current = this.shift();
-
     if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
       await TxJobRegistry.instance.persist(this);
     }
 
     if (this.revert) {
       this.current.undos().next(data);
+
+      return;
     }
-    else {
-      this.current.tasks().next(data);
-    }
+    this.current.tasks().next(data);
   }
 
   /**
@@ -240,8 +242,8 @@ export class TxJob {
 
   release() {
     TxJobRegistry.instance.del(this.getUuid());
-    this.block.forEach(mp => {      
-      mp.reply().unsubscribe();
+    this.subscribers.forEach(cb => {
+      cb.unsubscribe();
     });
   }
 
@@ -265,7 +267,6 @@ export class TxJob {
   }
 
   upJSON(json: TxJobJSON) {
-    console.log("JOB::upJSON: " + this.uuid);
     TxJobRegistry.instance.replace(this.uuid, json.uuid, this);
 
     this.name = json.name;
@@ -277,26 +278,21 @@ export class TxJob {
     this.stack = [];
     json.stack.split(',').forEach(name => {
       if (name !== '') {
-        console.log("JOB:upJSON: in stack " + name);
         this.stack.push(TxMountPointRegistry.instance.get(name));
+
       }
     });
 
     this.trace = [];
     json.trace.split(',').forEach(name => {      
       if (name !== '') {
-        console.log("JOB:upJSON: in track " + name);
         this.trace.push(TxMountPointRegistry.instance.get(name));
       }
     }); 
 
     this.block = [];
     json.block.split(',').forEach(name => {
-      console.log("JOB:upJSON: blokc = json.block = " + json.block);
-      console.log("JOB:upJSON: name = " + name);
       if (name !== '') {
-
-        console.log("JOB:upJSON: in loop of block json.block = " + json.block);
         let mp = TxMountPointRegistry.instance.get(name);
 
         this.subscribe(mp);
@@ -322,6 +318,9 @@ export class TxJob {
     return this.isStopped;
   }
 
+  getOnComponent() {
+    return this.onComponent;
+  }
   getName() {
     return this.name;
   }
