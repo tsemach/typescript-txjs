@@ -128,7 +128,7 @@ Once a job is persist it's state saved on the storage and removed from registry 
 So to continue the exection you need to do:
 ````
 // on any part in the code
-let job = TxJobRegistry.instance.rebuild(uuid); // rebuild the job accorsing to it's uuid;
+let job = TxJobRegistry.instaprivate _driver: TxJobPersistAdapter = null;nce.rebuild(uuid); // rebuild the job accorsing to it's uuid;
 
 Job.continue(new TxTask(..));
 ````
@@ -146,6 +146,8 @@ to all components, to a single one or to a group of components. This tool is gre
 - **External Storage Adapter** - **done since 0.0.21** add an interface so Job cab be store itself to external storage.
 
 - **MountPoint Names String Literal** - change mountpoint names to be TypeScript string literal instead of just string.   
+
+- **Persistence Adapter Per Type** - the ability to have different persistent drivers so different jobs can use different persistent driver.   
    
 ## Conribution
 You can send me pull request on [GitHub] (https://github.com/tsemach/typescript-txjs) or you can 
