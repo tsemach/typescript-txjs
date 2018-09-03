@@ -27,24 +27,21 @@ describe('Job Class', () => {
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+    job.release();
 
-    try {
-      job.release();
-      let MP1 = TxMountPointRegistry.instance.get('GITHUB::GIST::C1');
-
-      MP1.reply().next(new TxTask({
-          method: 'create',
-          status: ''
-        },
-        {something: 'more data here'})
-      );
-      logger.info('should getting exception of \'object unsubscribed\'');
+    // make sure no reply is coming into job.
+    job.getOnComponent().subscribe((data) => {
+      logger.error(`ERROR: shouldn\'t ${job.getName()} getting any message`);
       expect(0).to.equal(1);
-    }
-    catch (e) {
-      logger.info('release looks ok, e = ' + e.toString());
-      expect(e.toString()).to.equal('ObjectUnsubscribedError: object unsubscribed');
-    }
+    });
+
+    let MP1 = TxMountPointRegistry.instance.get('GITHUB::GIST::C1');
+    MP1.reply().next(new TxTask({
+        method: 'create',
+        status: ''
+      },
+      {something: 'more data here'})
+    );
 
   });
 });
