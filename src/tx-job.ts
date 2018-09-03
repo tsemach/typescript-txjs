@@ -58,7 +58,11 @@ export class TxJob {
 
           return;
         }
-      
+
+        if (this.single) {
+          this.getIsStopped().next(data);
+        }
+
         if (this.stack.length === 0) {
           logger.info(`[TxJob:subscribe] [${this.name}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}`);
           this.finish(data);
@@ -67,6 +71,11 @@ export class TxJob {
         }
 
         if (this.single) {
+          if (TxJobExecutionOptionsChecker.isDestroy(this.options)) {
+            logger.info(`[TxJob:subscribe] [${this.name}] single step - going to destroy job \'${this.getUuid()}\', on ${this.current.name} mount point`);
+
+            this.release();
+          }
           return
         }
 
