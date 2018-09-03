@@ -26,8 +26,7 @@ export class GitHubJob extends TxJob {
 let job = new GitHubJob('GitHubJob');
 
 job.execute(new TxTask(
-  'github job',
-  '',
+  {name: 'github job', status: ''},
   {something: 'more data here'})
 );
 

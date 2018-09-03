@@ -30,23 +30,24 @@
 
 ## Description
 **TxJS** implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.com/) and [TypeSript](https://www.typescriptlang.org/).
-In many cases an applciation needs to preform a flow (some job) which is a collection of small "steps" ( a component).
+In many cases application needs to preform a flow (some job) which is a collection of small "steps" (a component).
 This get complicated when some of the steps are asynchronous specially in nodejs environment.    
 
-So this module aim to provide a set of classes helping to solve such a problem.
+So this module aim to provide a set of classes helping to modeling a design solving such problems.
 
-* **Component** - is one of the building block of a job. it is a regular class (usually a singleton) which does some work. 
-BUT a component has NO API to activate its work, you can say that components are `floating in the air`. 
-The only way to communicate with a component is by *send it a message*.
+* **Component** - is one of the building block of a job. it is just a regular class (usually a singleton) which does any work. 
+BUT a component has NO API to activate its work, you can say that components is kind of `floating in the air`. 
+The only way to communicate with a component is by *send it a message*. What unique about a component is 
+that its include a "mountpoint". Using this *mountpoint* the component able to communicate with the world. 
 
 * **MountPoint** - is a class which has two way communication channels with the world. 
-A component use a mountpoint to get messages from the world and to send messages back reply. 
-Mountpoint is using two RxJs Subjects to get message and to send back replies.
+A component use a mountpoint to get messages on "*tasks*" channel and reply back "*reply*" channel. 
+Mountpoint is using two RxJs Subjects to get and send back messages.
 
-* **Job** - is a class store a collection of components which are running one by another to 
+* **Job** - is a class store collection of components which are running one by another to 
 for fill a complete flow. Output of previous component is the input to the next one. 
-A job use the component's mountpoint to send it task to the component getting reply back and 
-send to next one. 
+A job use the component's mountpoint to send its task then while getting reply it 
+send it to next one. 
 
     >One of strong feature of a Job to serialize / deserialize. In the middle of a Job execution 
     you serialize it to a JSON, store it then later on rebuild it and continue it execution 
@@ -56,10 +57,12 @@ send to next one.
 * **MountPoint Repository** - A class generate and store mountpoints by their names or Symbols.
 So by getting the mountpoint from the registry you can use it to communicate with a component.
 
-* **Task** - a wrapper object you data travel between the components during exection. It include 
+* **Task** - a wrapper object you data travel between the components during execution. It include 
 a head property and data property. The head is a generic type where the data is any type. 
 
-* **Job Registry** - a class store Job by their uuid.
+* **Job Registry** - a class store Job by their uuid. Also you can set the job registry with a "persistence driver" use
+by a job to persist them self (according to execution options). Currently the driver is global for al jobs, in the later 
+releases it will include more detail scoping so you will be able to different persistence driver to different jobs.   
 
 ## How To Use It
 First create a component/s see the quick start for example.
@@ -86,28 +89,33 @@ Use the TxMountPointRegitry to retreive the component's mountpoint.
 #### Adding Job
 ##### TxJob Creation and Running
 
-To contruct a set a component running one after the other you can use the Job class.
+To construct a set of components running one after the other you can use the Job class.
 - First create: `let job = new Job('job-1')`
 - Then add some component to it by using add method: `job.add(TxMountPointRegistry.instnace.get(<component-name>)`
-- Finaly you can run by *execute* | *step* | *continue* methods.
+- Finally you can run by *execute* | *step* | *continue* methods to launch the execution.
 
 ##### TxJob events
 TxJob send two events **isCompleted** and **isStopped**.
 - **isCompleted** - is send when all components where executed. use job.getIsCompleted().subscribe(..);
 - **isStopped** - on single step, after each step is completed. use job.getIsStopped().subscribe(..);
+- **onComponent** - notify on every reply from a component. use job.getOnComponent().subscribe(..); 
 
 ## Persistence
-The presistence enable you to serialize a certain job, store it in some external storage then reconstruct later one and continue the execution (by *continue* method) right in the same place. To use the pesistence you have two options one using the *TxJobPersistAdapter* other use low level *job.toJSON* and *job.upJSON* methods.
+The persistence enable you to serialize certain job, store it in some external storage then reconstruct later one and 
+continue the execution (by *continue* method) exactly from the same place. To use the persistence you have two options one using 
+the *TxJobPersistAdapter* or using the low level *job.toJSON* and *job.upJSON* methods.
 
 ##### Using TxPersistenceAdapter
 - create a class which implements TxJobPersistAdapter. Implement save and read method. 
-- `TxJobPersistAdapter.save(uuid: string, json: TxJobJSON, name?: string)`: this will called by the framwork when a job needs to persist.
+- `TxJobPersistAdapter.save(uuid: string, json: TxJobJSON, name?: string)`: this will called by the framework when a job needs to persist.
 - `TxJobPersistAdapter.read(uuid: string): TxJobJSON`: this will call by framework when it need to reconstruct a Job.
 - register you class on the *TxJobRegistry* as follow:
   ````
   let persist = new Persist(); // class that implements TxJobPersistAdapter
   TxJobRegistry.instance.driver = persist;
   ```` 
+>Note: the **TxJobJSON** is the job serialize type. 
+
 This will store the job state before execute each component. The method save is up to you your storage implementation.
 Usually persistence goes with with *run-until* execution option. Using execute with run-until:
 ````
@@ -381,7 +389,10 @@ export class D1Component {
 ----           
 ##**TxJob**
 - A class able to store several components and execute them as a chain.
-- First task send to the first component, it's reply send to the second component and so on. 
+- First task send to the first component, it's reply send to the second component and so on.
+
+>**IMPORTANT**: after finishing using a job to MUST call to release method on the job otherwise you will 
+suffer memory leaks as well as un necessary callbacks calling.   
 
 For example a job may looks like that:                
 ````typescript

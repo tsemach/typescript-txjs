@@ -29,16 +29,12 @@ export class DecoratorJob extends TxJob {
 let job = new DecoratorJob('GitHubJob');
 
 job.execute(new TxTask(
-  'decorator job',
-  '',
+  {name: 'decorator job', status: ''},
   {something: 'decorator more data here'}
 ));
 
 job.undo(new TxTask(
-  'decorator undos',
-  '',
+  {name: 'decorator undos', status: ''},
   {something: 'decorator undos data here'}
 ));
 
-       
-;

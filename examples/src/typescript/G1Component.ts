@@ -15,7 +15,7 @@ export class G1Component {
         // G1 got a task then send reply to mountpoint.
         let M1 = TxMountPointRegistry.instance.get('GITHUB::G1');
 
-        M1.reply().next(new TxTask('from G1', '', task['data']));
+        M1.reply().next(new TxTask({name: 'from G1', status: ''}, task['data']));
       }
     )
 

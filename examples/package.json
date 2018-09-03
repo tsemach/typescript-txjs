@@ -11,6 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "logging": "^3.2.0",
-    "rx-txjs": "file:../rx-txjs-0.0.6.tgz"
+    "rx-txjs": "file:../rx-txjs-0.0.21.tgz"
   }
 }
