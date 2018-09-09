@@ -12,7 +12,7 @@ import * as uuid from 'uuid/v4';
 
 import { TxTYPES } from "../../src/tx-injection-types";
 import { TxConnector } from "../../src/tx-connector";
-import { TxConnectPoint } from "../../src/tx-connect-point";
+import { TxConnectPoint } from "../../src/tx-connectpoint";
 
 @injectable()
 export class TxConnectorRabbitMQ implements TxConnector {

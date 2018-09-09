@@ -52,7 +52,7 @@ export class TxJob {
         logger.info(`[TxJob:subscribe] [${this.name}] got reply, data = ${JSON.stringify(data, undefined, 2)}`);
         logger.info(`[TxJob:subscribe] [${this.name}] before shift to next task, stack.len = ${this.stack.length}`);
 
-        this.onComponent.next(new TxTask<{name: string}>({name: txMountPoint.name}, {data: data}));
+        this.onComponent.next(new TxTask<{name: string}>({name: <string>txMountPoint.name}, {data: data}));
         if (this.revert) {
           this.undoCB(data);
 

@@ -5,7 +5,8 @@ const logger = createLogger('MountPointRegistry');
 
 import { TxRegistry } from './tx-registry';
 import { TxMountPoint } from './tx-mountpoint';
-import type = Mocha.utils.type;
+import { TxMountPointRxJS } from './tx-mountpoint-rxjs';
+import {TxConnectPoint} from "./tx-connectpoint";
 
 export class TxMountPointRegistry extends TxRegistry<TxMountPoint, string | Symbol> {
   private static _instance: TxMountPointRegistry;
@@ -19,7 +20,7 @@ export class TxMountPointRegistry extends TxRegistry<TxMountPoint, string | Symb
   }
 
   create(name: string | Symbol) {
-    const mp = new TxMountPoint(name);
+    const mp = new TxMountPointRxJS(name);
 
     if (typeof name === 'string') {
       if (name === undefined || name.length === 0) {
@@ -32,6 +33,23 @@ export class TxMountPointRegistry extends TxRegistry<TxMountPoint, string | Symb
       return mp;
     }
     return this.add(name, mp);
-
   }
+
+  connect(name: string | Symbol) {
+    const cp = new TxConnectPoint();
+    cp.name = name;
+
+    if (typeof name === 'string') {
+      if (name === undefined || name.length === 0) {
+        return cp;
+      }
+      return this.add(name, cp);
+    }
+
+    if (name === undefined) {
+      return cp;
+    }
+    return this.add(name, cp);
+  }
+
 }
