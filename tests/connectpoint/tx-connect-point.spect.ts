@@ -41,6 +41,7 @@ describe('Connect Point Class', () => {
 
   it('mountpoint.spec: send task from gist-get-filename to gist-get-raw-url', () => {
 
+    let set = new Set<string>();
 
     const txContainer = new Container();
     txContainer.bind<TxConnectPoint>(TxTYPES.TxConnectPoint).to(TxConnectPoint);
@@ -56,9 +57,6 @@ describe('Connect Point Class', () => {
     CP2.tasks().connect('CP2', 'tasks:connect');
     CP2.reply().connect('CP2', 'reply:connect');
     CP2.undos().connect('CP2', 'undos:connect');
-
-    //expect(mountpoint.name).to.equal('Symbol(GITHUB::GIST::C1)');
-
   });
 
 });
