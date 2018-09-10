@@ -2,14 +2,14 @@ import { injectable, inject } from "inversify";
 import "reflect-metadata";
 import * as uuid from 'uuid/v4';
 
-/**
- * C2C - part of component-2-component communication
- * use as TxConnector implementation class for RabbitMQ.
- */
 import { TxConnector } from "./tx-connector"
 
+/**
+ * C2C - part of component-2-component communication.
+ * use as default TxConnector implementation for express routes.
+ */
 @injectable()
-export class TxConnectorRabbitMQ implements TxConnector {
+export class TxConnectorExpress implements TxConnector {
   subscribeBC: (any) => void;
 
   id = uuid();
@@ -17,16 +17,16 @@ export class TxConnectorRabbitMQ implements TxConnector {
 
   }
   connect(service: any, route: any) {
-    console.log(`TxConnectorRabbit: ${service}-${route}-${this.id}`);
+    console.log(`TxConnectorExpress: ${service}-${route}-${this.id}`);
   }
 
   subscribe(cb: (any) => void) {
     this.subscribeBC = cb;
-    console.log("subscribe: TxConnectorRabbit Method not implemented.");
+    console.log("subscribe: TxConnectorExpress Method not implemented.");
   };
 
   next(any: any) {
     this.subscribeBC(any);
-    console.log("next: TxConnectorRabbit Method not implemented.");
+    console.log("next: TxConnectorExpress Method not implemented.");
   }
 }
