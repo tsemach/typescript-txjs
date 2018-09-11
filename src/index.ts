@@ -9,3 +9,5 @@ export * from './tx-component'
 export * from './tx-job-execution-options'
 export * from './tx-job-persist-adapter'
 export * from './tx-job-json'
+export * from './tx-connector'
+

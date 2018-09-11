@@ -1,6 +1,13 @@
 # Application Execution Model
 
 ## What's New 
+**since 0.0.26**
+- **`C2C`** adding Component-2-Component direct communication over configurable transport I/S with builtin support for RabbitMQ, this is big, see below for more details.
+- **`TxMountPoint`** is now interface as part of C2C change.
+- **`TxMountPointRxJS`** is a mountpoint using RxJS implement TxMountPoint.
+- **`TxQueuePoint`** is a mountpoint using message queue as part of C2C. It use message queue to directly communicate between components. 
+- **`TxRoutePoint`** is a mountpoint using express as part of C2C. It use node express to directly communicate between components (not full implement yet).
+
 **since 0.0.21**
 - **`TxExecuteOption`** add execution options object able to influence the execution flow.
 - **`Option: run until`** an exection option of running a job until it reaching a certain component.
@@ -141,17 +148,81 @@ let job = TxJobRegistry.instaprivate _driver: TxJobPersistAdapter = null;nce.reb
 Job.continue(new TxTask(..));
 ````
 
-## Plan Features for Next Version
-- **ExecuteOptions** - **done since 0.0.21** an object able to influence on the execution of the components like 'run until' or 'stop if' etc.
+## C2C - Component-2-Component Communication
+This feature enable you to set a direct communication channels between components. This save you 
+from the hassle of configure the I/S just to transfer data between components. There are two types 
+of data transports *'message queue'* and *'node express'* the library support.  
+### How It Work
+  
+- **set you driver** - first you need to define a connector driver. a driver is an object implement 
+**`TxConnector`** interface. 
+>**NOTE:** if you are using then you can use the build support for RabbitMQ, to can skip the driver stuff.      
 
-- **Component-to-Component** - a communication between components which are not on the same 
+> See the builtin TxConnectorRabbitMQ for an example. 
+```typescript
+
+export interface TxConnector {
+  subscribe: (any) => void;
+
+  connect(service, route);
+  next(service: string, route: string, data: any);
+  close();
+}
+
+```
+The driver is one for all components. API is as follow:
+1. **subscribe** - a registration callback method where you will get the data.
+2. **next** - sending data to other service on a route.
+3. **connect** - set the connection. In the case RabbitMQ is set the exchange/queue/binding. This way other components may recognaize you.
+
+Once you driver is working you need to register to the TxMountPointRegistry as:
+````typescript
+TxMountPointRegistry.instance.setQueueDriver(YourClass);
+
+// for example
+class MyConnector implements TxConnector {
+  ...
+}
+TxMountPointRegistry.instance.setQueueDriver(MyConnector);
+````
+- **use subscribe / next** - now you can define you connector (or use the builtin RabbitMQ connector) 
+to define subscribe and next methods to receie and send data.
+
+See the following example:
+````typescript
+export class Q1Component {
+  // get a queue point from the registry. please note we are using queue driver.
+  queuepoint: TxMountPoint = TxMountPointRegistry.instance.queue('GITHUB::API::AUTH');
+
+  constructor() {
+  }
+
+  async init() {
+    // call to connect one time. this call the connect method on the connector you defined earlier (or use the builtin).
+    // other components can address you on 'service-1.queuepoint' on route ley 'Q1Component.tasks'
+    await this.queuepoint.tasks().connect('service-1.queuepoint', 'Q1Component.tasks');
+
+    // incoming data from other components are received here using the subscribe method. 
+    await this.queuepoint.tasks().subscribe(
+      async (data) => {
+        console.log("[Q1Component:subscribe] got data = " + data);
+
+        // sending reply back to sender. 
+        await this.queuepoint.tasks().next('service-2.queuepoint', 'Q2Component.tasks', {from: 'service-1.queuepoint', data: 'data'});
+      });
+
+    return this;
+  }
+}
+````
+
+## Plan Features for Next Version
+- **Component-to-Component** - **done since 0.0.21** a communication between components which are not on the same 
 process. This will encapsulate  communication between components via some communication channel like message queue or HTTP, For example in case of microservices architechture  where one component need to send a message to other component on a different service and get reply back. 
 
 - **Record / Repaly** - able to save all the data passing between components of certain Job's 
 execution and keep track of what component receive what data. Then the ability to play it back 
 to all components, to a single one or to a group of components. This tool is great for regression tests.
-
-- **External Storage Adapter** - **done since 0.0.21** add an interface so Job cab be store itself to external storage.
 
 - **MountPoint Names String Literal** - change mountpoint names to be TypeScript string literal instead of just string.   
 
@@ -321,6 +392,45 @@ module.exports = new Component();
        .
     ````
 ----
+
+
+
+
+
+##**TxQueuePoint** 
+  - a class implement TxMountPoint interface using message queue connector as part of C2C.
+  - it include tree different connectors for *tasks*, *reply* and *undos*.
+    
+  Defining a queue point is as:   
+  ````typscript    
+  // get a new queue-point under the name 'GITHUB::GIST::C2' and save on the registry
+  queuepoint = TxMountPointRegistry.instance.queue('GITHUB::GIST::C2');    
+  ````
+  queuepoint (as mountpoint) objects are kept in TxMountPointRegistry by their identifier (a selector) which could be a string or a Symbol.
+
+- **C2C**
+    - first define a driver (see C2C section).
+    - then define a queuepoint as follow:       
+    ````typescript
+      queuepoint: TxMountPoint = TxMountPointRegistry.instance.queue('GITHUB::API::AUTH');
+
+      constructor() {
+      }
+
+      async init() {
+        await this.queuepoint.tasks().connect('example-1.queuepoint', 'Q1Component.tasks');
+        await this.queuepoint.tasks().subscribe(
+          async (data) => {
+            console.log("[Q1Component:subscribe] got data = " + data);
+            await this.queuepoint.tasks().next('example-2.queuepoint', 'Q2Component.tasks', {from: 'example-1.queuepoint', data: 'data'});
+          });
+
+        return this;
+      }   
+      .
+      .      
+    ````
+----
 ##**TxMountPointRegistry**
   A singlton class repository keep mapping of mountpoint's name or symbol --> mountpoint object instance.
   The registry is use to create to create a now mountpoint object and store it's reference in the repository.
@@ -343,6 +453,12 @@ module.exports = new Component();
   ````typescript
   // create a new mountpoint object with a given name 'GITHUB:G1'
   mountpoint = TxMountPointRegistry.instance.get('GITHUB::G1');
+  ````
+
+  * C2C - Get a queue point with queue driver connector inject into it.
+  ````typescript
+  // create a new queuepoint object with a given name 'GITHUB:AUTH'
+  queuepoint = TxMountPointRegistry.instance.queue('GITHUB::AUTH');
   ````
 ----
 ##**TxComponent**
