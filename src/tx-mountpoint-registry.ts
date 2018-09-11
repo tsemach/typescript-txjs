@@ -6,7 +6,7 @@ const logger = createLogger('MountPointRegistry');
 import { TxRegistry } from './tx-registry';
 import { TxMountPoint } from './tx-mountpoint';
 import { TxMountPointRxJS } from './tx-mount-point-rxjs';
-import { TxQueuePoint } from "./tx-queue-point";
+import { TxQueuePoint } from "./tx-queuepoint";
 import { TxRoutePoint } from "./tx-route-point";
 import { Container } from "inversify";
 import { TxTYPES } from "./tx-injection-types";

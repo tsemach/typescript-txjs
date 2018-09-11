@@ -14,7 +14,7 @@ import * as uuid from 'uuid/v4';
 
 import { TxTYPES } from "../../src/tx-injection-types";
 import { TxConnector } from "../../src/tx-connector";
-import { TxQueuePoint } from "../../src/tx-queue-point";
+import { TxQueuePoint } from "../../src/tx-queuepoint";
 
 @injectable()
 export class TxConnectorRabbitMQ implements TxConnector {
@@ -44,8 +44,8 @@ export class TxConnectorRabbitMQ implements TxConnector {
 
 describe('Queue Point Class', () => {
 
-  it('tx-quue-point.spec: try inject TxConnectorRabbitMQ to TxQueuePoint', () => {
-    logger.info('tx-quue-point.spec: try inject TxConnectorRabbitMQ to TxQueuePoint');
+  it('tx-queue-point.spec: try inject TxConnectorRabbitMQ to TxQueuePoint', () => {
+    logger.info('tx-queue-point.spec: try inject TxConnectorRabbitMQ to TxQueuePoint');
     let set = new Set<string>();
 
     const txContainer = new Container();
@@ -82,8 +82,8 @@ describe('Queue Point Class', () => {
     assert(isUUID((<TxConnectorRabbitMQ>CP2.undos()).id));
   });
 
-  it('tx-quue-point.spec: binding TxConnectorRabbitMQ by variable', () => {
-    logger.info('tx-quue-point.spec: binding TxConnectorRabbitMQ by variable')
+  it('tx-queue-point.spec: binding TxConnectorRabbitMQ by variable', () => {
+    logger.info('tx-queue-point.spec: binding TxConnectorRabbitMQ by variable')
     const txContainer = new Container();
     txContainer.bind<TxQueuePoint>(TxTYPES.TxQueuePoint).to(TxQueuePoint);
 

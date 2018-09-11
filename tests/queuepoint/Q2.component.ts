@@ -8,16 +8,18 @@ export class Q2Component {
   }
 
   async init() {
-    await this.queuepoint.tasks().connect('example-2.queuepoint', 'Q2Component.tasks');
+    await this.queuepoint.tasks().connect('service-2.queuepoint', 'Q2Component.tasks');
     this.queuepoint.tasks().subscribe(
       (data) => {
         console.log("[Q2Component:subscribe] got data = " + data);
-      });
+      }
+    );
   }
 
   async send() {
-    await this.queuepoint.tasks().next('example-1.queuepoint', 'Q1Component.tasks', 'from Q2Component');
+    await this.queuepoint.tasks().next('service-1.queuepoint', 'Q1Component.tasks', 'from Q2Component');
   }
+
 }
 
 

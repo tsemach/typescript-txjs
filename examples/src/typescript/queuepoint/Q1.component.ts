@@ -1,6 +1,6 @@
 
-import { TxMountPoint, TxMountPointRegistry, TxTask } from '../../../../src/';
-//import { TxMountPoint, TxMountPointRegistry, TxTask } from 'typescript-rabbitmq';
+//import { TxMountPoint, TxMountPointRegistry, TxTask } from '../../../../src/';
+import { TxMountPoint, TxMountPointRegistry, TxTask } from 'typescript-rabbitmq';
 
 export class Q1Component {
   queuepoint: TxMountPoint = TxMountPointRegistry.instance.queue('GITHUB::API::AUTH');
