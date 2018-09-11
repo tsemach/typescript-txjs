@@ -2,7 +2,7 @@
 
 ## What's New 
 **since 0.0.26**
-- **`C2C`** adding Component-2-Component direct communication over configurable transport I/S with builtin support for RabbitMQ, this is big, see below for more details.
+- **`C2C`** adding Component-2-Component direct communication over configurable transport I/S with builtin support for RabbitMQ even on different process, this is big, see below for more details.
 - **`TxMountPoint`** is now interface as part of C2C change.
 - **`TxMountPointRxJS`** is a mountpoint using RxJS implement TxMountPoint.
 - **`TxQueuePoint`** is a mountpoint using message queue as part of C2C. It use message queue to directly communicate between components. 
@@ -151,12 +151,12 @@ Job.continue(new TxTask(..));
 ## C2C - Component-2-Component Communication
 This feature enable you to set a direct communication channels between components. This save you 
 from the hassle of configure the I/S just to transfer data between components. There are two types 
-of data transports *'message queue'* and *'node express'* the library support.  
+of data transports the library support *'message queue'* and *'node express'*. 
 ### How It Work
   
 - **set you driver** - first you need to define a connector driver. a driver is an object implement 
 **`TxConnector`** interface. 
->**NOTE:** if you are using then you can use the build support for RabbitMQ, to can skip the driver stuff.      
+>**NOTE:** if you are using RabbitMQ message queue then you can use the builtin support for RabbitMQ, so safly you can skip the driver stuff. 
 
 > See the builtin TxConnectorRabbitMQ for an example. 
 ```typescript
@@ -172,10 +172,10 @@ export interface TxConnector {
 ```
 The driver is one for all components. API is as follow:
 1. **subscribe** - a registration callback method where you will get the data.
-2. **next** - sending data to other service on a route.
+2. **next** - sending data to other service on a serivce/route.
 3. **connect** - set the connection. In the case RabbitMQ is set the exchange/queue/binding. This way other components may recognaize you.
 
-Once you driver is working you need to register to the TxMountPointRegistry as:
+Once your driver is working you need to register it into TxMountPointRegistry as:
 ````typescript
 TxMountPointRegistry.instance.setQueueDriver(YourClass);
 
@@ -185,8 +185,8 @@ class MyConnector implements TxConnector {
 }
 TxMountPointRegistry.instance.setQueueDriver(MyConnector);
 ````
-- **use subscribe / next** - now you can define you connector (or use the builtin RabbitMQ connector) 
-to define subscribe and next methods to receie and send data.
+- **use subscribe / next** - now you can define your connector (or use the builtin RabbitMQ connector) 
+to define subscribe and next methods to receive and send data.
 
 See the following example:
 ````typescript
