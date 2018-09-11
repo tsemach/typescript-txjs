@@ -7,6 +7,7 @@ import { TxMountPoint } from "./tx-mountpoint";
 
 @injectable()
 export class TxQueuePoint implements TxMountPoint {
+
   @inject(TxTYPES.TxConnector) private _tasks: TxConnector;
   @inject(TxTYPES.TxConnector) private _reply: TxConnector;
   @inject(TxTYPES.TxConnector) private _undos: TxConnector;
@@ -35,4 +36,5 @@ export class TxQueuePoint implements TxMountPoint {
   undos() {
     return this._undos;
   }
+
 }

@@ -1,6 +1,8 @@
 
 export interface TxConnector {
-  connect(service, route);
   subscribe: (any) => void;
-  next(any);
+
+  connect(service, route);
+  next(service: string, route: string, data: any);
+  close();
 }

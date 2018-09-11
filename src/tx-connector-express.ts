@@ -29,4 +29,7 @@ export class TxConnectorExpress implements TxConnector {
     this.subscribeBC(any);
     console.log("next: TxConnectorExpress Method not implemented.");
   }
+
+  close() {
+  }
 }

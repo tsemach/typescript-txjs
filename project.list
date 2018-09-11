@@ -28,7 +28,7 @@ tests/job/tx-job-execute.spec.ts
 tests/job/tx-job-continue.spec.ts
 tests/job/tx-job-reset.spec.ts
 tests/job/C3.component.ts
-tests/job/C1.component.ts
+tests/job/Q1.component.ts
 tests/tx-mountpoint.spec.ts
 README.md
 .npmignore

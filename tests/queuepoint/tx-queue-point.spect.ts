@@ -33,9 +33,12 @@ export class TxConnectorRabbitMQ implements TxConnector {
     console.log("subscribe: TxConnectorRabbit Method not implemented.");
   };
 
-  next(any: any) {
-    this.subscribeBC(any);
+  next(service: string, route: string, data: any) {
+    this.subscribeBC(data);
     console.log("next: TxConnectorRabbit Method not implemented.");
+  }
+
+  close() {
   }
 }
 

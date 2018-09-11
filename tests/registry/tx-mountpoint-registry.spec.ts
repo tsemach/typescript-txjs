@@ -27,6 +27,7 @@ export class TxConnectorNoDefaultRabbitMQ implements TxConnector {
   constructor() {
 
   }
+
   connect(service: any, route: any) {
     console.log(`TxConnectorNoDefaultRabbitMQ: ${service}-${route}-${this.id}`);
   }
@@ -36,10 +37,14 @@ export class TxConnectorNoDefaultRabbitMQ implements TxConnector {
     console.log("subscribe: TxConnectorNoDefaultRabbitMQ Method not implemented.");
   };
 
-  next(any: any) {
-    this.subscribeBC(any);
+  next(service: string, route: string, data: any) {
+    this.subscribeBC(data);
     console.log("next: TxConnectorNoDefaultRabbitMQ Method not implemented.");
   }
+
+  close() {
+  }
+
 }
 
 @injectable()
@@ -59,9 +64,12 @@ export class TxConnectorNoDefaultExpress implements TxConnector {
     console.log("subscribe: TxConnectorNoDefaultExpress Method not implemented.");
   };
 
-  next(any: any) {
-    this.subscribeBC(any);
+  next(service: string, route: string, data: any) {
+    this.subscribeBC(data);
     console.log("next: TxConnectorNoDefaultExpress Method not implemented.");
+  }
+
+  close() {
   }
 }
 
@@ -91,7 +99,7 @@ describe('Registry Classes - TxMountPointRegitry', () => {
 
   });
 
-  it('tx-mountpoint.spec: check creation of TxQueuePoint with default RabbitMQ connector injection', () => {
+  it('tx-mountpoint.spec: check creation of TxQueuePoint with default RabbitMQ connector injection', async () => {
     logger.info('tx-mountpoint.spec: check creation of TxQueuePoint with default RabbitMQ connector injection');
 
     const QP1 = TxMountPointRegistry.instance.queue('GITHUB::API::AUTH');
@@ -100,13 +108,13 @@ describe('Registry Classes - TxMountPointRegitry', () => {
     expect(QP1.name).to.equal('GITHUB::API::AUTH');
     expect(QP2.name).to.equal('GITHUB::API::READ');
 
-    QP1.tasks().connect('CP1', 'tasks:connect');
-    QP1.reply().connect('CP1', 'reply:connect');
-    QP1.undos().connect('CP1', 'undos:connect');
+    await QP1.tasks().connect('CP1', 'tasks:connect');
+    await QP1.reply().connect('CP1', 'reply:connect');
+    await QP1.undos().connect('CP1', 'undos:connect');
 
-    QP2.tasks().connect('CP2', 'tasks:connect');
-    QP2.reply().connect('CP2', 'reply:connect');
-    QP2.undos().connect('CP2', 'undos:connect');
+    await QP2.tasks().connect('CP2', 'tasks:connect');
+    await QP2.reply().connect('CP2', 'reply:connect');
+    await QP2.undos().connect('CP2', 'undos:connect');
 
     let set = new Set<string>();
     set.add((<TxConnectorRabbitMQ>QP1.tasks()).id);
@@ -126,6 +134,14 @@ describe('Registry Classes - TxMountPointRegitry', () => {
     assert(isUUID((<TxConnectorRabbitMQ>QP2.tasks()).id));
     assert(isUUID((<TxConnectorRabbitMQ>QP2.reply()).id));
     assert(isUUID((<TxConnectorRabbitMQ>QP2.undos()).id));
+
+    QP1.tasks().close();
+    QP1.reply().close();
+    QP1.undos().close();
+
+    QP2.tasks().close();
+    QP2.reply().close();
+    QP2.undos().close();
   });
 
   it('tx-mountpoint.spec: check creation of TxRoutePoint with default Express connector injection', () => {
@@ -241,6 +257,38 @@ describe('Registry Classes - TxMountPointRegitry', () => {
     assert(isUUID((<TxConnectorNoDefaultExpress>RP2.tasks()).id));
     assert(isUUID((<TxConnectorNoDefaultExpress>RP2.reply()).id));
     assert(isUUID((<TxConnectorNoDefaultExpress>RP2.undos()).id));
+  });
+
+  it('tx-mountpoint.spec: check calling to subscribe on TxQueuePoint with RabbitMQ', (done) => {
+    logger.info('tx-mountpoint.spec: check calling to subscribe on TxQueuePoint with RabbitMQ');
+
+    TxMountPointRegistry.instance.setQueueDriver(TxConnectorNoDefaultRabbitMQ);
+
+    const QP1 = TxMountPointRegistry.instance.queue('GITHUB::API::AUTH');
+    const QP2 = TxMountPointRegistry.instance.queue('GITHUB::API::READ');
+
+    expect(QP1.name).to.equal('GITHUB::API::AUTH');
+    expect(QP2.name).to.equal('GITHUB::API::READ');
+
+    QP1.tasks().connect('service-a', 'tasks.component')
+
+    QP1.tasks().subscribe((data) => {
+      console.log("[QP1:subscribe] data = " + JSON.stringify(data, undefined, 2));
+      done();
+    });
+
+    QP1.tasks().next('service-a', 'tasks.#', {from: 'service-a', data: 'data'});
+
+  });
+
+  it('tx-mountpoint.spec: just exit', (done) => {
+    logger.info('tx-mountpoint.spec: just exit');
+
+    done();
+    setTimeout(() => {
+      process.exit(0);
+    }, 2000)
+
   });
 
 });

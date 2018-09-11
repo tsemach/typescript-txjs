@@ -10,7 +10,8 @@
 const TxTYPES = {
   TxQueuePoint: Symbol.for('TxQueuePoint'),
   TxRoutePoint: Symbol.for('TxRoutePoint'),
-  TxConnector: Symbol.for("TxConnector")
+  TxConnector: Symbol.for("TxConnector"),
+  TxServiceName: Symbol.for("TxServiceName"),
 };
 
 export { TxTYPES };
