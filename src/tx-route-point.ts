@@ -6,7 +6,7 @@ import { TxTYPES } from "./tx-injection-types";
 import { TxMountPoint } from "./tx-mountpoint";
 
 @injectable()
-export class TxConnectPoint implements TxMountPoint {
+export class TxRoutePoint implements TxMountPoint {
   @inject(TxTYPES.TxConnector) private _tasks: TxConnector;
   @inject(TxTYPES.TxConnector) private _reply: TxConnector;
   @inject(TxTYPES.TxConnector) private _undos: TxConnector;

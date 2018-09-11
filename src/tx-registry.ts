@@ -53,7 +53,6 @@ export class TxRegistry<T, K extends string | Symbol> {
   }
 
   del(name: K) {
-    console.log("REGISTRY:DEL: name = " + name);
     this.objects.delete(name);
     this.names.delete(name.toString());
   }

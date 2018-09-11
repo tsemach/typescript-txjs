@@ -8,6 +8,8 @@ import { expect } from 'chai';
 import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
 import { TxTask } from '../../src/tx-task';
 import {TxMountPoint} from '../../src/tx-mountpoint';
+import {injectable} from "inversify";
+import {TxConnector} from "../../src/tx-connector";
 
 describe('Mount Point Class', () => {
 
@@ -89,7 +91,7 @@ describe('Mount Point Class', () => {
     expect(C1.getReply()).to.equal(JSON.stringify(task));
   });
 
-  it('mountpoint.spec: check mountpoint name as string | symbol', () => {
+  it('tx-mountpoint.spec: check mountpoint name as string | symbol', () => {
 
     let mountpoint: TxMountPoint;
 

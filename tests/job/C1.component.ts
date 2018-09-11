@@ -7,6 +7,7 @@ import { TxTask } from '../../src/tx-task';
 
 export class C1Component {
   mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
+
   method = '';
   reply: any;
 
@@ -19,7 +20,7 @@ export class C1Component {
         // just send the reply to whom is 'setting' on this reply subject
         this.mountpoint.reply().next(new TxTask({method: 'from C1', status: 'ok'}, task['data']))
       }
-    )
+    );
 
     this.mountpoint.undos().subscribe(
       (task) => {
@@ -29,7 +30,8 @@ export class C1Component {
           // just send the reply to whom is 'setting' on this reply subject
           this.mountpoint.reply().next(new TxTask({method: 'undo from C1', status: 'ok'}, task['data']))
       }
-    )
+    );
+
   }
 
   getReply() {
