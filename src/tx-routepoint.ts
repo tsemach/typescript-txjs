@@ -3,12 +3,10 @@ import "reflect-metadata";
 
 import { TxConnector } from "./tx-connector"
 import { TxTYPES } from "./tx-injection-types";
-import { TxMountPoint } from "./tx-mountpoint";
 
 @injectable()
-export class TxQueuePoint {
-
-  @inject(TxTYPES.TxConnector) private _queue: TxConnector;
+export class TxRoutePoint {
+  @inject(TxTYPES.TxConnector) private _route: TxConnector;
 
   constructor(private _name: string | Symbol = '') {
   }
@@ -23,8 +21,7 @@ export class TxQueuePoint {
     return this._name;
   }
 
-  queue() {
-    return this._queue;
+  route() {
+    return this._route;
   }
-
 }

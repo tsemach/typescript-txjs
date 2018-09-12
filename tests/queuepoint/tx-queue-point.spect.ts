@@ -55,31 +55,19 @@ describe('Queue Point Class', () => {
     const CP1 = txContainer.get<TxQueuePoint>(TxTYPES.TxQueuePoint);
     const CP2 = txContainer.get<TxQueuePoint>(TxTYPES.TxQueuePoint);
 
-    CP1.tasks().connect('CP1', 'tasks:connect');
-    CP1.reply().connect('CP1', 'reply:connect');
-    CP1.undos().connect('CP1', 'undos:connect');
+    CP1.queue().connect('CP1', 'tasks:connect');
 
-    CP2.tasks().connect('CP2', 'tasks:connect');
-    CP2.reply().connect('CP2', 'reply:connect');
-    CP2.undos().connect('CP2', 'undos:connect');
+    CP2.queue().connect('CP2', 'tasks:connect');
 
-    set.add((<TxConnectorRabbitMQ>CP1.tasks()).id);
-    set.add((<TxConnectorRabbitMQ>CP1.reply()).id);
-    set.add((<TxConnectorRabbitMQ>CP1.undos()).id);
-    set.add((<TxConnectorRabbitMQ>CP2.tasks()).id);
-    set.add((<TxConnectorRabbitMQ>CP2.reply()).id);
-    set.add((<TxConnectorRabbitMQ>CP2.undos()).id);
+    set.add((<TxConnectorRabbitMQ>CP1.queue()).id);
+    set.add((<TxConnectorRabbitMQ>CP2.queue()).id);
 
     // make sure they all different UUIDs.
     expect(set.size).to.equal(6);
 
     // make sure they all valid UUID
-    assert(isUUID((<TxConnectorRabbitMQ>CP1.tasks()).id));
-    assert(isUUID((<TxConnectorRabbitMQ>CP1.reply()).id));
-    assert(isUUID((<TxConnectorRabbitMQ>CP1.undos()).id));
-    assert(isUUID((<TxConnectorRabbitMQ>CP2.tasks()).id));
-    assert(isUUID((<TxConnectorRabbitMQ>CP2.reply()).id));
-    assert(isUUID((<TxConnectorRabbitMQ>CP2.undos()).id));
+    assert(isUUID((<TxConnectorRabbitMQ>CP1.queue()).id));
+    assert(isUUID((<TxConnectorRabbitMQ>CP2.queue()).id));
   });
 
   it('tx-queue-point.spec: binding TxConnectorRabbitMQ by variable', () => {
@@ -98,32 +86,19 @@ describe('Queue Point Class', () => {
     const CP1 = txContainer.get<TxQueuePoint>(TxTYPES.TxQueuePoint);
     const CP2 = txContainer.get<TxQueuePoint>(TxTYPES.TxQueuePoint);
 
-    CP1.tasks().connect('CP1', 'tasks:connect');
-    CP1.reply().connect('CP1', 'reply:connect');
-    CP1.undos().connect('CP1', 'undos:connect');
-
-    CP2.tasks().connect('CP2', 'tasks:connect');
-    CP2.reply().connect('CP2', 'reply:connect');
-    CP2.undos().connect('CP2', 'undos:connect');
+    CP1.queue().connect('CP1', 'tasks:connect');
+    CP2.queue().connect('CP2', 'tasks:connect');
 
     let set = new Set<string>();
-    set.add((<TxConnectorRabbitMQ>CP1.tasks()).id);
-    set.add((<TxConnectorRabbitMQ>CP1.reply()).id);
-    set.add((<TxConnectorRabbitMQ>CP1.undos()).id);
-    set.add((<TxConnectorRabbitMQ>CP2.tasks()).id);
-    set.add((<TxConnectorRabbitMQ>CP2.reply()).id);
-    set.add((<TxConnectorRabbitMQ>CP2.undos()).id);
+    set.add((<TxConnectorRabbitMQ>CP1.queue()).id);
+    set.add((<TxConnectorRabbitMQ>CP2.queue()).id);
 
     // make sure they all different UUIDs.
     expect(set.size).to.equal(6);
 
     // make sure they all valid UUID
-    assert(isUUID((<TxConnectorRabbitMQ>CP1.tasks()).id));
-    assert(isUUID((<TxConnectorRabbitMQ>CP1.reply()).id));
-    assert(isUUID((<TxConnectorRabbitMQ>CP1.undos()).id));
-    assert(isUUID((<TxConnectorRabbitMQ>CP2.tasks()).id));
-    assert(isUUID((<TxConnectorRabbitMQ>CP2.reply()).id));
-    assert(isUUID((<TxConnectorRabbitMQ>CP2.undos()).id));
+    assert(isUUID((<TxConnectorRabbitMQ>CP1.queue()).id));
+    assert(isUUID((<TxConnectorRabbitMQ>CP2.queue()).id));
   });
 
 });
