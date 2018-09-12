@@ -7,6 +7,8 @@
 - **`TxMountPointRxJS`** is a mountpoint using RxJS implement TxMountPoint.
 - **`TxQueuePoint`** is a mountpoint using message queue as part of C2C. It use message queue to directly communicate between components. 
 - **`TxRoutePoint`** is a mountpoint using express as part of C2C. It use node express to directly communicate between components (not full implement yet).
+- **`TxQueueRegitry`** is use for getting TxQueuePoint object for queue communication (see below for more info).
+- **`TxRouteRegitry`** is use for getting TxRoutePoint object for queue communication (see below for more info).
 
 **since 0.0.21**
 - **`TxExecuteOption`** add execution options object able to influence the execution flow.
@@ -152,6 +154,26 @@ Job.continue(new TxTask(..));
 This feature enable you to set a direct communication channels between components. This save you 
 from the hassle of configure the I/S just to transfer data between components. There are two types 
 of data transports the library support *'message queue'* and *'node express'*. 
+
+The classes involving the C2C:
+
+- **TxQueuePoint** - an object able to connect, send and receive data from other end-point components.
+It has internally an object implement TxConnector interface. the TxConnector define three methods
+*connect*, *next* and *subscribe*. The TxConnector implement the underline detail of your transport details.
+The class implement TxConnector, whether it is default TxConnectorRabbitMQ or your implementation, is injected into TxQueuePoint during creation.  
+
+>To use your implementation of TxConnector you need to register it on the TxQueuePointRegistry using setDriver method.
+
+- **TxRoutePoint** - work the same as TxQueuePoint but iot use node express as the underline communication I/S. 
+
+>To use your implementation of TxConnector you need to register it on the TxRoutePointRegistry using setDriver method.
+
+- **TxQueuePointRegistry** - an object able to create, store and retrieve TxQueuePoint objects. 
+Use the method TxQueuePointRegistry.setDriver to register your driver (class that implement TxConnector).
+
+- **TxRoutePointRegistry** - an object able to create, store and retrieve TxRoutePoint objects.
+Use the method TxQueuePointRegistry.setDriver to register your driver (class that implement TxConnector). 
+
 ### How It Work
   
 - **set you driver** - first you need to define a connector driver. a driver is an object implement 
@@ -172,18 +194,18 @@ export interface TxConnector {
 ```
 The driver is one for all components. API is as follow:
 1. **subscribe** - a registration callback method where you will get the data.
-2. **next** - sending data to other service on a serivce/route.
+2. **next** - sending data to other service on a service/route.
 3. **connect** - set the connection. In the case RabbitMQ is set the exchange/queue/binding. This way other components may recognaize you.
 
-Once your driver is working you need to register it into TxMountPointRegistry as:
+Once your driver is working you need to register it into TxQeuePointRegistry as:
 ````typescript
-TxMountPointRegistry.instance.setQueueDriver(YourClass);
+TxQueuePointRegistry.instance.setDriver(YourClass);
 
 // for example
 class MyConnector implements TxConnector {
   ...
 }
-TxMountPointRegistry.instance.setQueueDriver(MyConnector);
+TxQueuePointRegistry.instance.setDriver(MyConnector);
 ````
 - **use subscribe / next** - now you can define your connector (or use the builtin RabbitMQ connector) 
 to define subscribe and next methods to receive and send data.
@@ -192,7 +214,7 @@ See the following example:
 ````typescript
 export class Q1Component {
   // get a queue point from the registry. please note we are using queue driver.
-  queuepoint: TxMountPoint = TxMountPointRegistry.instance.queue('GITHUB::API::AUTH');
+  queuepoint: TxQueuePoint = TxQueuePointRegistry.instance.queue('GITHUB::API::AUTH');
 
   constructor() {
   }
@@ -200,15 +222,15 @@ export class Q1Component {
   async init() {
     // call to connect one time. this call the connect method on the connector you defined earlier (or use the builtin).
     // other components can address you on 'service-1.queuepoint' on route ley 'Q1Component.tasks'
-    await this.queuepoint.tasks().connect('service-1.queuepoint', 'Q1Component.tasks');
+    await this.queuepoint.queue().connect('service-1.queuepoint', 'Q1Component.tasks');
 
     // incoming data from other components are received here using the subscribe method. 
-    await this.queuepoint.tasks().subscribe(
+    await this.queuepoint.queue().subscribe(
       async (data) => {
         console.log("[Q1Component:subscribe] got data = " + data);
 
         // sending reply back to sender. 
-        await this.queuepoint.tasks().next('service-2.queuepoint', 'Q2Component.tasks', {from: 'service-1.queuepoint', data: 'data'});
+        await this.queuepoint.queue().next('service-2.queuepoint', 'Q2Component.tasks', {from: 'service-1.queuepoint', data: 'data'});
       });
 
     return this;
@@ -393,36 +415,32 @@ module.exports = new Component();
     ````
 ----
 
-
-
-
-
 ##**TxQueuePoint** 
-  - a class implement TxMountPoint interface using message queue connector as part of C2C.
-  - it include tree different connectors for *tasks*, *reply* and *undos*.
+  - a class using message queue communication as part of C2C.
+  - it include a TxConntor type implement all the details needed to connect, send and receive data from queue.
     
   Defining a queue point is as:   
   ````typscript    
   // get a new queue-point under the name 'GITHUB::GIST::C2' and save on the registry
-  queuepoint = TxMountPointRegistry.instance.queue('GITHUB::GIST::C2');    
+  queuepoint = TxQueuePointRegistry.instance.queue('GITHUB::GIST::C2');    
   ````
-  queuepoint (as mountpoint) objects are kept in TxMountPointRegistry by their identifier (a selector) which could be a string or a Symbol.
+  queuepoint (as mountpoint) objects are kept in TxQueuePointRegistry by their identifier (a selector) which could be a string or a Symbol.
 
 - **C2C**
     - first define a driver (see C2C section).
     - then define a queuepoint as follow:       
     ````typescript
-      queuepoint: TxMountPoint = TxMountPointRegistry.instance.queue('GITHUB::API::AUTH');
+      queuepoint: TxQueuePoint = TxQueuePointRegistry.instance.queue('GITHUB::API::AUTH');
 
       constructor() {
       }
 
       async init() {
-        await this.queuepoint.tasks().connect('example-1.queuepoint', 'Q1Component.tasks');
-        await this.queuepoint.tasks().subscribe(
+        await this.queuepoint.queue().connect('example-1.queuepoint', 'Q1Component.tasks');
+        await this.queuepoint.queue().subscribe(
           async (data) => {
             console.log("[Q1Component:subscribe] got data = " + data);
-            await this.queuepoint.tasks().next('example-2.queuepoint', 'Q2Component.tasks', {from: 'example-1.queuepoint', data: 'data'});
+            await this.queuepoint.queue().next('example-2.queuepoint', 'Q2Component.tasks', {from: 'example-1.queuepoint', data: 'data'});
           });
 
         return this;
@@ -431,11 +449,11 @@ module.exports = new Component();
       .      
     ````
 ----
-##**TxMountPointRegistry**
-  A singlton class repository keep mapping of mountpoint's name or symbol --> mountpoint object instance.
-  The registry is use to create to create a now mountpoint object and store it's reference in the repository.
+##**TxMountPointRegistry** 
+singleton class repository keep mapping of mountpoint's name or symbol --> mountpoint object instance.
+The registry is use to create to create a new mountpoint object and store it's reference in the repository.
 
-  ### usages
+###usages
 
   * Create new mountpoint object and save is in the registory for later access it by other objects.
   ````typescript
@@ -454,11 +472,46 @@ module.exports = new Component();
   // create a new mountpoint object with a given name 'GITHUB:G1'
   mountpoint = TxMountPointRegistry.instance.get('GITHUB::G1');
   ````
+----
+##**TxQueuePointRegistry**
+A sindleton class repository keep mapping of queuepoint's name or symbol --> queuepoint object instance.
+The registry is use to create to create a new queuepoint object and store it's reference in the repository
+So later can retrive anywhere in the code.
 
-  * C2C - Get a queue point with queue driver connector inject into it.
+With queuepoint object you can communicate with other components on the same process or in different process / machine.
+
+###usages
+
+  * Create new queuepoint object and save is in the registory for later access it by other objects.
   ````typescript
-  // create a new queuepoint object with a given name 'GITHUB:AUTH'
+  // create a new queuepoint object with a given name 'GITHUB:G1'
   queuepoint = TxMountPointRegistry.instance.queue('GITHUB::AUTH');
+  ````
+  * Get an existing queuepoint by it's name | sybmol.
+  ````typescript
+  // create a new mountpoint object with a given name 'GITHUB:G1'
+  queuepoint = TxQueuePointRegistry.instance.get('GITHUB::AUTH');
+  ````
+----
+##**TxRoutePointRegistry**
+A singleton class repository keep mapping of routepoint's name or symbol --> routepoint object instance.
+The registry is use to create to create a new routepoint object and store it's reference in the repository
+So later can retrive anywhere in the code.
+   
+With routepoint object you can communicate with other components on the same process or in different process / machine
+using node express.
+
+###usages
+
+  * Create new routepoint object and save is in the registory for later access it by other objects.
+  ````typescript
+  // create a new queuepoint object with a given name 'GITHUB:G1'
+  routepoint = TxRoutePointRegistry.instance.route('GITHUB::AUTH');
+  ````
+  * Get an existing queuepoint by it's name | sybmol.
+  ````typescript
+  // create a new mountpoint object with a given name 'GITHUB:G1'
+  routepoint = TxRoutePointRegistry.instance.get('GITHUB::AUTH');
   ````
 ----
 ##**TxComponent**

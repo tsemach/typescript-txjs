@@ -1,15 +1,15 @@
 
-import { TxMountPoint, TxMountPointRegistry } from '../../src/index';
+import { TxQueuePointRegistry } from '../../src/';
 
 export class Q2Component {
-  queuepoint: TxMountPoint = TxMountPointRegistry.instance.queue('GITHUB::API::READ');
+  private queuepoint = TxQueuePointRegistry.instance.queue('GITHUB::API::READ');
 
   constructor() {
   }
 
   async init() {
-    await this.queuepoint.tasks().connect('service-2.queuepoint', 'Q2Component.tasks');
-    this.queuepoint.tasks().subscribe(
+    await this.queuepoint.queue().connect('service-2.queuepoint', 'Q2Component.tasks');
+    this.queuepoint.queue().subscribe(
       (data) => {
         console.log("[Q2Component:subscribe] got data = " + data);
       }
@@ -17,7 +17,7 @@ export class Q2Component {
   }
 
   async send() {
-    await this.queuepoint.tasks().next('service-1.queuepoint', 'Q1Component.tasks', 'from Q2Component');
+    await this.queuepoint.queue().next('service-1.queuepoint', 'Q1Component.tasks', 'from Q2Component');
   }
 
 }

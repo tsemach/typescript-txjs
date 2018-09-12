@@ -22,7 +22,7 @@ describe('Mount Point Class', () => {
    */
 
   class C1Component {
-    mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
+    mountpoint: TxMountPoint = <TxMountPoint>TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
     reply: any;
 
     constructor() {
@@ -31,7 +31,7 @@ describe('Mount Point Class', () => {
           logger.info('[C1Component:tasks] got task = ' + JSON.stringify(task, undefined, 2));          
 
           // C1 got a task then send it C2.
-          let M2 = TxMountPointRegistry.instance.get('GITHUB::GIST::C2');
+          let M2 = <TxMountPoint>TxMountPointRegistry.instance.get('GITHUB::GIST::C2');
 
           M2.tasks().next(new TxTask({method: 'get', status: ''}, task['data']));
         }
@@ -82,7 +82,7 @@ describe('Mount Point Class', () => {
     let C1 = new C1Component();
     let C2 = new C2Component();
     
-    let M1 = TxMountPointRegistry.instance.get('GITHUB::GIST::C1');    
+    let M1 = <TxMountPoint>TxMountPointRegistry.instance.get('GITHUB::GIST::C1');
     let task = new TxTask({method: 'get', status: ''}, {from: 'https://api.github.com'});
 
     // send task on C1 then C1 -> C2 -> C1.
@@ -95,7 +95,7 @@ describe('Mount Point Class', () => {
 
     let mountpoint: TxMountPoint;
 
-    mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
+    mountpoint = <TxMountPoint>TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
 
     console.log('mountpoint name is - \'' + mountpoint.name + '\'');
     expect(mountpoint.name).to.equal('GITHUB::GIST::C1');

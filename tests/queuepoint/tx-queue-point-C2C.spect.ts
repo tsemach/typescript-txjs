@@ -1,20 +1,10 @@
 
-//import logger = require('logging');
 import createLogger from 'logging';
 const logger = createLogger('TxQueuePoint-Test');
 
 import 'mocha';
-import { expect } from 'chai';
-import { assert } from 'chai';
-import * as isUUID from 'validator/lib/isUUID';
-
-import {Container, injectable} from "inversify";
 import "reflect-metadata";
-import * as uuid from 'uuid/v4';
 
-import { TxTYPES } from "../../src/tx-injection-types";
-import { TxConnector } from "../../src/tx-connector";
-import { TxQueuePoint } from "../../src/tx-queuepoint";
 import {Q1Component} from "../C2C/Q1.component";
 import {Q2Component} from "../C2C/Q2.component";
 
