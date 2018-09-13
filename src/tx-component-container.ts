@@ -79,32 +79,3 @@ let TxQueueContainer = new TxComponentContainer<TxQueuePoint>(TxQueuePoint, TxTY
 let TxRouteContainer = new TxComponentContainer<TxRoutePoint>(TxRoutePoint, TxTYPES.TxRoutePoint, TxConnectorExpress);
 
 export { TxQueueContainer, TxRouteContainer }
-
-// let qp;
-// let rp;
-//
-// queueContainer.setDriver(TxConnectorRabbitMQ);
-// queueContainer.addComponent<Q1Component>(Q1Component, 'Q1Component');
-// queueContainer.addComponent<Q2Component>(Q2Component, 'Q2Component');
-//
-// qp = queueContainer.get('Q1Component', 'GITHUB:READ-2');
-// console.log("name = " + qp.queuepoint.name.toString());
-// qp.print();
-//
-// qp = queueContainer.get('Q2Component','GITHUB:READ-2-Q2');
-// console.log("name = " + qp.queuepoint.name.toString());
-//
-// qp.print();
-//
-// routeContainer .setDriver(TxConnectorRabbitMQ);
-// routeContainer .addComponent<R1Component>(R1Component, 'R1Component');
-// routeContainer .addComponent<R2Component>(R2Component, 'R2Component');
-//
-// rp = routeContainer .get('R1Component', 'GITHUB:READ-ROUTE-R1');
-// console.log("name = " + qp.queuepoint.name.toString());
-// rp.print();
-//
-// rp = routeContainer .get('R2Component','GITHUB:READ-ROUTE-2-R2');
-// console.log("name = " + qp.queuepoint.name.toString());
-//
-// rp.print();

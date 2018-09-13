@@ -1,6 +1,14 @@
+
+[![NPM](https://nodei.co/npm/rx-txjs.png)](https://nodei.co/npm/rx-txjs/)
+[![dependencies Status](https://david-dm.org/tsemach/typescript-txjs/status.svg)](https://david-dm.org/tsemach/typescript-txjs)
+
 # Application Execution Model
 
 ## What's New 
+
+**since 0.0.28**
+- **`TxQueueContainer | TxRouteContainer - component (injector)`** use dependency injection to inject TxQueuePoint | TxRoutePoint and other class into your component. you can create a component by injecting all its dependencies using those classes. They are just a wrappers around [*inversify*](https://www.npmjs.com/package/inversify) containers.
+
 **since 0.0.26**
 - **`C2C`** adding Component-2-Component direct communication over configurable transport I/S with builtin support for RabbitMQ even on different process, this is big, see below for more details.
 - **`TxMountPoint`** is now interface as part of C2C change.
@@ -416,19 +424,19 @@ module.exports = new Component();
 ----
 
 ##**TxQueuePoint** 
-  - a class using message queue communication as part of C2C.
-  - it include a TxConntor type implement all the details needed to connect, send and receive data from queue.
+  - a class using message queue communication as part of C2C (component-2-component data transfering).
+  - it include a TxConntor type member implement all the details needed to connect, send and receive data from queue.
     
-  Defining a queue point is as:   
+  Defining a queue point is as follow:   
   ````typscript    
   // get a new queue-point under the name 'GITHUB::GIST::C2' and save on the registry
   queuepoint = TxQueuePointRegistry.instance.queue('GITHUB::GIST::C2');    
   ````
-  queuepoint (as mountpoint) objects are kept in TxQueuePointRegistry by their identifier (a selector) which could be a string or a Symbol.
+  queuepoint (as mountpoint) objects are kept in TxQueuePointRegistry by their identifier (a selector) which could be a string as well as Symbol.
 
 - **C2C**
     - first define a driver (see C2C section).
-    - then define a queuepoint as follow:       
+    - then define a queuepoint as follow:
     ````typescript
       queuepoint: TxQueuePoint = TxQueuePointRegistry.instance.queue('GITHUB::API::AUTH');
 
@@ -449,6 +457,7 @@ module.exports = new Component();
       .      
     ````
 ----
+
 ##**TxMountPointRegistry** 
 singleton class repository keep mapping of mountpoint's name or symbol --> mountpoint object instance.
 The registry is use to create to create a new mountpoint object and store it's reference in the repository.
@@ -920,6 +929,71 @@ job.execute(new TxTask(
 
 job.undo(backword);
 ````
+----
+##**TxQueueContainer | TxRouteContainer**
+Wrapper classes around inversifyJS container library. You can create a component by inject all its dependencies. 
+
+###usages
+
+  * Create a component Q1Component using TxQueueContainer injector.
+  ````typescript
+
+    // define a component something like this.
+    @injectable()
+    export class Q1Component {
+      @inject(TxTYPES.TxQueuePoint) queuepoint;
+
+      constructor() {
+      }
+
+      async init() {
+        ...
+      }
+    }
+
+    // prepare injector for Q1Component - this done one time.
+    TxQueueContainer.setDriver(TxConnectorRabbitMQ); // optional, otherwise use default TxConnectorRabbitMQ
+    TxQueueContainer.addComponent<Q1Component>(Q1Component, 'Q1Component');
+       
+    // create new 'Q1Component' component under the name 'Q1COMPONENT::QUEUE::CONTAINER'
+    co = TxQueueContainer.get('Q1Component', 'Q1COMPONENT::QUEUE::CONTAINER');
+
+    // send something to queue.
+    co.queuepoint.queue.next(..);
+  ````
+  * Create a component Q2 which has some other member in it.
+  ````typescript
+
+    // define Q2Component which has other member.
+    @injectable()
+    export class QMember {
+      @inject('QMember::name') name: string;
+
+      constructor() {}
+      ....
+    }
+
+    @injectable()
+    export class Q3Component {
+      @inject(TxTYPES.TxQueuePoint) queuepoint;
+      @inject('QMember') qmember: QMember;
+
+      constructor() {}
+
+      async init() { ... }
+
+      getQMember() { return this.qmember; }
+    }
+
+     // prepare injector for Q2Component, this done once
+    TxQueueContainer.setDriver(TxConnectorRabbitMQ);
+    TxQueueContainer.addComponent<R1Component>(Q3Component, 'Q3Component');
+    TxQueueContainer.addBind<QMember>(QMember, 'QMember');
+
+    // create 'Q3Component' where name 'tsemach' is inject into QMember of Q2Component
+    TxQueueContainer.addBindConstantValue<string>('QMember::name', 'tsemach');        
+    cp = TxQueueContainer.get('Q3Component', 'Q3COMPONENT::QUEUE::CONTAINER');
+  ````
 ----
 ##How to Check Changes on Local Package
 
