@@ -221,7 +221,7 @@ export class Q1Component {
 
   async init() {
     // call to connect one time. this call the connect method on the connector you defined earlier (or use the builtin).
-    // other components can address you on 'service-1.queuepoint' on route ley 'Q1Component.tasks'
+    routepoint
     await this.queuepoint.queue().connect('service-1.queuepoint', 'Q1Component.tasks');
 
     // incoming data from other components are received here using the subscribe method. 
@@ -684,6 +684,7 @@ Run the job's components step by step.
 ````typescript
 let C1 = new C1Component();
 let C2 = new C2Component();
+
 let C3 = new C3Component();
 
 let job = new TxJob();

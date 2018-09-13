@@ -20,7 +20,8 @@ export class Q2Component {
     return this;
   }
 
-  print() {
-    console.log("THIS IS Q2Component");
+  description() {
+    return "This is Q2Component";
   }
+
 }

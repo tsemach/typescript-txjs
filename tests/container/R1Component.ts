@@ -21,7 +21,7 @@ export class R1Component {
     return this;
   }
 
-  print() {
-    console.log("THIS IS R1Component");
+  description() {
+    return "This is R1Component";
   }
 }
