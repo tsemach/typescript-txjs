@@ -14,10 +14,16 @@ export class TxRegistryContainer<T> {
   // set the bind to himself.
   constructor(type, bind) {
     this.txContainer.bind<T>(bind).to(type);
+
     this.bind = bind;
   }
 
-  get() {
+  get(name) {
+    if (this.txContainer.isBound(TxTYPES.TxPointName)) {
+      this.txContainer.unbind(TxTYPES.TxPointName);
+    }
+    this.txContainer.bind<string | Symbol>(TxTYPES.TxPointName).toConstantValue(name);
+
     return this.txContainer.get<T>(this.bind);
   }
 

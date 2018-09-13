@@ -52,8 +52,8 @@ export class TxRoutePointRegistry extends TxRegistry<TxRoutePoint, string | Symb
   }
 
   route(name: string | Symbol) {
-    const cp = this.routeContainer.get();
-    cp.name = name;
+    const cp = this.routeContainer.get(name);
+    //cp.name = name;
 
     if (typeof name === 'string') {
       if (name === undefined || name.length === 0) {

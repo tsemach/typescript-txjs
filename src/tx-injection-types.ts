@@ -12,6 +12,7 @@ const TxTYPES = {
   TxRoutePoint: Symbol.for('TxRoutePoint'),
   TxConnector: Symbol.for("TxConnector"),
   TxServiceName: Symbol.for("TxServiceName"),
+  TxPointName: Symbol.for("TxPointName")
 };
 
 export { TxTYPES };
