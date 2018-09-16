@@ -9,32 +9,6 @@ import { TxTYPES } from "./tx-injection-types";
 import { TxConnectorRabbitMQ } from "./tx-connector-rabbitmq";
 import { TxRegistryContainer } from "./tx-registry-container";
 
-// /**
-//  * a wrapper class for inversify container to keep driver bind.
-//  */
-// class TxQueuePointRegistryContainer<T> {
-//   // a container for TxConnector injection
-//   txContainer = new Container();
-//   bind: any;
-//
-//   // set the bind to himself.
-//   constructor(type, bind) {
-//     this.txContainer.bind<T>(bind).to(type);
-//     this.bind = bind;
-//   }
-//
-//   get() {
-//     return this.txContainer.get<T>(this.bind);
-//   }
-//
-//   setDriver(type) {
-//     if ( this.txContainer.isBound(TxTYPES.TxConnector)) {
-//       this.txContainer.unbind(TxTYPES.TxConnector);
-//     }
-//     this.txContainer.bind<TxConnector>(TxTYPES.TxConnector).to(type);
-//   }
-// }
-
 export class TxQueuePointRegistry extends TxRegistry<TxQueuePoint, string | Symbol> {
   private static _instance: TxQueuePointRegistry;
 

@@ -31,6 +31,6 @@ export class TxRegistryContainer<T> {
     if ( this.txContainer.isBound(TxTYPES.TxConnector)) {
       this.txContainer.unbind(TxTYPES.TxConnector);
     }
-    this.txContainer.bind<TxConnector>(TxTYPES.TxConnector).to(type);
+    this.txContainer.bind<TxConnector>(TxTYPES.TxConnector).to(type).inSingletonScope();
   }
 }

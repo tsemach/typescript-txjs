@@ -1,3 +1,5 @@
+import createLogger from 'logging';
+const logger = createLogger('Q1Component');
 
 import { TxQueuePointRegistry } from '../../src/';
 
@@ -12,7 +14,7 @@ export class Q1Component {
 
     await this.queuepoint.queue().subscribe(
       async (data) => {
-        console.log("[Q1Component:subscribe] got data = " + data);
+        logger.info("[Q1Component:subscribe] got data = " + data);
         await this.queuepoint.queue().next('example-2.queuepoint', 'Q2Component.tasks', {from: 'example-1.queuepoint', data: 'data'});
       });
 
