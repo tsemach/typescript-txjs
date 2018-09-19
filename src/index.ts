@@ -14,4 +14,6 @@ export * from './tx-job-persist-adapter'
 export * from './tx-job-json'
 export * from './tx-connector'
 export * from './tx-job-execution-id';
+export * from './tx-record-persist-memory';
+export * from './tx-record-persist-mongodb';
 

@@ -168,7 +168,7 @@ export class TxRecordPersistMongoDB implements TxRecordPersistAdapter {
     return document;
   }
 
-  toExecutionId(document: TxMongoDBDocumentExecute) {
+  private toExecutionId(document: TxMongoDBDocumentExecute) {
     return {executeUuid: document.executeUuid, sequence: document.sequence};
   }
 

@@ -132,7 +132,7 @@ describe('Record Memory - Insert | Update | Read', () => {
       logger.error("ERROR: on updating document - " + JSON.stringify(index, undefined, 2))
       assert(false);
     }
-    expect(db.exct.size).to.equal(1);
+    expect(db.getExecuteSize()).to.equal(1);
 
     try {
       db.delete(toExecutionId(index));
@@ -141,7 +141,7 @@ describe('Record Memory - Insert | Update | Read', () => {
       logger.error("ERROR: on updating document - " + JSON.stringify(index, undefined, 2))
       assert(false);
     }
-    expect(db.exct.size).to.equal(0);
+    expect(db.getExecuteSize()).to.equal(0);
   });
 
   it('tx-record-memory.spec: check insert | update | asking is working', async () => {

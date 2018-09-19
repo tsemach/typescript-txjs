@@ -5,8 +5,8 @@
 import createLogger from 'logging';
 const logger = createLogger('Persist-Driver-Test');
 
-import {TxJobPersistAdapter} from "../../src/tx-job-persist-adapter";
-import {TxJobJSON} from "../../src/tx-job-json";
+import {TxJobPersistAdapter} from "../../src";
+import {TxJobJSON} from "../../src";
 
 export class Persist implements TxJobPersistAdapter {
   jobs = new Map<string, TxJobJSON>();

@@ -1,6 +1,7 @@
 import createLogger from 'logging'; 
 const logger = createLogger('Job');
 
+import * as longUuid from 'uuid/v4';
 import * as short from 'short-uuid';
 const uuid = short();
 
@@ -12,7 +13,7 @@ import { TxJobJSON } from "./tx-job-json";
 import { TxTask } from "./tx-task";
 import { TxJobExecutionOptions, TxJobExecutionOptionsChecker } from "./tx-job-execution-options";
 import { TxRecordPersistAdapter, TxRecordIndexSave } from "./tx-record-persist-adapter";
-import {TxJobExecutionId} from "./tx-job-execution-id";
+import { TxJobExecutionId } from "./tx-job-execution-id";
 
 export const enum TxDirection {
   forward = 1,
@@ -46,11 +47,7 @@ export class TxJob {
   current = null;
   options = defaultOptions;
 
-  //executeUuid: string;
-  executionId: {
-    uuid: string,
-    sequence: number
-  };
+  executionId: TxJobExecutionId = {uuid: '', sequence: 0};
   recorder: TxRecordPersistAdapter;
 
   constructor(private name: string = '') {
@@ -65,7 +62,11 @@ export class TxJob {
         logger.info(`[TxJob:subscribe] [${this.name}] got reply, data = ${JSON.stringify(data, undefined, 2)}`);
         logger.info(`[TxJob:subscribe] [${this.name}] before shift to next task, stack.len = ${this.stack.length}`);
 
+        if (this.isRecord(this.options)) {
+          this.record({reply: data}, 'update');
+        }
         this.onComponent.next(new TxTask<{name: string}>({name: <string>txMountPoint.name}, {data: data}));
+
         if (this.revert) {
           this.undoCB(data);
 
@@ -111,9 +112,14 @@ export class TxJob {
 
             this.release();
           }
+
           this.getIsStopped().next(data);
 
           return;
+        }
+
+        if (this.isRecord(this.options)) {
+          this.record({tasks: data}, 'insert');
         }
 
         next.tasks().next(data);
@@ -151,7 +157,8 @@ export class TxJob {
     }
 
     if (this.isRecord(options)) {
-      this.record({tasks: data}, 'execute');
+      this.genExecutionId();
+      this.record({tasks: data}, 'insert');
     }
 
     runme.tasks().next(data);
@@ -250,6 +257,7 @@ export class TxJob {
   shift() {
     this.current = this.stack.shift();
     this.trace.push(this.current);
+    this.executionId.sequence++;
 
     return this.current;
   }
@@ -372,13 +380,19 @@ export class TxJob {
         tasks: (new Date()).toString(),
         reply: (new Date()).toString(),
       }
-
     };
-    this.recorder.insert(index, info);
+
+    if (method === 'insert') {
+      this.recorder.insert(index, info);
+    }
+
+    if (method === 'update') {
+      this.recorder.update(index, info);
+    }
   }
 
-  setRecorder(_recorder: TxRecordPersistAdapter) {
-    this.recorder = _recorder;
+  genExecutionId() {
+    this.executionId = {uuid: longUuid(), sequence: 1};
   }
 
   getCurrentName() {
@@ -399,6 +413,7 @@ export class TxJob {
   getOnComponent() {
     return this.onComponent;
   }
+
   getName() {
     return this.name;
   }

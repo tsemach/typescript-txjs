@@ -1,5 +1,6 @@
 import createLogger from 'logging';
 const logger = createLogger('TxRecordPersistMemory');
+import * as uuid from 'uuid/v4';
 
 import { TxRecordInfoSave, TxRecordPersistAdapter } from './tx-record-persist-adapter';
 import { TxRecordIndexSave, TxRecordRead } from './tx-record-persist-adapter';
@@ -28,8 +29,17 @@ interface TxMemoryDocumentExecute {
   }
 }
 
+interface TxMemoryDocumentJob {
+  uuid: string,
+  job: {
+    name: string,
+    uuid: string
+  }
+}
+
 export class TxRecordPersistMemory implements TxRecordPersistAdapter {
-  exct = new Map<string, TxMemoryDocumentExecute>();
+  private _exct = new Map<string, TxMemoryDocumentExecute>();
+  private _jobs = new Map<string, TxMemoryDocumentJob>();
 
   constructor() {
   }
@@ -47,17 +57,20 @@ export class TxRecordPersistMemory implements TxRecordPersistAdapter {
     let document = this.setDocument(index , info);
     let executeId = this.toExecutionId(index);
 
-    if (this.exct.has(this.toIndicator(executeId))) {
+    if (this._exct.has(this.toIndicator(executeId))) {
       throw new Error(`[TxRecordPersistMemory:insert] already exist ${JSON.stringify(executeId)}`);
     }
+    let job: TxMemoryDocumentJob = {uuid: index.executeUuid, job: index.job};
 
     try {
-      this.exct.set(this.toIndicator(executeId), document);
+      this._exct.set(this.toIndicator(executeId), document);
+      this._jobs.set(job.uuid, job);
     }
     catch (e) {
       logger.error(`[TxRecordPersistMemory::insert] ERROR: insert execute: ${executeId.uuid}:${executeId.sequence}`);
       logger.error(`[TxRecordPersistMemory::insert] ERROR: e = ${e.toString()}`);
     }
+    logger.info(`[TxRecordPersistMemory::insert] insert execute: ${this.toIndicator(executeId)}`);
   }
 
   update(index: TxRecordIndexSave , info: TxRecordInfoSave) {
@@ -66,45 +79,51 @@ export class TxRecordPersistMemory implements TxRecordPersistAdapter {
     }
 
     let executeId = this.toExecutionId(index);
-    if ( ! this.exct.has(this.toIndicator(executeId)) ) {
+    if ( ! this._exct.has(this.toIndicator(executeId)) ) {
       throw new Error(`[TxRecordPersistMemory:update] not exist ${JSON.stringify(executeId)}`);
     }
 
-    let document  = Object.assign(this.exct.get(this.toIndicator(executeId)), index, info);
+    let document  = Object.assign(this._exct.get(this.toIndicator(executeId)), index, info);
     try {
-      this.exct.set(this.toIndicator(executeId), document);
+      this._exct.set(this.toIndicator(executeId), document);
     }
     catch (e) {
       logger.error(`[TxRecordPersistMemory::update] ERROR: updating execute: ${executeId.uuid}:${executeId.sequence}`);
       logger.error(`[TxRecordPersistMemory::update] ERROR: updating on job: ${document.job.name}:${document.job.uuid}`);
       logger.error(`[TxRecordPersistMemory::update] ERROR: e = ${e.toString()}`);
     }
+    logger.info(`[TxRecordPersistMemory::update] update execute: ${this.toIndicator(executeId)}`);
   }
 
   delete(executionId: TxJobExecutionId) {
     let deleted = 0;
+    let isDeleted;
 
     // if executionId.sequence > 0 then remove just this id.
     if (executionId.sequence > 0) {
-      let isDeleted = this.exct.delete(this.toIndicator(executionId));
+      isDeleted = this._exct.delete(this.toIndicator(executionId));
+      this._jobs.delete(executionId.uuid);
+
       logger.info(`[TxRecordPersistMemory:delete] ${JSON.stringify(executionId)} delete: ${isDeleted}`);
 
       return isDeleted ? 1 : 0;
     }
 
     // if executionId.sequence === 0 then remove all instances of execution ids
-    for (let id of this.exct.keys()) {
+    for (let id of this._exct.keys()) {
 
       if (id !== this.toIndicator(executionId)) {
         continue;
       }
 
-      let isDeleted = this.exct.delete(id);
+      isDeleted = this._exct.delete(id);
       if ( ! isDeleted ) {
         throw new Error(`unable to delete id: ${JSON.stringify(id)}`);
       }
       deleted++;
     }
+    logger.info(`[TxRecordPersistMemory::delete] delete: ${this.toIndicator(executionId)}, deleted: ${deleted}`);
+
     return deleted
   }
 
@@ -119,17 +138,17 @@ export class TxRecordPersistMemory implements TxRecordPersistAdapter {
     let result = [];
 
     if (executionId.sequence > 0) {
-      result.push(this.exct.get(this.toIndicator(executionId)));
+      result.push(this._exct.get(this.toIndicator(executionId)));
 
       return Promise.resolve(result as TxRecordRead[]);
     }
 
     // if executionId.sequence === 0 then remove all instances of execution ids
-    for (let id of this.exct.keys()) {
+    for (let id of this._exct.keys()) {
       if (id !== this.toIndicator(executionId)) {
         continue;
       }
-      result.push(this.exct.get(id));
+      result.push(this._exct.get(id));
 
     }
     return Promise.resolve(result as TxRecordRead[]);
@@ -155,6 +174,13 @@ export class TxRecordPersistMemory implements TxRecordPersistAdapter {
     return document;
   }
 
+  dump() {
+    console.log("MEMEOR:LDUMP ");
+    for (let [id, ex] of this.exct) {
+      console.log('[TxRecordPersistMemory:dump] id: ' + JSON.stringify(id) + ' =>' + JSON.stringify(ex, undefined, 2));
+    }
+  }
+
   toExecutionId(index: TxRecordIndexSave): TxJobExecutionId {
     return {uuid: index.executeUuid, sequence: index.sequence};
   }
@@ -163,8 +189,20 @@ export class TxRecordPersistMemory implements TxRecordPersistAdapter {
     return `${index.uuid}:${index.sequence}`;
   }
 
+  private get exct() {
+    return this._exct;
+  }
+
+  private get jobs() {
+    return this._jobs;
+  }
+
+  getExecuteSize() {
+    return this.exct.size;
+  }
+
   close() {
-    this.exct = new Map<string , TxMemoryDocumentExecute>();
+    this._exct = new Map<string , TxMemoryDocumentExecute>();
   }
 }
 
