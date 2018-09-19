@@ -11,6 +11,7 @@ import { TxJobRegistry } from './tx-job-resgitry';
 import { TxJobJSON } from "./tx-job-json";
 import { TxTask } from "./tx-task";
 import { TxJobExecutionOptions, TxJobExecutionOptionsChecker } from "./tx-job-execution-options";
+import {TxRecordPersistAdapter, TxRecordIndexSave} from "./tx-record-persist-adapter";
 
 export const enum TxDirection {
   forward = 1,
@@ -21,6 +22,9 @@ let defaultOptions: TxJobExecutionOptions = {
   "persist": {
     "ison": false,
     "destroy": false
+  },
+  execute: {
+    record: false
   }
 } as TxJobExecutionOptions;
 
@@ -40,9 +44,13 @@ export class TxJob {
   revert = false;
   current = null;
   options = defaultOptions;
-  
+
+  executeUuid: string;
+  recorder: TxRecordPersistAdapter;
+
   constructor(private name: string = '') {
     TxJobRegistry.instance.add(this.uuid, this);
+    this.recorder = TxJobRegistry.instance.getRecorderDriver();
   }
 
   subscribe(txMountPoint: TxMountPoint) {
@@ -135,6 +143,10 @@ export class TxJob {
 
     if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
       await TxJobRegistry.instance.persist(this);
+    }
+
+    if (TxJobExecutionOptionsChecker.isRecord(options)) {
+      this.record({tasks: data}, 'execute');
     }
 
     runme.tasks().next(data);
@@ -271,7 +283,8 @@ export class TxJob {
       block: this.block.map((e) => {return e.name}).toString(),
       single: this.single,
       revert: this.revert,
-      current: this.getCurrentName()
+      current: this.getCurrentName(),
+      executeUuid: this.executeUuid
     }    
   }
 
@@ -283,6 +296,7 @@ export class TxJob {
     this.single = json.single;
     this.revert = json.revert;
     this.current = json.current !== '' ? TxMountPointRegistry.instance.get(json.current) : null;
+    this.executeUuid = json.executeUuid;
 
     this.stack = [];
     json.stack.split(',').forEach(name => {
@@ -310,6 +324,29 @@ export class TxJob {
     });
 
     return this;    
+  }
+
+  private record(info: any, method: string) {
+    let index: TxRecordIndexSave;
+    index = {
+      uuid: this.executeUuid,
+      job: {
+        name: this.name,
+        uuid: this.uuid
+      },
+      component: this.current.name.toString(),
+      method: method,
+      date: {
+        tasks: (new Date()).toString(),
+        reply: (new Date()).toString(),
+      }
+
+    };
+    this.recorder.insert(index, info);
+  }
+
+  setRecorder(_recorder: TxRecordPersistAdapter) {
+    this.recorder = _recorder;
   }
 
   getCurrentName() {

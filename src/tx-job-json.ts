@@ -10,4 +10,5 @@ export interface TxJobJSON {
   single: boolean;
   revert: boolean;
   current: string;
+  executeUuid: string;
 }

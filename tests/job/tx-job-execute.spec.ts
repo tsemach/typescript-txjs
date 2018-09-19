@@ -35,7 +35,7 @@ describe('Job Class', () => {
     logger.info('running: tx-job-execute.spec: check running C1-C2-C3 job chain');
 
     let persist = new Persist();
-    TxJobRegistry.instance.driver = persist;
+    TxJobRegistry.instance.setPersistDriver(persist);
 
     new C1Component();
     new C2Component();
@@ -78,6 +78,7 @@ describe('Job Class', () => {
     new C2Component();
     new C3Component();
     let uuid = short().new();
+    let executeUuid = short().new();
 
     let job = new TxJob();
     let from = {
@@ -88,8 +89,10 @@ describe('Job Class', () => {
       "trace": "",
       "single": false,
       "revert": false,
-      "current": ""
-    }
+      "current": "",
+      "executeUuid": executeUuid
+
+    };
     let after = job.upJSON(from).toJSON();
 
     expect(from.name).to.equal(after['name']);
@@ -99,6 +102,7 @@ describe('Job Class', () => {
     expect(from.single).to.equal(after['single']);
     expect(from.block).to.equal(after['block']);
     expect(from.current).to.equal(after['current']);
+    expect(from.executeUuid).to.equal(after['executeUuid']);
 
     job.getIsCompleted().subscribe(
       (data) => {

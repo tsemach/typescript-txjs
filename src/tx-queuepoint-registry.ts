@@ -28,7 +28,6 @@ export class TxQueuePointRegistry extends TxRegistry<TxQueuePoint, string | Symb
 
   queue(name: string | Symbol) {
     const cp = this.queueContainer.get(name);
-    //cp.name = name;
 
     if (typeof name === 'string') {
       if (name === undefined || name.length === 0) {

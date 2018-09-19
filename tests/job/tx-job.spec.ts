@@ -97,17 +97,19 @@ describe('Job Class', () => {
     new C2Component();
     new C3Component();
     let uuid = short().new();
+    let executeUuid = short().new();
 
     let job = new TxJob();
     let from = {
-      "name": "GitHub",
-      "uuid": uuid,
-      "block": "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
-      "stack": "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
-      "trace": "",
-      "single": false,
-      "revert": false,
-      "current": ""
+      name: "GitHub",
+      uuid: uuid,
+      block: "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
+      stack: "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
+      trace: "",
+      single: false,
+      revert: false,
+      current: "",
+      executeUuid: executeUuid
     }
     let after = job.upJSON(from).toJSON();
 
@@ -117,6 +119,7 @@ describe('Job Class', () => {
     expect(from.single).to.equal(after['single']);
     expect(from.block).to.equal(after['block']);
     expect(from.current).to.equal(after['current']);
+    expect(from.executeUuid).to.equal(after['executeUuid']);
 
     job.getIsCompleted().subscribe(
       (data) => {
@@ -140,17 +143,19 @@ describe('Job Class', () => {
     new C2Component();
     new C3Component();
     let uuid = short().new();
+    let executeUuid = short().new();
 
     let job = new TxJob();
     let from = {
-      "name": "GitHub",
-      "uuid": uuid,
-      "block": "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
-      "stack": "GITHUB::GIST::C2,GITHUB::GIST::C3",
-      "trace": "GITHUB::GIST::C1",
-      "single": false,
-      "revert": false,
-      "current": "GITHUB::GIST::C2"
+      name: "GitHub",
+      uuid: uuid,
+      block: "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
+      stack: "GITHUB::GIST::C2,GITHUB::GIST::C3",
+      trace: "GITHUB::GIST::C1",
+      single: false,
+      revert: false,
+      current: "GITHUB::GIST::C2",
+      executeUuid: executeUuid
     }
     let after = job.upJSON(from).toJSON();
 
@@ -160,6 +165,7 @@ describe('Job Class', () => {
     expect(from.block).to.equal(after['block']);
     expect(from.single).to.equal(after['single']);
     expect(from.current).to.equal(after['current']);
+    expect(from.executeUuid).to.equal(after['executeUuid']);
 
     job.continue(new TxTask({
         method: 'continue',
@@ -175,18 +181,20 @@ describe('Job Class', () => {
     new C2Component();
     new C3Component();
     let uuid = short().new();
+    let executeUuid = short().new();
 
     let job = new TxJob();
     let from = {
-      "name": "GitHub",
-      "uuid": uuid,
-      "block": "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
-      "stack": "GITHUB::GIST::C2,GITHUB::GIST::C3",
-      "trace": "GITHUB::GIST::C1",
-      "single": false,
-      "revert": false,
-      "current": "GITHUB::GIST::C2"
-    }
+      name: "GitHub",
+      uuid: uuid,
+      block: "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
+      stack: "GITHUB::GIST::C2,GITHUB::GIST::C3",
+      trace: "GITHUB::GIST::C1",
+      single: false,
+      revert: false,
+      current: "GITHUB::GIST::C2",
+      executeUuid: executeUuid
+    };
     job.upJSON(from);
 
     console.log('job = ' + JSON.stringify(job.toJSON(), undefined, 2));
@@ -198,6 +206,7 @@ describe('Job Class', () => {
     expect(from.block).to.equal(after['block']);
     expect(from.single).to.equal(after['single']);
     expect(from.current).to.equal(after['current']);
+    expect(from.executeUuid).to.equal(after['executeUuid']);
 
     job.continue(new TxTask({
         method: 'continue',

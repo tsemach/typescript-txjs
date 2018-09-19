@@ -23,6 +23,7 @@ describe('Job Class - Continue', () => {
     new C2Component();
     new C3Component();
     let uuid = short().new();
+    let executeUuid = short().new();
 
     let job = new TxJob();
     let from = {
@@ -33,7 +34,8 @@ describe('Job Class - Continue', () => {
       "trace": "GITHUB::GIST::C1",
       "single": false,
       "revert": false,
-      "current": "GITHUB::GIST::C2"
+      "current": "GITHUB::GIST::C2",
+      "executeUuid": executeUuid
     };
     let after = job.upJSON(from).toJSON();
 
@@ -44,6 +46,7 @@ describe('Job Class - Continue', () => {
     expect(from.block).to.equal(after['block']);
     expect(from.single).to.equal(after['single']);
     expect(from.current).to.equal(after['current']);
+    expect(from.executeUuid).to.equal(after['executeUuid']);
 
     job.getIsCompleted().subscribe(
       (data) => {
@@ -68,6 +71,7 @@ describe('Job Class - Continue', () => {
     new C2Component();
     new C3Component();
     let uuid = short().new();
+    let executeUuid = short().new();
 
     let job = new TxJob();
     let from = {
@@ -78,7 +82,8 @@ describe('Job Class - Continue', () => {
       "trace": "GITHUB::GIST::C1",
       "single": false,
       "revert": false,
-      "current": "GITHUB::GIST::C2"
+      "current": "GITHUB::GIST::C2",
+      "executeUuid": executeUuid
     };
     job.upJSON(from);
 
@@ -92,6 +97,7 @@ describe('Job Class - Continue', () => {
     expect(from.block).to.equal(after['block']);
     expect(from.single).to.equal(after['single']);
     expect(from.current).to.equal(after['current']);
+    expect(from.executeUuid).to.equal(after['executeUuid']);
 
     interface Head {
       method: string;

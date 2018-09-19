@@ -93,6 +93,7 @@ describe('Job Class - Serialize', () => {
     new C2Component();
     new C3Component();
     let uuid = short().new();
+    let executeUuid = short().new();
 
     /**
      * load job where GITHUB_GIST_C1 is already called so need to continue from GITHUB_GIST_C2
@@ -107,7 +108,8 @@ describe('Job Class - Serialize', () => {
       "trace": "Symbol(GITHUB_GIST_C1)",
       "single": false,
       "revert": false,
-      "current": "Symbol(GITHUB_GIST_C2)"
+      "current": "Symbol(GITHUB_GIST_C2)",
+      "executeUuid": executeUuid
     };
     let after = job.upJSON(from).toJSON();
     logger.info('[upJSON] after = ' + JSON.stringify(after, undefined, 2));
@@ -117,6 +119,7 @@ describe('Job Class - Serialize', () => {
     expect(from.block).to.equal(after['block']);
     expect(from.single).to.equal(after['single']);
     expect(from.current).to.equal(after['current']);
+    expect(from.executeUuid).to.equal(after['executeUuid']);
 
     job.getIsCompleted().subscribe(
       (data) => {

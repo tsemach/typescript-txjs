@@ -221,7 +221,7 @@ to define subscribe and next methods to receive and send data.
 See the following example:
 ````typescript
 export class Q1Component {
-  // get a queue point from the registry. please note we are using queue driver.
+  presistDriver
   queuepoint: TxQueuePoint = TxQueuePointRegistry.instance.queue('GITHUB::API::AUTH');
 
   constructor() {

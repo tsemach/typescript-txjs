@@ -37,7 +37,7 @@ describe('Job Class', () => {
   it('tx-job-execute-until.spec: check stopping at C2', (done) => {
     logger.info('running: tx-job-execute-until.spec: check stopping at C2');
     let persist = new Persist();
-    TxJobRegistry.instance.driver = persist;
+    TxJobRegistry.instance.setPersistDriver(persist);
 
     new C1Component();
     new C2Component();
@@ -76,7 +76,7 @@ describe('Job Class', () => {
   it('tx-job-execute-until.spec: check stopping at C2 with destroy', (done) => {
     logger.info('running: tx-job-execute-until.spec: check stopping at C2 with destroy');
     let persist = new Persist();
-    TxJobRegistry.instance.driver = persist;
+    TxJobRegistry.instance.setPersistDriver(persist);
 
     new C1Component();
     new C2Component();
@@ -116,13 +116,14 @@ describe('Job Class', () => {
   it('tx-job-execute-until-spec: check run until C3 with upJSON', (done) => {
     logger.info('running: tx-job-execute-until-spec: check run until C3 with upJSON');
     let persist = new Persist();
-    TxJobRegistry.instance.driver = persist;
+    TxJobRegistry.instance.setPersistDriver(persist);
 
     new C1Component();
     new C2Component();
     new C3Component();
 
     let uuid = short().new();
+    let executeUuid = short().new();
 
     let job = new TxJob('job-2');
     let from = {
@@ -133,7 +134,8 @@ describe('Job Class', () => {
       "trace": "",
       "single": false,
       "revert": false,
-      "current": ""
+      "current": "",
+      "executeUuid": executeUuid
     };
 
     let after = job.upJSON(from).toJSON();
@@ -175,7 +177,7 @@ describe('Job Class', () => {
   it('tx-job-execute-until.spec: check stopping at C2 with destroy then rebuild and continue', (done) => {
     logger.info('running: tx-job-execute-until.spec: check stopping at C2 with destroy then rebuild and continue');
     let persist = new Persist();
-    TxJobRegistry.instance.driver = persist;
+    TxJobRegistry.instance.setPersistDriver(persist);
 
     new C1Component();
     new C2Component();

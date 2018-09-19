@@ -2,6 +2,7 @@ import logger = require('logging');
 import { TxRegistry } from './tx-registry';
 import { TxJob } from './tx-job';
 import { TxJobPersistAdapter } from "./tx-job-persist-adapter";
+import { TxRecordPersistAdapter } from "./tx-record-persist-adapter"
 
 /**
  * TxJobRegistry - is class store TxJob by their ids.
@@ -9,7 +10,8 @@ import { TxJobPersistAdapter } from "./tx-job-persist-adapter";
 export class TxJobRegistry extends TxRegistry<TxJob, string> {
 
   private static _instance: TxJobRegistry;
-  private _driver: TxJobPersistAdapter = null;
+  private _persistDriver: TxJobPersistAdapter = null;
+  private _recorderDriver: TxRecordPersistAdapter = null;
 
   private constructor() {
     super();
@@ -29,24 +31,32 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
     return this.add(job.uuid, job);
   }
 
-  get driver() {
-    return this._driver;
+  getPersistDriver() {
+    return this._persistDriver;
   }
 
-  set driver(_driver: TxJobPersistAdapter) {
-    this._driver = _driver;
+  setPersistDriver(_driver: TxJobPersistAdapter) {
+    this._persistDriver = _driver;
+  }
+
+  getRecorderDriver() {
+    return this._recorderDriver;
+  }
+
+  setRecorderDriver(_recordDriver: TxRecordPersistAdapter) {
+    this._recorderDriver = _recordDriver;
   }
 
   async persist(job: TxJob) {
-    if ( ! this.driver ) {
+    if ( ! this.getPersistDriver() ) {
       throw 'try to persist but driver is null';
     }
-    return await this.driver.save(job.uuid, job.toJSON(), job.getName());
+    return await this.getPersistDriver().save(job.uuid, job.toJSON(), job.getName());
   }
 
   async rebuild(uuid: string) {
 
-    let json = await this.driver.read(uuid);
+    let json = await this.getPersistDriver().read(uuid);
     //console.log("TxJobRegistry::rebuild : this.driver.read(uuid) = " + JSON.stringify(json, undefined, 2));
     return new TxJob().upJSON(json);
   }

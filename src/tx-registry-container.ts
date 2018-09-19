@@ -4,7 +4,7 @@ import { TxTYPES } from "./tx-injection-types";
 import { TxConnector } from "./tx-connector";
 
 /**
- * a wrapper class for inversify container to keep driver bind.
+ * a wrapper class for inversify container to keep presistDriver bind.
  */
 export class TxRegistryContainer<T> {
   // a container for TxConnector injection
