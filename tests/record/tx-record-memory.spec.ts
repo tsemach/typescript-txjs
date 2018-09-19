@@ -1,15 +1,15 @@
 import createLogger from 'logging';
-const logger = createLogger('Record-MongoDB-Test');
+const logger = createLogger('Record-Memory-Test');
 
 import 'mocha';
 import {expect} from 'chai';
 import {assert} from 'chai';
 
 import * as uuid from 'uuid/v4';
-import { TxRecordPersistMongoDB } from "../../src/tx-record-persist-mongodb";
+import { TxRecordPersistMemory } from "../../src/tx-record-persist-memory";
 import { TxRecordIndexSave, TxRecordInfoSave } from "../../src/tx-record-persist-adapter";
 
-describe('Record MongoDB - Insert | Update | Read', () => {
+describe('Record Memory - Insert | Update | Read', () => {
 
   logger.info('ATTENTION: Make sure you have mongodb running, you can use docker:');
   logger.info('docker run --name mongodb -p 27017:27017 -v ~/data:/data/db -d mongo');
@@ -57,20 +57,47 @@ describe('Record MongoDB - Insert | Update | Read', () => {
   } as TxRecordInfoSave;
 
   function toExecutionId(document) {
-    return {executeUuid: document.executeUuid, sequence: document.sequence};
+    return {uuid: document.executeUuid, sequence: document.sequence};
   }
 
   /**
-   */
-  it('tx-record-mongodb.spec: check insert is working', async () => {
-    logger.info('tx-record-mongodb.spec: check insert is working');
+    */
+  it('tx-record-memory.spec: check insert is working', async () => {
+    // logger.info('tx-record-memory.spec: check insert is working');
+    //
+    // let db = new TxRecordPersistMemory();
+    //
+    // logger.info("exeUuid uuid = " + exeUuid);
+    // logger.info("jobUuid uuid = " + jobUuid);
+    //
+    // let result;
+    // try {
+    //   db.insert(index, infoTasks);
+    //   result = await db.asking({uuid: index.executeUuid, sequence: index.sequence});
+    // }
+    // catch (e) {
+    //   logger.error("ERROR: on insert document - " + JSON.stringify(index, undefined, 2))
+    //   assert(false);
+    // }
+    //
+    // console.log("INSERT: resulr = " + JSON.stringify(result, undefined, 2));
+    //
+    // expect(index.executeUuid).to.equal(result[0].executeUuid);
+    // expect(index.sequence).to.equal(result[0].sequence);
+    // expect(index.component).to.equal(result[0].component);
+    // expect(index.method).to.equal(result[0].method);
+    // expect(index.job).to.deep.equal(result[0].job);
+    // expect(infoTasks.tasks).to.deep.equal(result[0].tasks);
+  });
 
-    let db = new TxRecordPersistMongoDB();
+  it('tx-record-memory.spec: check update is working', async () => {
+    logger.info('tx-record-memory.spec: check update is working');
 
-    await db.connect('mongodb://localhost:27017');
+    let db = new TxRecordPersistMemory();
 
     logger.info("exeUuid uuid = " + exeUuid);
     logger.info("jobUuid uuid = " + jobUuid);
+
 
     let result;
     try {
@@ -78,7 +105,7 @@ describe('Record MongoDB - Insert | Update | Read', () => {
       result = await db.asking({uuid: index.executeUuid, sequence: index.sequence});
     }
     catch (e) {
-      logger.error("ERROR: on insert document - " + JSON.stringify(index, undefined, 2))
+      logger.error("ERROR: on updating document - " + JSON.stringify(index, undefined, 2))
       assert(false);
     }
 
@@ -90,42 +117,36 @@ describe('Record MongoDB - Insert | Update | Read', () => {
     expect(infoTasks.tasks).to.deep.equal(result[0].tasks);
   });
 
-  it('tx-record-mongodb.spec: check update is working', async () => {
-    logger.info('tx-record-mongodb.spec: check update is working');
+  it('tx-record-memory.spec: check insert delete is working', async () => {
+    logger.info('tx-record-memory.spec: check delete is working');
 
-    let db = new TxRecordPersistMongoDB();
-
-    await db.connect('mongodb://localhost:27017');
+    let db = new TxRecordPersistMemory();
 
     logger.info("exeUuid uuid = " + exeUuid);
     logger.info("jobUuid uuid = " + jobUuid);
 
-    await db.connect('mongodb://localhost:27017');
-
-    let result;
     try {
-      await db.update(index, infoReply);
-      result = await db.asking({uuid: index.executeUuid, sequence: index.sequence});
+      db.insert(index, infoTasks);
     }
     catch (e) {
-      logger.error("ERROR: on insert document - " + JSON.stringify(index, undefined, 2))
+      logger.error("ERROR: on updating document - " + JSON.stringify(index, undefined, 2))
       assert(false);
     }
+    expect(db.exct.size).to.equal(1);
 
-    expect(index.executeUuid).to.equal(result[0].executeUuid);
-    expect(index.sequence).to.equal(result[0].sequence);
-    expect(index.component).to.equal(result[0].component);
-    expect(index.method).to.equal(result[0].method);
-    expect(index.job).to.deep.equal(result[0].job);
-    expect(infoTasks.tasks).to.deep.equal(result[0].tasks);
-    expect(infoReply.reply).to.deep.equal(result[0].reply);
+    try {
+      db.delete(toExecutionId(index));
+    }
+    catch (e) {
+      logger.error("ERROR: on updating document - " + JSON.stringify(index, undefined, 2))
+      assert(false);
+    }
+    expect(db.exct.size).to.equal(0);
   });
 
-  it('tx-record-mongodb.spec: check insert | udpate | asking is working', async () => {
-    logger.info('tx-record-mongodb.spec: check insert is working');
-    let db = new TxRecordPersistMongoDB();
-
-    await db.connect('mongodb://localhost:27017');
+  it('tx-record-memory.spec: check insert | update | asking is working', async () => {
+    logger.info('tx-record-memory.spec: check insert | update | asking is working');
+    let db = new TxRecordPersistMemory();
 
     const exeUuid = uuid();
     const jobUuid = uuid();
@@ -180,7 +201,7 @@ describe('Record MongoDB - Insert | Update | Read', () => {
       result.forEach(item => { delete item['_id']; });
     }
     catch (e) {
-      logger.error("ERROR: on insert document - " + JSON.stringify(index, undefined, 2))
+      logger.error("ERROR: on insert | udpate | asking document - " + JSON.stringify(index, undefined, 2))
       assert(false);
     }
 

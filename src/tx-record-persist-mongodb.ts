@@ -67,26 +67,13 @@ export class TxRecordPersistMongoDB implements TxRecordPersistAdapter {
    * @returns {Promise<void>}
    */
   async insert(index: TxRecordIndexSave, info: TxRecordInfoSave) {
-    //let document = Object.assign({date: {tasks: '', reply: ''}}, index) as TxMongoDBDocumentExecute;
-    // let document = Object.assign({}, index) as TxMongoDBDocumentExecute;
-    //
-    // document = this.seDocument(index, info);
-    //
-    // if (info.tasks) {
-    //   document.tasks = Object.assign({}, info.tasks);
-    //   //document.date.tasks = (new Date()).toString();
-    // }
-    //
-    // if (info.reply) {
-    //   document.reply = Object.assign({}, info.reply);
-    //   //document.date.reply = (new Date()).toString();
-    // }
-    let document = this.setDocument(index , info);
+     let document = this.setDocument(index , info);
 
-    console.log("INSERT: document = " + JSON.stringify(document, undefined, 2));
+    if (await this.exct.countDocuments(this.toExecutionId(document)) > 0) {
+      throw new Error(`[TxRecordPersistMongoDB:insert] already exist ${JSON.stringify(this.toExecutionId(document))}`);
+    }
 
     let job: TxMongoDBDocumentJob = {uuid: index.executeUuid, job: index.job};
-
     try {
       await this.exct.insertOne(document);
       await this.jobs.insertOne(job);
@@ -95,7 +82,6 @@ export class TxRecordPersistMongoDB implements TxRecordPersistAdapter {
       logger.error(`[TxRecordPersistMongoDB::insert] ERROR: updating execute: ${document.executeUuid}:${document.sequence}`);
       logger.error(`[TxRecordPersistMongoDB::insert] ERROR: updating on job: ${document.job.name}:${document.job.uuid}`);
       logger.error(`[TxRecordPersistMongoDB::insert] ERROR: e = ${e.toString()}`);
-
     }
   }
 
@@ -103,19 +89,13 @@ export class TxRecordPersistMongoDB implements TxRecordPersistAdapter {
     if ( ! index.executeUuid) {
       throw new Error('ERROR: index.uuit (execute uuid) is not exist.');
     }
-    //let document = Object.assign({date: {tasks: '', reply: ''}}, index) as TxMongoDBDocumentExecute;
-    // let document = Object.assign({}, index) as TxMongoDBDocumentExecute;
-    //
-    // if (info.tasks) {
-    //   document.tasks = Object.assign({}, info.tasks);
-    //   //document.date.tasks = (new Date()).toString();
-    // }
-    // if (info.reply) {
-    //   document.reply = Object.assign({}, info.reply);
-    //   //document.date.reply = (new Date()).toString();
-    // }
+
     let document = this.setDocument(index, info);
-    console.log("UPDATE: document = " + JSON.stringify(document, undefined, 2));
+
+    if (await this.exct.countDocuments(this.toExecutionId(document)) === 0) {
+      throw new Error(`[TxRecordPersistMongoDB:update] not exist ${JSON.stringify(this.toExecutionId(document))}`);
+    }
+
     try {
       await this.exct.updateOne({
           executeUuid: index.executeUuid,
@@ -129,6 +109,18 @@ export class TxRecordPersistMongoDB implements TxRecordPersistAdapter {
       logger.error(`[TxRecordPersistMongoDB::update] ERROR: updating on job: ${document.job.name}:${document.job.uuid}`);
       logger.error(`[TxRecordPersistMongoDB::update] ERROR: e = ${e.toString()}`);
     }
+  }
+
+  async delete(executionId: TxJobExecutionId) {
+    let filter = {executeUuid: executionId.uuid};
+    if (executionId.sequence > 0) {
+      filter['sequence'] = executionId.sequence;
+    }
+
+    let deleted = await this.exct.deleteOne(filter);
+    logger.info(`[TxRecordPersistMongoDB:delete] ${JSON.stringify(filter)} delete: ${deleted}`);
+
+    return deleted;
   }
 
   /**
@@ -152,7 +144,6 @@ export class TxRecordPersistMongoDB implements TxRecordPersistAdapter {
         sequence: executionId.sequence
       }).toArray();
     }
-    console.log("ASKING: = " + JSON.stringify(result, undefined, 2));
 
     return result as TxRecordRead[];
   }
@@ -175,6 +166,10 @@ export class TxRecordPersistMongoDB implements TxRecordPersistAdapter {
     }
 
     return document;
+  }
+
+  toExecutionId(document: TxMongoDBDocumentExecute) {
+    return {executeUuid: document.executeUuid, sequence: document.sequence};
   }
 
   close() {
