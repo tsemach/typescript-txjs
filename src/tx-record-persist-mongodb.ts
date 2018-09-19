@@ -131,21 +131,16 @@ export class TxRecordPersistMongoDB implements TxRecordPersistAdapter {
    * @returns {Promise<TxRecordRead[]>}
    */
   async asking(executionId: TxJobExecutionId): Promise<TxRecordRead[]> {
-    let result;
-
-    if (executionId.sequence > 0) {
-      result = await this.exct.find({
+    if (executionId.sequence === 0) {
+      return await this.exct.find({
         executeUuid: executionId.uuid
       }).toArray();
     }
-    else {
-      result = await this.exct.find({
+
+    return await this.exct.find({
         executeUuid: executionId.uuid,
         sequence: executionId.sequence
-      }).toArray();
-    }
-
-    return result as TxRecordRead[];
+      }).toArray() as TxRecordRead[];
   }
 
   private setDocument(index: TxRecordIndexSave, info: TxRecordInfoSave): TxMongoDBDocumentExecute {

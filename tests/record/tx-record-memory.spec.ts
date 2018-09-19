@@ -63,31 +63,31 @@ describe('Record Memory - Insert | Update | Read', () => {
   /**
     */
   it('tx-record-memory.spec: check insert is working', async () => {
-    // logger.info('tx-record-memory.spec: check insert is working');
-    //
-    // let db = new TxRecordPersistMemory();
-    //
-    // logger.info("exeUuid uuid = " + exeUuid);
-    // logger.info("jobUuid uuid = " + jobUuid);
-    //
-    // let result;
-    // try {
-    //   db.insert(index, infoTasks);
-    //   result = await db.asking({uuid: index.executeUuid, sequence: index.sequence});
-    // }
-    // catch (e) {
-    //   logger.error("ERROR: on insert document - " + JSON.stringify(index, undefined, 2))
-    //   assert(false);
-    // }
-    //
-    // console.log("INSERT: resulr = " + JSON.stringify(result, undefined, 2));
-    //
-    // expect(index.executeUuid).to.equal(result[0].executeUuid);
-    // expect(index.sequence).to.equal(result[0].sequence);
-    // expect(index.component).to.equal(result[0].component);
-    // expect(index.method).to.equal(result[0].method);
-    // expect(index.job).to.deep.equal(result[0].job);
-    // expect(infoTasks.tasks).to.deep.equal(result[0].tasks);
+    logger.info('tx-record-memory.spec: check insert is working');
+
+    let db = new TxRecordPersistMemory();
+
+    logger.info("exeUuid uuid = " + exeUuid);
+    logger.info("jobUuid uuid = " + jobUuid);
+
+    let result;
+    try {
+      db.insert(index, infoTasks);
+      result = await db.asking({uuid: index.executeUuid, sequence: index.sequence});
+    }
+    catch (e) {
+      logger.error("ERROR: on insert document - " + JSON.stringify(index, undefined, 2))
+      assert(false);
+    }
+
+    console.log("INSERT: resulr = " + JSON.stringify(result, undefined, 2));
+
+    expect(index.executeUuid).to.equal(result[0].executeUuid);
+    expect(index.sequence).to.equal(result[0].sequence);
+    expect(index.component).to.equal(result[0].component);
+    expect(index.method).to.equal(result[0].method);
+    expect(index.job).to.deep.equal(result[0].job);
+    expect(infoTasks.tasks).to.deep.equal(result[0].tasks);
   });
 
   it('tx-record-memory.spec: check update is working', async () => {

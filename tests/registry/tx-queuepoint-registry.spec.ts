@@ -124,8 +124,8 @@ describe('Registry Classes - TxMountPointRegitry', () => {
     QP1.queue().close();
   });
 
-  it('tx-queuetpoint.spec: check creation of TxQueuePoint with RabbitMQ connector injection', () => {
-    logger.info('tx-queuetpoint.spec: check creation of TxQueuePoint with RabbitMQ connector injection');
+  it('tx-queuetpoint-registry.spec: check creation of TxQueuePoint with RabbitMQ connector injection', () => {
+    logger.info('tx-queuetpoint-registry.spec: check creation of TxQueuePoint with RabbitMQ connector injection');
 
     TxQueuePointRegistry.instance.setDriver(TxConnectorNoDefaultRabbitMQ);
 
@@ -150,8 +150,8 @@ describe('Registry Classes - TxMountPointRegitry', () => {
     assert(isUUID((<TxConnectorNoDefaultRabbitMQ>QP2.queue()).id));
   });
 
-  it('tx-queuetpoint.spec: check calling to subscribe on TxQueuePoint with RabbitMQ', (done) => {
-    logger.info('tx-queuetpoint.spec: check calling to subscribe on TxQueuePoint with RabbitMQ');
+  it('tx-queuetpoint-registry.spec: check calling to subscribe on TxQueuePoint with RabbitMQ', (done) => {
+    logger.info('tx-queuetpoint-registry.spec: check calling to subscribe on TxQueuePoint with RabbitMQ');
 
     TxQueuePointRegistry.instance.setDriver(TxConnectorNoDefaultRabbitMQ);
 
@@ -172,8 +172,8 @@ describe('Registry Classes - TxMountPointRegitry', () => {
 
   });
 
-  it('tx-mountpoint.spec: just exit', (done) => {
-    logger.info('tx-mountpoint.spec: just exit');
+  it('tx-queuepoint-registry.spec: just exit', (done) => {
+    logger.info('tx-queuepoint-registry.spec: just exit');
 
     done();
     setTimeout(() => {

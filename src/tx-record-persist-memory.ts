@@ -145,7 +145,7 @@ export class TxRecordPersistMemory implements TxRecordPersistAdapter {
 
     // if executionId.sequence === 0 then remove all instances of execution ids
     for (let id of this._exct.keys()) {
-      if (id !== this.toIndicator(executionId)) {
+      if (this.toIndicatorUuid(id) !== executionId.uuid) {
         continue;
       }
       result.push(this._exct.get(id));
@@ -174,19 +174,26 @@ export class TxRecordPersistMemory implements TxRecordPersistAdapter {
     return document;
   }
 
-  dump() {
-    console.log("MEMEOR:LDUMP ");
-    for (let [id, ex] of this.exct) {
-      console.log('[TxRecordPersistMemory:dump] id: ' + JSON.stringify(id) + ' =>' + JSON.stringify(ex, undefined, 2));
-    }
-  }
+  // dump() {
+  //   for (let [id, ex] of this.exct) {
+  //     console.log('[TxRecordPersistMemory:dump] id: ' + JSON.stringify(id) + ' =>' + JSON.stringify(ex, undefined, 2));
+  //   }
+  // }
 
   toExecutionId(index: TxRecordIndexSave): TxJobExecutionId {
     return {uuid: index.executeUuid, sequence: index.sequence};
   }
 
-  toIndicator(index: TxJobExecutionId): string {
-    return `${index.uuid}:${index.sequence}`;
+  toIndicator(id: TxJobExecutionId): string {
+    return `${id.uuid}:${id.sequence}`;
+  }
+
+  toIndicatorUuid(id: string): string {
+    return id.split(':')[0]
+  }
+
+  toIndicatorSequnce(id: string): string {
+    return id.split(':')[1]
   }
 
   private get exct() {

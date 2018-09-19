@@ -51,7 +51,7 @@ export interface TxRecordPersistAdapter {
   insert(index: TxRecordIndexSave , info: TxRecordInfoSave): void;
 
   /**
-   * Update an execution of a specific job. The pair executeUuid:sequence consider the execution ID.
+   * Update an exist execution of a specific job. The pair executeUuid:sequence consider the execution ID.
    * if executeUuid:sequence is not exist then throw an exception.
    *
    * @param {TxRecordIndexSave} index - encapsulate properties about the execution.
@@ -70,7 +70,7 @@ export interface TxRecordPersistAdapter {
   delete(executionId: TxJobExecutionId);
 
   /**
-   * Read a specific execution.
+   * Read a specific execution. Should return exection array according to executionId
    *
    * If executionId.sequence > 0 then get a specific execute (according to its sequence)
    * if executionId.sequence == 0 then get all steps of one job execute (all executions of a specific job run).

@@ -63,7 +63,7 @@ export class TxJob {
         logger.info(`[TxJob:subscribe] [${this.name}] before shift to next task, stack.len = ${this.stack.length}`);
 
         if (this.isRecord(this.options)) {
-          this.record({reply: data}, 'update');
+          await this.record({reply: data}, 'update');
         }
         this.onComponent.next(new TxTask<{name: string}>({name: <string>txMountPoint.name}, {data: data}));
 
@@ -119,7 +119,7 @@ export class TxJob {
         }
 
         if (this.isRecord(this.options)) {
-          this.record({tasks: data}, 'insert');
+          await this.record({tasks: data}, 'insert');
         }
 
         next.tasks().next(data);
@@ -158,7 +158,7 @@ export class TxJob {
 
     if (this.isRecord(options)) {
       this.genExecutionId();
-      this.record({tasks: data}, 'insert');
+      await this.record({tasks: data}, 'insert');
     }
 
     runme.tasks().next(data);
@@ -365,7 +365,7 @@ export class TxJob {
     return TxJobRegistry.instance.getRecordFlag(this.name);
   }
 
-  private record(info: any, method: string) {
+  private async record(info: any, method: string) {
     let index: TxRecordIndexSave;
     index = {
       executeUuid: this.executionId.uuid,
@@ -383,16 +383,20 @@ export class TxJob {
     };
 
     if (method === 'insert') {
-      this.recorder.insert(index, info);
+      await this.recorder.insert(index, info);
     }
 
     if (method === 'update') {
-      this.recorder.update(index, info);
+      await this.recorder.update(index, info);
     }
   }
 
   genExecutionId() {
     this.executionId = {uuid: longUuid(), sequence: 1};
+  }
+
+  getExecutionId() {
+    return this.executionId;
   }
 
   getCurrentName() {
