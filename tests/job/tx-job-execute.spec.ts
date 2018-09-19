@@ -8,7 +8,7 @@ import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
 import { TxJobExecutionOptions } from "../../src/tx-job-execution-options";
 import { TxTask } from '../../src/tx-task';
 import { TxJob } from '../../src/tx-job';
-import { TxJobRegistry } from "../../src";
+import {TxJobExecutionId, TxJobRegistry} from "../../src";
 
 import { C1Component } from './C1.component';
 import { C2Component } from './C2.component';
@@ -78,20 +78,20 @@ describe('Job Class', () => {
     new C2Component();
     new C3Component();
     let uuid = short().new();
-    let executeUuid = short().new();
+    let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};
 
     let job = new TxJob();
     let from = {
-      "name": "GitHub",
-      "uuid": uuid,
-      "block": "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
-      "stack": "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
-      "trace": "",
-      "single": false,
-      "revert": false,
-      "current": "",
-      "executeUuid": executeUuid
-
+      name: "GitHub",
+      uuid: uuid,
+      block: "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
+      stack: "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
+      trace: "",
+      single: false,
+      revert: false,
+      current: "",
+      executeUuid: executionId.uuid,
+      sequence: executionId.sequence
     };
     let after = job.upJSON(from).toJSON();
 
@@ -103,6 +103,7 @@ describe('Job Class', () => {
     expect(from.block).to.equal(after['block']);
     expect(from.current).to.equal(after['current']);
     expect(from.executeUuid).to.equal(after['executeUuid']);
+    expect(from.sequence).to.equal(after['sequence']);
 
     job.getIsCompleted().subscribe(
       (data) => {

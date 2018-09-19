@@ -12,6 +12,7 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
   private static _instance: TxJobRegistry;
   private _persistDriver: TxJobPersistAdapter = null;
   private _recorderDriver: TxRecordPersistAdapter = null;
+  private _isRecordMap = new Map<string, boolean>();
 
   private constructor() {
     super();
@@ -39,14 +40,6 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
     this._persistDriver = _driver;
   }
 
-  getRecorderDriver() {
-    return this._recorderDriver;
-  }
-
-  setRecorderDriver(_recordDriver: TxRecordPersistAdapter) {
-    this._recorderDriver = _recordDriver;
-  }
-
   async persist(job: TxJob) {
     if ( ! this.getPersistDriver() ) {
       throw 'try to persist but driver is null';
@@ -67,4 +60,23 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
     this.add(newUuid, job);
   }
 
+  getRecorderDriver() {
+    return this._recorderDriver;
+  }
+
+  setRecorderDriver(_recordDriver: TxRecordPersistAdapter) {
+    this._recorderDriver = _recordDriver;
+  }
+
+  get isRecordMap() {
+    return this._isRecordMap;
+  }
+
+  setRecordFlag(name: string, flag: boolean) {
+    this.isRecordMap.set(name, flag);
+  }
+
+  getRecordFlag(name: string): boolean {
+    return this.isRecordMap.get(name);
+  }
 }

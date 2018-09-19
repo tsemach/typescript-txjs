@@ -1,3 +1,4 @@
+
 /**
  * This is the JSON representation of TxJob
  */
@@ -11,4 +12,5 @@ export interface TxJobJSON {
   revert: boolean;
   current: string;
   executeUuid: string;
+  sequence: number;
 }

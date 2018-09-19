@@ -1,7 +1,9 @@
 import { TxTask } from "./tx-task";
+import { TxJobExecutionId } from "../src";
 
 export interface TxRecordIndexSave {
-  uuid: string,
+  executeUuid: string,
+  sequence: number,
   job: {
     name: string
     uuid: string
@@ -20,7 +22,8 @@ export interface TxRecordInfoSave {
 }
 
 export interface TxRecordRead {
-  uuid: string,
+  executeUuid: string,
+  sequence: number,
   job: {
     name: string,
     uuid: string
@@ -38,7 +41,7 @@ export interface TxRecordRead {
 export interface TxRecordPersistAdapter {
   insert(index: TxRecordIndexSave , info: TxRecordInfoSave): void;
   update(index: TxRecordIndexSave , info: TxRecordInfoSave): void;
-  asking(uuid: string): Promise<TxRecordRead[]>;
+  asking(executionId: TxJobExecutionId): Promise<TxRecordRead[]>;
   close();
 }
 

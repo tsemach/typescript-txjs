@@ -54,6 +54,8 @@ describe('Record MongoDB - Insert | Update | Read', () => {
     logger.info('tx-record-mongodb.spec: check insert is working');
     let db = new TxRecordPersistMongoDB();
 
+    await db.connect('mongodb://localhost:27017');
+
     const exeUuid = uuid();
     const jobUuid = uuid();
     logger.info("exeUuid uuid = " + exeUuid);
@@ -66,7 +68,8 @@ describe('Record MongoDB - Insert | Update | Read', () => {
     let infoReply: TxRecordInfoSave;
 
     index = {
-      uuid: exeUuid,
+      executeUuid: exeUuid,
+      sequence: 1,
       component: "GITHUB::READ",
       method: "execute",
       job: {
@@ -99,10 +102,11 @@ describe('Record MongoDB - Insert | Update | Read', () => {
       }
     } as TxRecordInfoSave;
 
+    let result;
     try {
       await db.insert(index, infoTasks);
       await db.update(index, infoReply);
-      let result = await db.asking(index.uuid);
+      result = await db.asking({uuid: index.executeUuid, sequence: index.sequence});
       result.forEach(item => { delete item['_id']; });
       console.log("READING: result = " + JSON.stringify(result, undefined, 2));
     }
@@ -110,6 +114,14 @@ describe('Record MongoDB - Insert | Update | Read', () => {
       logger.error("ERROR: on insert document - " + JSON.stringify(index, undefined, 2))
       assert(false);
     }
+
+    expect(index.executeUuid).to.equal(result[0].executeUuid);
+    expect(index.sequence).to.equal(result[0].sequence);
+    expect(index.component).to.equal(result[0].component);
+    expect(index.method).to.equal(result[0].method);
+    expect(index.job).to.deep.equal(result[0].job);
+    expect(infoTasks.tasks).to.deep.equal(result[0].tasks);
+    expect(infoReply.reply).to.deep.equal(result[0].reply);
   });
 
 });

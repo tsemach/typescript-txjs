@@ -11,7 +11,8 @@ import { TxJobRegistry } from './tx-job-resgitry';
 import { TxJobJSON } from "./tx-job-json";
 import { TxTask } from "./tx-task";
 import { TxJobExecutionOptions, TxJobExecutionOptionsChecker } from "./tx-job-execution-options";
-import {TxRecordPersistAdapter, TxRecordIndexSave} from "./tx-record-persist-adapter";
+import { TxRecordPersistAdapter, TxRecordIndexSave } from "./tx-record-persist-adapter";
+import {TxJobExecutionId} from "./tx-job-execution-id";
 
 export const enum TxDirection {
   forward = 1,
@@ -45,7 +46,11 @@ export class TxJob {
   current = null;
   options = defaultOptions;
 
-  executeUuid: string;
+  //executeUuid: string;
+  executionId: {
+    uuid: string,
+    sequence: number
+  };
   recorder: TxRecordPersistAdapter;
 
   constructor(private name: string = '') {
@@ -145,7 +150,7 @@ export class TxJob {
       await TxJobRegistry.instance.persist(this);
     }
 
-    if (TxJobExecutionOptionsChecker.isRecord(options)) {
+    if (this.isRecord(options)) {
       this.record({tasks: data}, 'execute');
     }
 
@@ -259,6 +264,8 @@ export class TxJob {
 
     this.current = null;
     this.single = false;
+
+    this.executionId = {uuid: '', sequence: 0};
   }
 
   release() {
@@ -266,6 +273,7 @@ export class TxJob {
     this.subscribers.forEach(cb => {
       cb.unsubscribe();
     });
+    this.executionId = {uuid: '', sequence: 0};
   }
 
   finish(data) {    
@@ -284,8 +292,9 @@ export class TxJob {
       single: this.single,
       revert: this.revert,
       current: this.getCurrentName(),
-      executeUuid: this.executeUuid
-    }    
+      executeUuid: this.executionId.uuid,
+      sequence: this.executionId.sequence
+    }
   }
 
   upJSON(json: TxJobJSON) {
@@ -296,7 +305,8 @@ export class TxJob {
     this.single = json.single;
     this.revert = json.revert;
     this.current = json.current !== '' ? TxMountPointRegistry.instance.get(json.current) : null;
-    this.executeUuid = json.executeUuid;
+    this.executionId.uuid = json.executeUuid;
+    this.executionId.sequence = json.sequence;
 
     this.stack = [];
     json.stack.split(',').forEach(name => {
@@ -326,10 +336,32 @@ export class TxJob {
     return this;    
   }
 
+  /**
+   * Add record to options is optional, if options.execute.record === true then
+   * set TxJobRepository.setRecordFlag(this.job, true) to on.
+   * This flag is override TxJobRepository.recordFlag and return true.
+   *
+   * If options.execute.record === false then turn record off on the TxJobRegistry and return false;
+   *
+   * If options.execute.record is not exit (not define) then use the TxJobRegistry flag
+   *
+   * @param {TxJobExecutionOptions} options
+   * @returns {boolean}
+   */
+  private isRecord(options?: TxJobExecutionOptions) {
+    if (TxJobExecutionOptionsChecker.isRecordDefine(options)) {
+      TxJobRegistry.instance.setRecordFlag(this.name, options.execute.record);
+
+      return options.execute.record;
+    }
+    return TxJobRegistry.instance.getRecordFlag(this.name);
+  }
+
   private record(info: any, method: string) {
     let index: TxRecordIndexSave;
     index = {
-      uuid: this.executeUuid,
+      executeUuid: this.executionId.uuid,
+      sequence: this.executionId.sequence,
       job: {
         name: this.name,
         uuid: this.uuid

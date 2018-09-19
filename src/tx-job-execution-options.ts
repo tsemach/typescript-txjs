@@ -56,12 +56,17 @@ export class TxJobExecutionOptionsChecker {
   }
 
   static isRecord(options: TxJobExecutionOptions) {
-    if (options.execute === undefined ) {
-      return false;
-    }
-    if (options.execute.record === undefined ) {
+    if ( ! TxJobExecutionOptionsChecker.isRecordDefine(options) ) {
       return false;
     }
     return options.execute.record;
   }
+
+  static isRecordDefine(options: TxJobExecutionOptions) {
+    if (options.execute === undefined) {
+      return false;
+    }
+    return options.execute.record !== undefined;
+  }
+
 }

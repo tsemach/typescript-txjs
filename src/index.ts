@@ -13,4 +13,5 @@ export * from './tx-job-execution-options'
 export * from './tx-job-persist-adapter'
 export * from './tx-job-json'
 export * from './tx-connector'
+export * from './tx-job-execution-id';
 

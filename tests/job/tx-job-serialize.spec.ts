@@ -9,6 +9,7 @@ import {TxMountPointRegistry} from '../../src/tx-mountpoint-registry';
 import {TxTask} from '../../src/tx-task';
 import {TxJob} from '../../src/tx-job';
 import * as short from 'short-uuid';
+import {TxJobExecutionId} from "../../src";
 
 describe('Job Class - Serialize', () => {
 
@@ -92,8 +93,9 @@ describe('Job Class - Serialize', () => {
     new C1Component();
     new C2Component();
     new C3Component();
+
     let uuid = short().new();
-    let executeUuid = short().new();
+    let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};
 
     /**
      * load job where GITHUB_GIST_C1 is already called so need to continue from GITHUB_GIST_C2
@@ -101,15 +103,16 @@ describe('Job Class - Serialize', () => {
      */
     let job = new TxJob();
     let from = {
-      "name": 'GITHUB',
-      "uuid": uuid,
-      "block": "Symbol(GITHUB_GIST_C1),Symbol(GITHUB_GIST_C2),Symbol(GITHUB_GIST_C3)",
-      "stack": "Symbol(GITHUB_GIST_C3)",
-      "trace": "Symbol(GITHUB_GIST_C1)",
-      "single": false,
-      "revert": false,
-      "current": "Symbol(GITHUB_GIST_C2)",
-      "executeUuid": executeUuid
+      name: 'GITHUB',
+      uuid: uuid,
+      block: "Symbol(GITHUB_GIST_C1),Symbol(GITHUB_GIST_C2),Symbol(GITHUB_GIST_C3)",
+      stack: "Symbol(GITHUB_GIST_C3)",
+      trace: "Symbol(GITHUB_GIST_C1)",
+      single: false,
+      revert: false,
+      current: "Symbol(GITHUB_GIST_C2)",
+      executeUuid: executionId.uuid,
+      sequence: executionId.sequence
     };
     let after = job.upJSON(from).toJSON();
     logger.info('[upJSON] after = ' + JSON.stringify(after, undefined, 2));
@@ -120,6 +123,7 @@ describe('Job Class - Serialize', () => {
     expect(from.single).to.equal(after['single']);
     expect(from.current).to.equal(after['current']);
     expect(from.executeUuid).to.equal(after['executeUuid']);
+    expect(from.sequence).to.equal(after['sequence']);
 
     job.getIsCompleted().subscribe(
       (data) => {
