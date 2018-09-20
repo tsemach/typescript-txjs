@@ -48,6 +48,7 @@ export class TxJob {
   options = defaultOptions;
 
   executionId: TxJobExecutionId = {uuid: '', sequence: 0};
+  //executionId = new TxJobExecutionId();
   recorder: TxRecordPersistAdapter;
 
   constructor(private name: string = '') {

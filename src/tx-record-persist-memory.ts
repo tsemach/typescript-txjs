@@ -174,12 +174,6 @@ export class TxRecordPersistMemory implements TxRecordPersistAdapter {
     return document;
   }
 
-  // dump() {
-  //   for (let [id, ex] of this.exct) {
-  //     console.log('[TxRecordPersistMemory:dump] id: ' + JSON.stringify(id) + ' =>' + JSON.stringify(ex, undefined, 2));
-  //   }
-  // }
-
   toExecutionId(index: TxRecordIndexSave): TxJobExecutionId {
     return {uuid: index.executeUuid, sequence: index.sequence};
   }

@@ -37,6 +37,29 @@ interface TxMongoDBDocumentJob {
   }
 }
 
+export class TxMongoDBJobId {
+  uuid: string;     // this is the execution uuid
+  job: {
+    uuid: string,   // this the job uuid as created in TxJob constructor
+    name: string,   // the name as given into TxJob constructor
+  };
+  constructor() {
+    this.uuid = '';
+    this.job = {uuid: '', name: ''};
+  }
+
+  build(index: TxRecordIndexSave) {
+    this.uuid = index.executeUuid;
+    this.job = index.job;
+
+    return this;
+  }
+
+  toKey() {
+    return {"uuid": this.uuid, "job.uuid": this.job.uuid, "job.name": this.job.name};
+  }
+}
+
 export class TxRecordPersistMongoDB implements TxRecordPersistAdapter {
   db: any;
   exct: any;
@@ -76,7 +99,11 @@ export class TxRecordPersistMongoDB implements TxRecordPersistAdapter {
     let job: TxMongoDBDocumentJob = {uuid: index.executeUuid, job: index.job};
     try {
       await this.exct.insertOne(document);
-      await this.jobs.insertOne(job);
+
+      // update the jobs only if not exist
+      if (await this.jobs.countDocuments({"uuid": job.uuid, "job.name": job.job.name}) === 0) {
+        await this.jobs.insertOne(job);
+      }
     }
     catch (e) {
       logger.error(`[TxRecordPersistMongoDB::insert] ERROR: updating execute: ${document.executeUuid}:${document.sequence}`);
@@ -113,12 +140,20 @@ export class TxRecordPersistMongoDB implements TxRecordPersistAdapter {
 
   async delete(executionId: TxJobExecutionId) {
     let filter = {executeUuid: executionId.uuid};
+
     if (executionId.sequence > 0) {
       filter['sequence'] = executionId.sequence;
     }
 
-    let deleted = await this.exct.deleteOne(filter);
-    logger.info(`[TxRecordPersistMongoDB:delete] ${JSON.stringify(filter)} delete: ${deleted}`);
+    let deleted;
+
+    // delete the entry in the execute collection
+    deleted = await this.exct.deleteOne(filter);
+    logger.info(`[TxRecordPersistMongoDB:delete] execute delete ${JSON.stringify(filter)} delete: ${deleted}`);
+
+    // delete the entry in the jobs collection
+    deleted = await this.jobs.deleteOne({uuid: executionId.uuid});
+    logger.info(`[TxRecordPersistMongoDB:delete] jobs delete ${JSON.stringify(filter)} delete: ${deleted}`);
 
     return deleted;
   }
@@ -141,6 +176,13 @@ export class TxRecordPersistMongoDB implements TxRecordPersistAdapter {
         executeUuid: executionId.uuid,
         sequence: executionId.sequence
       }).toArray() as TxRecordRead[];
+  }
+
+  get collection() {
+    return {
+      exct: this.exct,
+      jobs: this.jobs
+    }
   }
 
   private setDocument(index: TxRecordIndexSave, info: TxRecordInfoSave): TxMongoDBDocumentExecute {
@@ -171,5 +213,4 @@ export class TxRecordPersistMongoDB implements TxRecordPersistAdapter {
     this.db.close();
   }
 }
-
 

@@ -8,9 +8,11 @@ export interface TxJobExecutionId {
 //   uuid: string;
 //   sequence: number;
 //
-//   constructor(){
-//
+//   constructor() {
+//     this.uuid = '';
+//     this.sequence = 0;
 //   }
+//
 // }
 
 // class TxJobExecutionIdWrapper extends TxJobExecutionId {

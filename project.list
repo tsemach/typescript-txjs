@@ -13,7 +13,7 @@ examples/.gitignore
 examples/src/javascript/G1Component.js
 examples/src/javascript/index.js
 examples/src/javascript/G2Component.js
-examples/src/javascript/github-job.js
+examples/src/javascript/github-job_read.js
 examples/src/typescript/G1Component.ts
 examples/src/typescript/github-job.ts
 examples/src/typescript/G2Component.ts
