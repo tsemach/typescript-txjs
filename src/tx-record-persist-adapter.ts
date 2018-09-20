@@ -21,21 +21,21 @@ export interface TxRecordInfoSave {
   reply:TxTask<any>
 }
 
-export interface TxRecordRead {
-  executeUuid: string,
-  sequence: number,
-  job: {
-    name: string,
-    uuid: string
-  },
-  component: string,
-  method: string,
-  date: {
-    tasks: string,
-    reply: string
-  },
-  tasks: TxTask<any>
-  reply: TxTask<any>
+export interface TxRecordRead extends TxRecordIndexSave, TxRecordInfoSave {
+  // executeUuid: string,
+  // sequence: number,
+  // job: {
+  //   name: string,
+  //   uuid: string
+  // },
+  // component: string,
+  // method: string,
+  // date: {
+  //   tasks: string,
+  //   reply: string
+  // },
+  // tasks: TxTask<any>
+  // reply: TxTask<any>
 }
 
 export interface TxRecordPersistAdapter {

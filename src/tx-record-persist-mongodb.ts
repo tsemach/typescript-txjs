@@ -6,6 +6,13 @@ import {TxRecordInfoSave, TxRecordPersistAdapter} from './tx-record-persist-adap
 import { TxRecordIndexSave, TxRecordRead } from './tx-record-persist-adapter';
 import { TxJobExecutionId } from "./tx-job-execution-id";
 
+/**
+ * Execute document (written / read from execute collection)
+ *
+ * this is internal execute document representation of one execution step (of a specific component)
+ * The sequence number is the component order number in one particular job run.
+ *
+ */
 interface TxMongoDBDocumentExecute {
   executeUuid: string,
   sequence: number,
@@ -29,6 +36,13 @@ interface TxMongoDBDocumentExecute {
   }
 }
 
+/**
+ * Job document (written / read from job collection)
+ *
+ * uuid: is the execution uuid.
+ * Job: is the job id (uuid:name).
+ *
+ */
 interface TxMongoDBDocumentJob {
   uuid: string,
   job: {
@@ -37,6 +51,9 @@ interface TxMongoDBDocumentJob {
   }
 }
 
+/**
+ * Just helper class to represent job id.
+ */
 export class TxMongoDBJobId {
   uuid: string;     // this is the execution uuid
   job: {
@@ -60,6 +77,15 @@ export class TxMongoDBJobId {
   }
 }
 
+/**
+ * This is the MongoDB implementation of the recorder persist adapter.
+ *
+ * It has two collections "execute" and "jobs".
+ * execute collection - store document of each component. the uuid:sequence pair are represent
+ * one component. the exection uuid is the same for all component running in this specific job
+ * execution.
+ *
+ */
 export class TxRecordPersistMongoDB implements TxRecordPersistAdapter {
   db: any;
   exct: any;

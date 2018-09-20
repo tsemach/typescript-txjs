@@ -48,7 +48,6 @@ export class TxJob {
   options = defaultOptions;
 
   executionId: TxJobExecutionId = {uuid: '', sequence: 0};
-  //executionId = new TxJobExecutionId();
   recorder: TxRecordPersistAdapter;
 
   constructor(private name: string = '') {
@@ -183,6 +182,10 @@ export class TxJob {
 
       return;
     }
+
+    if (this.isRecord(options)) {
+      await this.record({tasks: data}, 'insert');
+    }
     this.current.tasks().next(data);
   }
 
@@ -205,6 +208,10 @@ export class TxJob {
 
     if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
       await TxJobRegistry.instance.persist(this);
+    }
+
+    if (this.isRecord(options)) {
+      await this.record({tasks: data}, 'insert');
     }
 
     this.current.tasks().next(data);
