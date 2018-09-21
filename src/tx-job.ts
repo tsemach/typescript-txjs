@@ -302,6 +302,7 @@ export class TxJob {
     if (this.isRecord(options)) {
       await this.record({tasks: data}, 'insert');
     }
+
     // if come back from serialization with error flag on than call to component on error channel.
     if (this.error) {
       this.current.tasks().error(data);

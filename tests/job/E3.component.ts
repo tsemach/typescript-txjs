@@ -5,7 +5,7 @@ import { TxMountPointRegistry } from '../../src';
 import { TxTask } from '../../src';
 
 export class E3Component {
-  mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::E3');
+  private mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::E3');
   method = '';
 
   constructor() {

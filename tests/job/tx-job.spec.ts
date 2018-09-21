@@ -48,9 +48,9 @@ describe('Job Class', () => {
   });
 
   it('check C1-C2-C3 toJSON begining', () => {
-    let C1 = new C1Component();
-    let C2 = new C2Component();
-    let C3 = new C3Component();
+    new C1Component();
+    new C2Component();
+    new C3Component();
 
     let job = new TxJob('GitHub'); // or create througth the TxJobRegistry
 
@@ -109,6 +109,7 @@ describe('Job Class', () => {
       trace: "",
       single: false,
       revert: false,
+      error: false,
       current: "",
       executeUuid: executionId.uuid,
       sequence: executionId.sequence
@@ -158,6 +159,7 @@ describe('Job Class', () => {
       trace: "GITHUB::GIST::C1",
       single: false,
       revert: false,
+      error: false,
       current: "GITHUB::GIST::C2",
       executeUuid: executionId.uuid,
       sequence: executionId.sequence
@@ -199,6 +201,7 @@ describe('Job Class', () => {
       trace: "GITHUB::GIST::C1",
       single: false,
       revert: false,
+      error: false,
       current: "GITHUB::GIST::C2",
       executeUuid: executionId.uuid,
       sequence: executionId.sequence

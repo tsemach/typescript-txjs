@@ -110,6 +110,7 @@ describe('Job Class - Serialize', () => {
       trace: "Symbol(GITHUB_GIST_C1)",
       single: false,
       revert: false,
+      error: false,
       current: "Symbol(GITHUB_GIST_C2)",
       executeUuid: executionId.uuid,
       sequence: executionId.sequence

@@ -89,6 +89,7 @@ describe('Job Class', () => {
       trace: "",
       single: false,
       revert: false,
+      error: false,
       current: "",
       executeUuid: executionId.uuid,
       sequence: executionId.sequence
