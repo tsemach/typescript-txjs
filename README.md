@@ -7,6 +7,14 @@
 ## Documentation
 ###Full document is now [here](https://rxjs.gitbook.io/rx-txjs/) 
 
+##What's New
+* **`Recorder`** -  a job can now record all the data pass between components for debugging and regression tests. To use the recorder you need to build a class implement a the interface TxRecorderPersistenceAdapter or you can use one of the builtin recorder using MongoDB and in process memory. 
+
+* **`Error Handling`** - a job now support error handling meaning it stop its current execution and start calling to each already called components in revers order to clean up their stuff.
+
+* **`API change`**, change 'connect' method of TxConnector to be 'register' method.
+
+
 ## Description
 **TxJS** implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.com/) and [TypeSript](https://www.typescriptlang.org/).
 In many cases application needs to preform a flow (some job) which is a collection of small "steps" (a component).

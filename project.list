@@ -43,6 +43,10 @@ examples/src/typescript/job/github-job.ts
 examples/src/typescript/job/decorator-job.ts
 examples/src/typescript/job/G2Component.ts
 examples/src/typescript/job/index.ts
+examples/src/typescript/recorder/C2.component.ts
+examples/src/typescript/recorder/recorder.ts
+examples/src/typescript/recorder/recorder.d.ts
+examples/src/typescript/recorder/C1.component.ts
 examples/README.md
 examples/package-lock.json
 examples/tsconfig.json
@@ -57,9 +61,12 @@ tests/job/C2.component.ts
 tests/job/tx-job.spec.ts
 tests/job/tx-job-symbol.spec.ts
 tests/job/tx-job-undo.spec.ts
+tests/job/E2.component.ts
+tests/job/E1.component.ts
 tests/job/pesist-driver.ts
 tests/job/tx-job-release.spec.ts
 tests/job/tx-job-execute.spec.ts
+tests/job/E3.component.ts
 tests/job/tx-job-execute-until.spec.ts
 tests/job/tx-job-execute-id.spec.ts
 tests/job/tx-job-execute-until-continue.spec.ts
@@ -68,6 +75,7 @@ tests/job/tx-job-execute-record.spec.ts
 tests/job/tx-job-continue.spec.ts
 tests/job/tx-job-serialize.spec.ts
 tests/job/tx-job-reset.spec.ts
+tests/job/tx-job-execute-error.spec.ts
 tests/job/C3.component.ts
 tests/job/C1.component.ts
 tests/registry/tx-mountpoint-registry.spec.ts
