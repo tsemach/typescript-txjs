@@ -19,6 +19,13 @@ export class C1Component {
 
         // just send the reply to whom is 'setting' on this reply subject
         this.mountpoint.reply().next(new TxTask({method: 'from C1', status: 'ok'}, task['data']))
+      },
+      (error) => {
+        logger.info('[C1Component:error] got error = ' + JSON.stringify(error, undefined, 2));
+        this.method = error['method'];
+
+        // just send the reply to whom is 'setting' on this reply subject
+        this.mountpoint.reply().error(new TxTask({method: 'from C1', status: 'ERROR'}, error['data']))
       }
     );
 

@@ -34,6 +34,7 @@ export class TxJob {
   isCompleted = new Subject();  // notify when the whole execution is completed.
   isStopped = new Subject();    // notify when execution reach to it's run-until component.
   onComponent = new Subject();  // notify the world on any coming in subscribe callback (reply from component).
+  onError = new Subject();  // notify the world on any coming in subscribe callback (reply from component).
 
   uuid = uuid.new();
 
@@ -42,6 +43,7 @@ export class TxJob {
   block = [];       // all the mountpoints added to this job, useful when need to reexecute the job
   subscribers = []; // a list of all the subscribes job is registered.
 
+  error = false;
   single = false;
   revert = false;
   current = null;
@@ -55,77 +57,182 @@ export class TxJob {
     this.recorder = TxJobRegistry.instance.getRecorderDriver();
   }
 
+  async subscribeCB(data, txMountPoint: TxMountPoint) {
+    logger.info(`[TxJob:subscribe] [${this.name}] got reply, data = ${JSON.stringify(data, undefined, 2)}`);
+    logger.info(`[TxJob:subscribe] [${this.name}] before shift to next task, stack.len = ${this.stack.length}`);
+
+    if (this.error) {
+      throw new Error(`[TxJob:subscribe] ERROR: job: ${this.name} is on error but got subscribe callback from a mountpoint`);
+    }
+
+    if (this.isRecord(this.options)) {
+      await this.record({reply: data}, 'update');
+    }
+    this.onComponent.next(new TxTask<{name: string}>({name: <string>txMountPoint.name}, {data: data}));
+
+    if (this.revert) {
+      this.undoCB(data);
+
+      return;
+    }
+
+    if (this.single) {
+      this.getIsStopped().next(data);
+    }
+
+    if (this.stack.length === 0) {
+      logger.info(`[TxJob:subscribe] [${this.name}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}`);
+      this.finish(data);
+
+      return;
+    }
+
+    if (this.single) {
+      if (TxJobExecutionOptionsChecker.isDestroy(this.options)) {
+        logger.info(`[TxJob:subscribe] [${this.name}] single step - going to destroy job \'${this.getUuid()}\', on ${this.current.name} mount point`);
+
+        this.release();
+      }
+      return
+    }
+
+    /**
+     * make the next move, get the next mountpoint from the stack,
+     * and send the data to it's tasks subject.
+     */
+    let next = this.shift();
+    logger.info(`[TxJob:subscribe] [${this.name}] going to run next task: ${next.name}`);
+
+    if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
+      await TxJobRegistry.instance.persist(this);
+    }
+
+    if (TxJobExecutionOptionsChecker.isUntil(this.options, next.name)) {
+      logger.info(`[TxJob:subscribe] [${this.name}] found execute.until, on ${next.name} mount point`);
+
+      if (TxJobExecutionOptionsChecker.isDestroy(this.options)) {
+        logger.info(`[TxJob:subscribe] [${this.name}] going to destroy job \'${this.getUuid()}\', on ${next.name} mount point`);
+
+        this.release();
+      }
+
+      this.getIsStopped().next(data);
+
+      return;
+    }
+
+    if (this.isRecord(this.options)) {
+      await this.record({tasks: data}, 'insert');
+    }
+
+    next.tasks().next(data);
+  }
+
+  async errorCB(data,  txMountPoint: TxMountPoint) {
+    logger.info(`[TxJob:errorCB] [${this.name}] got error, data = ${JSON.stringify(data, undefined, 2)}`);
+    logger.info(`[TxJob:errorCB] [${this.name}] before shift to next error, trace.len = ${this.trace.length}`);
+
+    // set error mode to true and rise onError event.
+    if (this.error == false) {
+      logger.info(`[TxJob:errorCB] [${this.name}] first time enter to error handler, remove current occluding the error`);
+
+      this.trace.pop();
+      this.error = true;
+    }
+    this.onError.next(new TxTask<{ name: string }>({name: <string>txMountPoint.name}, {data: data}));
+
+    if (this.trace.length === 0) {
+      logger.info(`[TxJob:errorCB] [${this.name}] complete running errors all mount points, trace.length = ${this.trace.length}, stack.length = ${this.stack.length}`);
+      this.isCompleted.error(data);
+
+      return;
+    }
+
+    this.current = this.trace.pop();
+    logger.info(`[TxJob:errorCB] [${this.name}] after pop this.currnet = ${this.current.name}`);
+
+    this.stack.push(this.current);
+
+    if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
+      await TxJobRegistry.instance.persist(this);
+    }
+
+    this.current.tasks().error(data);
+  }
+
   subscribe(txMountPoint: TxMountPoint) {
     logger.info(`[TxJob:subscribe] [${this.name}] going to add '${txMountPoint.name}' mount point`);
     const subscribed = txMountPoint.reply().subscribe(
       async (data) => {
-        logger.info(`[TxJob:subscribe] [${this.name}] got reply, data = ${JSON.stringify(data, undefined, 2)}`);
-        logger.info(`[TxJob:subscribe] [${this.name}] before shift to next task, stack.len = ${this.stack.length}`);
-
-        if (this.isRecord(this.options)) {
-          await this.record({reply: data}, 'update');
-        }
-        this.onComponent.next(new TxTask<{name: string}>({name: <string>txMountPoint.name}, {data: data}));
-
-        if (this.revert) {
-          this.undoCB(data);
-
-          return;
-        }
-
-        if (this.single) {
-          this.getIsStopped().next(data);
-        }
-
-        if (this.stack.length === 0) {
-          logger.info(`[TxJob:subscribe] [${this.name}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}`);
-          this.finish(data);
-
-          return;
-        }
-
-        if (this.single) {
-          if (TxJobExecutionOptionsChecker.isDestroy(this.options)) {
-            logger.info(`[TxJob:subscribe] [${this.name}] single step - going to destroy job \'${this.getUuid()}\', on ${this.current.name} mount point`);
-
-            this.release();
-          }
-          return
-        }
-
-        /**
-         * make the next move, get the next mountpoint from the stack,
-         * and send the data to it's tasks subject.
-         */
-        let next = this.shift();
-        logger.info(`[TxJob:subscribe] [${this.name}] going to run next task: ${next.name}`);
-
-        if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
-          await TxJobRegistry.instance.persist(this);
-        }
-
-        if (TxJobExecutionOptionsChecker.isUntil(this.options, next.name)) {
-          logger.info(`[TxJob:subscribe] [${this.name}] found execute.until, on ${next.name} mount point`);
-
-          if (TxJobExecutionOptionsChecker.isDestroy(this.options)) {
-            logger.info(`[TxJob:subscribe] [${this.name}] going to destroy job \'${this.getUuid()}\', on ${next.name} mount point`);
-
-            this.release();
-          }
-
-          this.getIsStopped().next(data);
-
-          return;
-        }
-
-        if (this.isRecord(this.options)) {
-          await this.record({tasks: data}, 'insert');
-        }
-
-        next.tasks().next(data);
+        await this.subscribeCB(data, txMountPoint);
+        // logger.info(`[TxJob:subscribe] [${this.name}] got reply, data = ${JSON.stringify(data, undefined, 2)}`);
+        // logger.info(`[TxJob:subscribe] [${this.name}] before shift to next task, stack.len = ${this.stack.length}`);
+        //
+        // if (this.isRecord(this.options)) {
+        //   await this.record({reply: data}, 'update');
+        // }
+        // this.onComponent.next(new TxTask<{name: string}>({name: <string>txMountPoint.name}, {data: data}));
+        //
+        // if (this.revert) {
+        //   this.undoCB(data);
+        //
+        //   return;
+        // }
+        //
+        // if (this.single) {
+        //   this.getIsStopped().next(data);
+        // }
+        //
+        // if (this.stack.length === 0) {
+        //   logger.info(`[TxJob:subscribe] [${this.name}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}`);
+        //   this.finish(data);
+        //
+        //   return;
+        // }
+        //
+        // if (this.single) {
+        //   if (TxJobExecutionOptionsChecker.isDestroy(this.options)) {
+        //     logger.info(`[TxJob:subscribe] [${this.name}] single step - going to destroy job \'${this.getUuid()}\', on ${this.current.name} mount point`);
+        //
+        //     this.release();
+        //   }
+        //   return
+        // }
+        //
+        // /**
+        //  * make the next move, get the next mountpoint from the stack,
+        //  * and send the data to it's tasks subject.
+        //  */
+        // let next = this.shift();
+        // logger.info(`[TxJob:subscribe] [${this.name}] going to run next task: ${next.name}`);
+        //
+        // if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
+        //   await TxJobRegistry.instance.persist(this);
+        // }
+        //
+        // if (TxJobExecutionOptionsChecker.isUntil(this.options, next.name)) {
+        //   logger.info(`[TxJob:subscribe] [${this.name}] found execute.until, on ${next.name} mount point`);
+        //
+        //   if (TxJobExecutionOptionsChecker.isDestroy(this.options)) {
+        //     logger.info(`[TxJob:subscribe] [${this.name}] going to destroy job \'${this.getUuid()}\', on ${next.name} mount point`);
+        //
+        //     this.release();
+        //   }
+        //
+        //   this.getIsStopped().next(data);
+        //
+        //   return;
+        // }
+        //
+        // if (this.isRecord(this.options)) {
+        //   await this.record({tasks: data}, 'insert');
+        // }
+        //
+        // next.tasks().next(data);
       },
-      (err) => {
-        logger.info(`[TxJob:subscribe] [${this.name}] error is called`);
+      async (error) => {
+        await this.errorCB(error, txMountPoint);
+        //logger.info(`[TxJob:subscribe] [${this.name}] error is called`);
       },
       () => {
         logger.info(`[TxJob:subscribe] [${this.name}] complete is called`)
@@ -148,9 +255,18 @@ export class TxJob {
 
       return;
     }
+
+    // if come back from serialization with error flag on than call to
+    // current component on error channel.
+    if (this.error) {
+      this.current.tasks().error(data);
+
+      return;
+    }
+
     this.trace = [];
-    let runme = this.shift();
-    logger.info(`[TxJob:execute] going to run ${runme.name} mount point`);
+    let runit = this.shift();
+    logger.info(`[TxJob:execute] going to run ${runit.name} mount point`);
 
     if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
       await TxJobRegistry.instance.persist(this);
@@ -161,7 +277,7 @@ export class TxJob {
       await this.record({tasks: data}, 'insert');
     }
 
-    runme.tasks().next(data);
+    runit.tasks().next(data);
   }
 
   async continue(data, options: TxJobExecutionOptions = defaultOptions) {
@@ -185,6 +301,12 @@ export class TxJob {
 
     if (this.isRecord(options)) {
       await this.record({tasks: data}, 'insert');
+    }
+    // if come back from serialization with error flag on than call to component on error channel.
+    if (this.error) {
+      this.current.tasks().error(data);
+
+      return;
     }
     this.current.tasks().next(data);
   }
@@ -280,6 +402,7 @@ export class TxJob {
 
     this.current = null;
     this.single = false;
+    this.error = false;
 
     this.executionId = {uuid: '', sequence: 0};
   }
@@ -294,7 +417,7 @@ export class TxJob {
 
   finish(data) {    
     this.revert = false;
-    this.single = false;    
+    this.single = false;
     this.isCompleted.next(data);
   }
 
@@ -305,6 +428,7 @@ export class TxJob {
       stack: this.stack.map((e) => {return e.name}).toString(),
       trace: this.trace.map((e) => {return e.name}).toString(),
       block: this.block.map((e) => {return e.name}).toString(),
+      error: this.error,
       single: this.single,
       revert: this.revert,
       current: this.getCurrentName(),
@@ -318,6 +442,7 @@ export class TxJob {
 
     this.name = json.name;
     this.uuid = json.uuid;
+    this.error = json.error;
     this.single = json.single;
     this.revert = json.revert;
     this.current = json.current !== '' ? TxMountPointRegistry.instance.get(json.current) : null;
@@ -424,6 +549,10 @@ export class TxJob {
 
   getOnComponent() {
     return this.onComponent;
+  }
+
+  getOnError() {
+    return this.onError;
   }
 
   getName() {

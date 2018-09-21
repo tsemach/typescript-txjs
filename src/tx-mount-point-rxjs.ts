@@ -1,5 +1,4 @@
 import { Subject } from 'rxjs/Subject'
-import { TxTask } from "./tx-task";
 import { TxMountPoint } from "./tx-mountpoint";
 
 /**
