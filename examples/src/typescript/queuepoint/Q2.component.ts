@@ -1,8 +1,7 @@
 /**
- * A TypeScript module usng GitHub API
+ * A TypeScript module using GitHub API
  */
-
-import { TxMountPoint, TxMountPointRegistry } from '../../../../src/';
+import { TxMountPoint, TxMountPointRegistry, TxTask } from 'rx-txjs';
 
 export class Q2Component {
   queuepoint: TxMountPoint = TxMountPointRegistry.instance.queue('GITHUB::API::READ');

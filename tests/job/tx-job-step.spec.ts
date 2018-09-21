@@ -25,7 +25,7 @@ describe('Job Class', () => {
     new C3Component();
 
     let persist = new Persist();
-    TxJobRegistry.instance.driver = persist;
+    TxJobRegistry.instance.setPersistDriver(persist);
 
     let job = new TxJob();
 
@@ -77,7 +77,7 @@ describe('Job Class', () => {
     new C3Component();
 
     let persist = new Persist();
-    TxJobRegistry.instance.driver = persist;
+    TxJobRegistry.instance.setPersistDriver(persist);
 
     let job = new TxJob();
 
@@ -156,7 +156,7 @@ describe('Job Class', () => {
     new C3Component();
 
     let persist = new Persist();
-    TxJobRegistry.instance.driver = persist;
+    TxJobRegistry.instance.setPersistDriver(persist);
 
     let job = new TxJob('job-step-with-stop');
 

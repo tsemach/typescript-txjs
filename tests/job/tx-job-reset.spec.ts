@@ -16,9 +16,9 @@ describe('Job Class', () => {
 
   it('check job-reset.spec: running C1-C2-C3 job chain', async (done) => {
     
-    let C1 = new C1Component();
-    let C2 = new C2Component();
-    let C3 = new C3Component();
+    new C1Component();
+    new C2Component();
+    new C3Component();
     
     let job = new TxJob(); // or create througth the TxJobRegistry
 

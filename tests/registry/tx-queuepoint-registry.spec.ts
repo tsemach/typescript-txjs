@@ -111,19 +111,21 @@ describe('Registry Classes - TxMountPointRegitry', () => {
     set.add((<TxConnectorRabbitMQ>QP1.queue()).id);
     set.add((<TxConnectorRabbitMQ>QP2.queue()).id);
 
-    // make sure they all different UUIDs.
-    expect(set.size).to.equal(2);
+    logger.info("(<TxConnectorRabbitMQ>QP1.queue()).id = " + (<TxConnectorRabbitMQ>QP1.queue()).id)
+    logger.info("(<TxConnectorRabbitMQ>QP2.queue()).id = " + (<TxConnectorRabbitMQ>QP2.queue()).id);
+
+    // make sure they all the same UUIDs, because the connector is singleton.
+    expect(set.size).to.equal(1);
 
     // make sure they all valid UUID
     assert(isUUID((<TxConnectorRabbitMQ>QP1.queue()).id));
     assert(isUUID((<TxConnectorRabbitMQ>QP2.queue()).id));
 
     QP1.queue().close();
-    QP2.queue().close();
   });
 
-  it('tx-queuetpoint.spec: check creation of TxQueuePoint with RabbitMQ connector injection', () => {
-    logger.info('tx-queuetpoint.spec: check creation of TxQueuePoint with RabbitMQ connector injection');
+  it('tx-queuetpoint-registry.spec: check creation of TxQueuePoint with RabbitMQ connector injection', () => {
+    logger.info('tx-queuetpoint-registry.spec: check creation of TxQueuePoint with RabbitMQ connector injection');
 
     TxQueuePointRegistry.instance.setDriver(TxConnectorNoDefaultRabbitMQ);
 
@@ -141,15 +143,15 @@ describe('Registry Classes - TxMountPointRegitry', () => {
     set.add((<TxConnectorNoDefaultRabbitMQ>QP2.queue()).id);
 
     // make sure they all different UUIDs.
-    expect(set.size).to.equal(2);
+    expect(set.size).to.equal(1);
 
     // make sure they all valid UUID
     assert(isUUID((<TxConnectorNoDefaultRabbitMQ>QP1.queue()).id));
     assert(isUUID((<TxConnectorNoDefaultRabbitMQ>QP2.queue()).id));
   });
 
-  it('tx-queuetpoint.spec: check calling to subscribe on TxQueuePoint with RabbitMQ', (done) => {
-    logger.info('tx-queuetpoint.spec: check calling to subscribe on TxQueuePoint with RabbitMQ');
+  it('tx-queuetpoint-registry.spec: check calling to subscribe on TxQueuePoint with RabbitMQ', (done) => {
+    logger.info('tx-queuetpoint-registry.spec: check calling to subscribe on TxQueuePoint with RabbitMQ');
 
     TxQueuePointRegistry.instance.setDriver(TxConnectorNoDefaultRabbitMQ);
 
@@ -170,8 +172,8 @@ describe('Registry Classes - TxMountPointRegitry', () => {
 
   });
 
-  it('tx-mountpoint.spec: just exit', (done) => {
-    logger.info('tx-mountpoint.spec: just exit');
+  it('tx-queuepoint-registry.spec: just exit', (done) => {
+    logger.info('tx-queuepoint-registry.spec: just exit');
 
     done();
     setTimeout(() => {

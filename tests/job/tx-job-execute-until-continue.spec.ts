@@ -36,7 +36,7 @@ describe('Job Class', () => {
   it('tx-job-execute-until-continue.spec: check stopping at C2 with destroy then rebuild and continue', (done) => {
     logger.info('running: tx-job-execute-continue-until.spec: check stopping at C2 with destroy then rebuild and continue');
     let persist = new Persist();
-    TxJobRegistry.instance.driver = persist;
+    TxJobRegistry.instance.setPersistDriver(persist);
 
     new C1Component();
     new C2Component();

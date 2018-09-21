@@ -14,35 +14,3 @@ export interface TxMountPoint {
   tasks(): any;
   undos(): any;
 }
-
-//
-// export class TxMountPoint {
-//
-//   _tasks = new Subject();
-//   _reply = new Subject();
-//   _undos = new Subject();
-//
-//   constructor(private _name: string | Symbol) {
-//   }
-//
-//   get name() {
-//     if (typeof this._name === 'string') {
-//       return this._name;
-//     }
-//     return this._name.toString();
-//   }
-//
-//   reply() {
-//     return this._reply;
-//   }
-//
-//   tasks() {
-//     return this._tasks;
-//   }
-//
-//   undos() {
-//     return this._undos;
-//   }
-//
-// }
-//

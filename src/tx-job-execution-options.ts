@@ -16,6 +16,7 @@ export interface TxJobExecutionOptions {
   };
   execute: {
     until: string;
+    record: boolean;
   }
 }
 
@@ -52,6 +53,20 @@ export class TxJobExecutionOptionsChecker {
 
   static isTrue(o, p) {
     return o.hasOwnProperty(p) && o[p] === true;
+  }
+
+  static isRecord(options: TxJobExecutionOptions) {
+    if ( ! TxJobExecutionOptionsChecker.isRecordDefine(options) ) {
+      return false;
+    }
+    return options.execute.record;
+  }
+
+  static isRecordDefine(options: TxJobExecutionOptions) {
+    if (options.execute === undefined) {
+      return false;
+    }
+    return options.execute.record !== undefined;
   }
 
 }

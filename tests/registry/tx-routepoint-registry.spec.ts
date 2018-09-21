@@ -63,15 +63,14 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
     set.add((<TxConnectorRabbitMQ>RP1.route()).id);
     set.add((<TxConnectorRabbitMQ>RP2.route()).id);
 
-    // make sure they all different UUIDs.
-    expect(set.size).to.equal(2);
+    // make sure they all the same UUIDs, because the connector is singleton.
+    expect(set.size).to.equal(1);
 
     // make sure they all valid UUID
     assert(isUUID((<TxConnectorRabbitMQ>RP1.route()).id));
     assert(isUUID((<TxConnectorRabbitMQ>RP2.route()).id));
 
     RP1.route().close();
-    RP2.route().close();
   });
 
   it('tx-routepoint.spec: check creation of TxRoutePoint with default Express connector injection', () => {
@@ -90,8 +89,8 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
     set.add((<TxConnectorExpress>RP1.route()).id);
     set.add((<TxConnectorExpress>RP2.route()).id);
 
-    // make sure they all different UUIDs.
-    expect(set.size).to.equal(2);
+    // make sure they all the same UUIDs, because the connector is singleton.
+    expect(set.size).to.equal(1);
 
     // make sure they all valid UUID
     assert(isUUID((<TxConnectorExpress>RP1.route()).id));
@@ -116,8 +115,8 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
     set.add((<TxConnectorNoDefaultExpress>RP1.route()).id);
     set.add((<TxConnectorNoDefaultExpress>RP2.route()).id);
 
-    // make sure they all different UUIDs.
-    expect(set.size).to.equal(2);
+    // make sure they all the same UUIDs, because the connector is singleton.
+    expect(set.size).to.equal(1);
 
     // make sure they all valid UUID
     assert(isUUID((<TxConnectorNoDefaultExpress>RP1.route()).id));

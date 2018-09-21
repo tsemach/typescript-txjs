@@ -39,7 +39,7 @@ describe('Job Registry Classes - TxJobRegistry', () => {
     new C3Component();
 
     // set job registry with persist capabilities
-    TxJobRegistry.instance.driver = new Persist();
+    TxJobRegistry.instance.setPersistDriver(new Persist());
 
     let src = new TxJob('job-1');
 

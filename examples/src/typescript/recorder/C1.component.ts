@@ -1,9 +1,8 @@
 import createLogger from 'logging'; 
 const logger = createLogger('C1');
 
-import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
-import { TxMountPoint } from '../../src/tx-mountpoint';
-import { TxTask } from '../../src/tx-task';
+import { TxMountPointRegistry } from 'rx-txjs';
+import { TxTask } from 'rx-txjs';
 
 export class C1Component {
   mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
@@ -19,13 +18,6 @@ export class C1Component {
 
         // just send the reply to whom is 'setting' on this reply subject
         this.mountpoint.reply().next(new TxTask({method: 'from C1', status: 'ok'}, task['data']))
-      },
-      (error) => {
-        logger.info('[C1Component:error] got error = ' + JSON.stringify(error, undefined, 2));
-        this.method = error['method'];
-
-        // just send the reply to whom is 'setting' on this reply subject
-        this.mountpoint.reply().error(new TxTask({method: 'from C1', status: 'ERROR'}, error['data']))
       }
     );
 
