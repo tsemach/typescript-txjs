@@ -1,7 +1,7 @@
 import { TxTask } from "./tx-task";
 import { TxJobExecutionId } from "../src";
 
-export interface TxRecordIndexSave {
+export declare interface TxRecordIndexSave {
   executeUuid: string,
   sequence: number,
   job: {
@@ -16,12 +16,12 @@ export interface TxRecordIndexSave {
   }
 }
 
-export interface TxRecordInfoSave {
+export declare interface TxRecordInfoSave {
   tasks: TxTask<any>,
   reply:TxTask<any>
 }
 
-export interface TxRecordRead extends TxRecordIndexSave, TxRecordInfoSave {
+export declare interface TxRecordRead extends TxRecordIndexSave, TxRecordInfoSave {
   // executeUuid: string,
   // sequence: number,
   // job: {
@@ -38,7 +38,7 @@ export interface TxRecordRead extends TxRecordIndexSave, TxRecordInfoSave {
   // reply: TxTask<any>
 }
 
-export interface TxRecordPersistAdapter {
+export declare interface TxRecordPersistAdapter {
   /**
    * Insert an execution into storage. The pair executeUuid:sequence consider the execution ID.
    * if executeUuid:sequence exist then throw an exception.
@@ -86,5 +86,3 @@ export interface TxRecordPersistAdapter {
    */
   close();
 }
-
-

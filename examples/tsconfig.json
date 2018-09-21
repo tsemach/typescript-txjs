@@ -1,18 +1,20 @@
 {
-  "compilerOptions": {
+	"compilerOptions": {
   	"module": "commonjs",
-  	"experimentalDecorators": true,  
-  	"target": "ES2017",
-  	"declaration": true,
-    "noImplicitAny": false,
-	"sourceMap": false,
-	"outDir": "dist"
-  },
-  "include": [
-    "src/**/*.ts",
-    "tests/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+		"target": "es6",
+    "types": ["reflect-metadata"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "declaration": true,
+		"noImplicitAny": false,
+		"sourceMap": false,
+		"outDir": "dist"
+	},
+	"include": [
+      "src/**/*.ts",
+      "tests/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
 }

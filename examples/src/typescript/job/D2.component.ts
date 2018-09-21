@@ -2,10 +2,7 @@ import createLogger from 'logging';
 const logger = createLogger('Job-Test');
 
 import { 
-  TxJob, 
-  TxMountPoint, 
   TxComponent,
-  TxMountPointRegistry, 
   TxTask 
 } from 'rx-txjs';
 
