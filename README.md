@@ -4,46 +4,8 @@
 
 # Application Execution Model
 
-## What's New 
-
-**since 0.0.28**
-- **`TxQueueContainer | TxRouteContainer - component (injector)`** use dependency injection to inject TxQueuePoint | TxRoutePoint and other class into your component. you can create a component by injecting all its dependencies using those classes. They are just a wrappers around [*inversify*](https://www.npmjs.com/package/inversify) containers.
-
-**since 0.0.26**
-- **`C2C`** adding Component-2-Component direct communication over configurable transport I/S with builtin support for RabbitMQ even on different process, this is big, see below for more details.
-- **`TxMountPoint`** is now interface as part of C2C change.
-- **`TxMountPointRxJS`** is a mountpoint using RxJS implement TxMountPoint.
-- **`TxQueuePoint`** is a mountpoint using message queue as part of C2C. It use message queue to directly communicate between components. 
-- **`TxRoutePoint`** is a mountpoint using express as part of C2C. It use node express to directly communicate between components (not full implement yet).
-- **`TxQueueRegitry`** is use for getting TxQueuePoint object for queue communication (see below for more info).
-- **`TxRouteRegitry`** is use for getting TxRoutePoint object for queue communication (see below for more info).
-
-**since 0.0.21**
-- **`TxExecuteOption`** add execution options object able to influence the execution flow.
-- **`Option: run until`** an exection option of running a job until it reaching a certain component.
-- **`Option: presis on / off`** an exection option to presis the job state on external presistence adapter.
-- **`Option: presis destroy`** together with 'run until' option, destory the job when it reach to a cetrain job determine by exection options.
-- **`External Storage Adapter`** full persistence support, see description below. 
-- **`Job Registry`** adding job registry as part of persistence solution.  
- 
-**since 0.0.15** 
-- Change TxTask to be generic type of the header. 
-- Adding Symbol support as mountpoint identifier. see TxMountPoint below for more details
-
-**since 0.0.8** - adding TxComponent creating a component using Angular style decorator.
-- **`TxComponent`** adding Angular style TypeScript decorator for more convenient way of 
- creating a component. 
-- Add documentation.
-- Fix minor bugs. 
-
-**since 0.0.3** - adding new API for handling a Job, see below for more details
-
-- **`toJSON`**, **`upJSON`** for serialize and deserialize a Job.
-- **`continue`** will conntinue running the job after deserializing.
-- **`step`** running the job step by step, each calling to step run next component.
-- **`add execute options`** add run **until** options to execute and continue so the  job is running until it reach a certain component then stop.
-- **`undo`** run undo on each component in both forward and backward order.
-- **`reset`** set initial state, rerun the job after reset. 
+## Documentation
+###Full document is now [here](https://rxjs.gitbook.io/rx-txjs/) 
 
 ## Description
 **TxJS** implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.com/) and [TypeSript](https://www.typescriptlang.org/).
@@ -228,7 +190,7 @@ export class Q1Component {
   }
 
   async init() {
-    // call to connect one time. this call the connect method on the connector you defined earlier (or use the builtin).
+    register
     routepoint
     await this.queuepoint.queue().connect('service-1.queuepoint', 'Q1Component.tasks');
 

@@ -27,7 +27,7 @@ export class TxConnectorNoDefaultExpress implements TxConnector {
   constructor() {
 
   }
-  connect(service: any, route: any) {
+  register(service: any, route: any) {
     console.log(`TxConnectorNoDefaultExpress: ${service}-${route}-${this.id}`);
   }
 
@@ -56,8 +56,8 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
     expect(RP1.name).to.equal('GITHUB::API::AUTH');
     expect(RP2.name).to.equal('GITHUB::API::READ');
 
-    await RP1.route().connect('CP1', 'tasks:connect');
-    await RP2.route().connect('CP2', 'tasks:connect');
+    await RP1.route().register('CP1', 'tasks:register');
+    await RP2.route().register('CP2', 'tasks:register');
 
     let set = new Set<string>();
     set.add((<TxConnectorRabbitMQ>RP1.route()).id);
@@ -82,8 +82,8 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
     expect(RP1.name).to.equal('GITHUB::API::AUTH');
     expect(RP2.name).to.equal('GITHUB::API::READ');
 
-    RP1.route().connect('CP1', 'tasks:connect');
-    RP2.route().connect('CP2', 'tasks:connect');
+    RP1.route().register('CP1', 'tasks:register');
+    RP2.route().register('CP2', 'tasks:register');
 
     let set = new Set<string>();
     set.add((<TxConnectorExpress>RP1.route()).id);
@@ -108,8 +108,8 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
     expect(RP1.name).to.equal('GITHUB::API::AUTH');
     expect(RP2.name).to.equal('GITHUB::API::READ');
 
-    RP1.route().connect('CP1', 'tasks:connect');
-    RP2.route().connect('CP2', 'tasks:connect');
+    RP1.route().register('CP1', 'tasks:register');
+    RP2.route().register('CP2', 'tasks:register');
 
     let set = new Set<string>();
     set.add((<TxConnectorNoDefaultExpress>RP1.route()).id);
@@ -134,7 +134,7 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
     expect(RP1.name).to.equal('GITHUB::API::AUTH');
     expect(RP2.name).to.equal('GITHUB::API::READ');
 
-    RP1.route().connect('service-a', 'tasks.component')
+    RP1.route().register('service-a', 'tasks.component')
 
     RP1.route().subscribe((data) => {
       console.log("[RP1:subscribe] data = " + JSON.stringify(data, undefined, 2));

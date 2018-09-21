@@ -8,7 +8,7 @@ export class Q2Component {
   }
 
   async init() {
-    await this.queuepoint.queue().connect('service-2.queuepoint', 'Q2Component.tasks');
+    await this.queuepoint.queue().register('service-2.queuepoint', 'Q2Component.tasks');
     this.queuepoint.queue().subscribe(
       (data) => {
         console.log("[Q2Component:subscribe] got data = " + data);

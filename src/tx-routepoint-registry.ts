@@ -8,36 +8,9 @@ import { TxTYPES } from "./tx-injection-types";
 import { TxConnectorExpress } from "./tx-connector-express";
 import { TxRegistryContainer } from "./tx-registry-container";
 
-// /**
-//  * a wrapper class for inversify container to keep driver bind.
-//  */
-// class TxMountPointRegistryContainer<T> {
-//   // a container for TxConnector injection
-//   txContainer = new Container();
-//   bind: any;
-//
-//   // set the bind to himself.
-//   constructor(type, bind) {
-//     this.txContainer.bind<T>(bind).to(type);
-//     this.bind = bind;
-//   }
-//
-//   get() {
-//     return this.txContainer.get<T>(this.bind);
-//   }
-//
-//   setDriver(type) {
-//     if ( this.txContainer.isBound(TxTYPES.TxConnector)) {
-//       this.txContainer.unbind(TxTYPES.TxConnector);
-//     }
-//     this.txContainer.bind<TxConnector>(TxTYPES.TxConnector).to(type);
-//   }
-// }
-
 export class TxRoutePointRegistry extends TxRegistry<TxRoutePoint, string | Symbol> {
   private static _instance: TxRoutePointRegistry;
 
-  //private routeContainer = new TxMountPointRegistryContainer<TxRoutePoint>(TxRoutePoint, TxTYPES.TxRoutePoint);
   private routeContainer = new TxRegistryContainer<TxRoutePoint>(TxRoutePoint, TxTYPES.TxRoutePoint);
 
   private constructor() {

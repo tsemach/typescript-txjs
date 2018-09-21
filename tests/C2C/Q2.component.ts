@@ -10,7 +10,7 @@ export class Q2Component {
   }
 
   async init() {
-    await this.queuepoint.queue().connect('example-2.queuepoint', 'Q2Component.tasks');
+    await this.queuepoint.queue().register('example-2.queuepoint', 'Q2Component.tasks');
     this.queuepoint.queue().subscribe(
       (data) => {
         logger.info("[Q2Component:subscribe] got data = " + data);

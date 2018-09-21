@@ -16,7 +16,7 @@ export class TxConnectorExpress implements TxConnector {
   constructor() {
 
   }
-  connect(service: any, route: any) {
+  register(service: any, route: any) {
     console.log(`TxConnectorExpress: ${service}-${route}-${this.id}`);
   }
 
