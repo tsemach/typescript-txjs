@@ -5,7 +5,7 @@ import { TxMountPointRegistry } from 'rx-txjs';
 import { TxTask } from 'rx-txjs';
 
 export class C1Component {
-  mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
+  private mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
 
   method = '';
   reply: any;
