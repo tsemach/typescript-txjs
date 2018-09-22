@@ -137,7 +137,7 @@ The classes involving the C2C:
 
 - **TxQueuePoint** - an object able to connect, send and receive data from other end-point components.
 It has internally an object implement TxConnector interface. the TxConnector define three methods
-*connect*, *next* and *subscribe*. The TxConnector implement the underline detail of your transport details.
+*register*, *next* and *subscribe*. The TxConnector implement the underline detail of your transport details.
 The class implement TxConnector, whether it is default TxConnectorRabbitMQ or your implementation, is injected into TxQueuePoint during creation.  
 
 >To use your implementation of TxConnector you need to register it on the TxQueuePointRegistry using setDriver method.
@@ -164,7 +164,7 @@ Use the method TxQueuePointRegistry.setDriver to register your driver (class tha
 export interface TxConnector {
   subscribe: (any) => void;
 
-  connect(service, route);
+  register(service, route);
   next(service: string, route: string, data: any);
   close();
 }
@@ -173,7 +173,7 @@ export interface TxConnector {
 The driver is one for all components. API is as follow:
 1. **subscribe** - a registration callback method where you will get the data.
 2. **next** - sending data to other service on a service/route.
-3. **connect** - set the connection. In the case RabbitMQ is set the exchange/queue/binding. This way other components may recognaize you.
+3. **register** - set the connection. In the case RabbitMQ is set the exchange/queue/binding. This way other components may recognaize you.
 
 Once your driver is working you need to register it into TxQeuePointRegistry as:
 ````typescript
@@ -200,14 +200,49 @@ export class Q1Component {
   async init() {
     register
     routepoint
-    await this.queuepoint.queue().connect('service-1.queuepoint', 'Q1Component.tasks');
+    await this.queuepoint.queue().register('service-1.queuepoint', 'Q1Component.tasks');
 
     // incoming data from other components are received here using the subscribe method. 
     await this.queuepoint.queue().subscribe(
       async (data) => {
         console.log("[Q1Component:subscribe] got data = " + data);
 
-        // sending reply back to sender. 
+   // for example
+class MyConnector implements TxConnector {
+  ...
+}
+TxQueuePointRegistry.instance.setDriver(MyConnector);
+````
+- **use subscribe / next** - now you can define your connector (or use the builtin RabbitMQ connector)
+to define subscribe and next methods to receive and send data.
+
+See the following example:
+````typescript
+export class Q1Component {
+  presistDriver
+  queuepoint: TxQueuePoint = TxQueuePointRegistry.instance.queue('GITHUB::API::AUTH');
+
+  constructor() {
+  }
+
+  async init() {
+    register
+    routepoint
+    await this.queuepoint.queue().register('service-1.queuepoint', 'Q1Component.tasks');
+
+    // incoming data from other components are received here using the subscribe method.
+    await this.queuepoint.queue().subscribe(
+      async (data) => {
+        console.log("[Q1Component:subscribe] got data = " + data);
+
+        // sending reply back to sender.
+        await this.queuepoint.queue().next('service-2.queuepoint', 'Q2Component.tasks', {from: 'service-1.queuepoint', data: 'data'});
+      });
+
+    return this;
+  }
+}
+     // sending reply back to sender. 
         await this.queuepoint.queue().next('service-2.queuepoint', 'Q2Component.tasks', {from: 'service-1.queuepoint', data: 'data'});
       });
 
@@ -227,6 +262,111 @@ to all components, to a single one or to a group of components. This tool is gre
 - **MountPoint Names String Literal** - change mountpoint names to be TypeScript string literal instead of just string.   
 
 - **Persistence Adapter Per Type** - the ability to have different persistent drivers so different jobs can use different persistent driver.   
+// for example
+class MyConnector implements TxConnector {
+  ...
+}
+TxQueuePointRegistry.instance.setDriver(MyConnector);
+````
+- **use subscribe / next** - now you can define your connector (or use the builtin RabbitMQ connector)
+to define subscribe and next methods to receive and send data.
+
+See the following example:
+````typescript
+export class Q1Component {
+  presistDriver
+  queuepoint: TxQueuePoint = TxQueuePointRegistry.instance.queue('GITHUB::API::AUTH');
+
+// for example
+class MyConnector implements TxConnector {
+  ...
+}
+TxQueuePointRegistry.instance.setDriver(MyConnector);
+````
+- **use subscribe / next** - now you can define your connector (or use the builtin RabbitMQ connector)
+to define subscribe and next methods to receive and send data.
+
+See the following example:
+````typescript
+export class Q1Component {
+  presistDriver
+  queuepoint: TxQueuePoint = TxQueuePointRegistry.instance.queue('GITHUB::API::AUTH');
+
+  constructor() {
+  }
+
+  async init() {
+    register
+    routepoint
+    await this.queuepoint.queue().register('service-1.queuepoint', 'Q1Component.tasks');
+
+    // incoming data from other components are received here using the subscribe method.
+    await this.queuepoint.queue().subscribe(
+      async (data) => {
+        console.log("[Q1Component:subscribe] got data = " + data);
+
+        // sending reply back to sender.
+        await this.queuepoint.queue().next('service-2.queuepoint', 'Q2Component.tasks', {from: 'service-1.queuepoint', data: 'data'});
+      });
+
+    return this;
+  }
+}
+// for example
+class MyConnector implements TxConnector {
+  ...
+}
+TxQueuePointRegistry.instance.setDriver(MyConnector);
+````
+- **use subscribe / next** - now you can define your connector (or use the builtin RabbitMQ connector)
+to define subscribe and next methods to receive and send data.
+
+See the following example:
+````typescript
+export class Q1Component {
+  presistDriver
+  queuepoint: TxQueuePoint = TxQueuePointRegistry.instance.queue('GITHUB::API::AUTH');
+
+  constructor() {
+  }
+
+  async init() {
+    register
+    routepoint
+    await this.queuepoint.queue().register('service-1.queuepoint', 'Q1Component.tasks');
+
+    // incoming data from other components are received here using the subscribe method.
+    await this.queuepoint.queue().subscribe(
+      async (data) => {
+        console.log("[Q1Component:subscribe] got data = " + data);
+
+        // sending reply back to sender.
+        await this.queuepoint.queue().next('service-2.queuepoint', 'Q2Component.tasks', {from: 'service-1.queuepoint', data: 'data'});
+      });
+
+    return this;
+  }
+}
+  constructor() {
+  }
+
+  async init() {
+    register
+    routepoint
+    await this.queuepoint.queue().register('service-1.queuepoint', 'Q1Component.tasks');
+
+    // incoming data from other components are received here using the subscribe method.
+    await this.queuepoint.queue().subscribe(
+      async (data) => {
+        console.log("[Q1Component:subscribe] got data = " + data);
+
+        // sending reply back to sender.
+        await this.queuepoint.queue().next('service-2.queuepoint', 'Q2Component.tasks', {from: 'service-1.queuepoint', data: 'data'});
+      });
+
+    return this;
+  }
+}
    
 ## Conribution
 You can send me pull request on [GitHub] (https://github.com/tsemach/typescript-txjs) or you can 
@@ -414,7 +554,7 @@ module.exports = new Component();
       }
 
       async init() {
-        await this.queuepoint.queue().connect('example-1.queuepoint', 'Q1Component.tasks');
+        await this.queuepoint.queue().register('example-1.queuepoint', 'Q1Component.tasks');
         await this.queuepoint.queue().subscribe(
           async (data) => {
             console.log("[Q1Component:subscribe] got data = " + data);
