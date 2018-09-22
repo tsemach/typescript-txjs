@@ -24,7 +24,7 @@ export class TxConnectorRabbitMQ implements TxConnector {
   constructor() {
 
   }
-  connect(service: any, route: any) {
+  register(service: any, route: any) {
     console.log(`TxConnectorRabbit: ${service}-${route}-${this.id}`);
   }
 
@@ -55,9 +55,9 @@ describe('Queue Point Class', () => {
     const CP1 = txContainer.get<TxQueuePoint>(TxTYPES.TxQueuePoint);
     const CP2 = txContainer.get<TxQueuePoint>(TxTYPES.TxQueuePoint);
 
-    CP1.queue().connect('CP1', 'tasks:connect');
+    CP1.queue().register('CP1', 'tasks:connect');
 
-    CP2.queue().connect('CP2', 'tasks:connect');
+    CP2.queue().register('CP2', 'tasks:connect');
 
     set.add((<TxConnectorRabbitMQ>CP1.queue()).id);
     set.add((<TxConnectorRabbitMQ>CP2.queue()).id);
@@ -86,8 +86,8 @@ describe('Queue Point Class', () => {
     const CP1 = txContainer.get<TxQueuePoint>(TxTYPES.TxQueuePoint);
     const CP2 = txContainer.get<TxQueuePoint>(TxTYPES.TxQueuePoint);
 
-    CP1.queue().connect('CP1', 'tasks:connect');
-    CP2.queue().connect('CP2', 'tasks:connect');
+    CP1.queue().register('CP1', 'tasks:connect');
+    CP2.queue().register('CP2', 'tasks:connect');
 
     let set = new Set<string>();
     set.add((<TxConnectorRabbitMQ>CP1.queue()).id);

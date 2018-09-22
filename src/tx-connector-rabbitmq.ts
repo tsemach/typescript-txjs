@@ -45,7 +45,7 @@ export class TxConnectorRabbitMQ implements TxConnector {
   constructor() {
   }
 
-  async connect(service: any, route: any) {
+  async register(service: any, route: any) {
     console.log(`TxConnectorRabbit:connect - enter to - [${service}]-[${route}]-[${this.id}]`);
 
     await this.broker.connect();

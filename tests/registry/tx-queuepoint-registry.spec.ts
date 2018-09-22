@@ -29,7 +29,7 @@ export class TxConnectorNoDefaultRabbitMQ implements TxConnector {
 
   }
 
-  connect(service: any, route: any) {
+  register(service: any, route: any) {
     console.log(`TxConnectorNoDefaultRabbitMQ: ${service}-${route}-${this.id}`);
   }
 
@@ -56,7 +56,7 @@ export class TxConnectorNoDefaultExpress implements TxConnector {
   constructor() {
 
   }
-  connect(service: any, route: any) {
+  register(service: any, route: any) {
     console.log(`TxConnectorNoDefaultExpress: ${service}-${route}-${this.id}`);
   }
 
@@ -104,8 +104,8 @@ describe('Registry Classes - TxMountPointRegitry', () => {
     expect(QP1.name).to.equal('GITHUB::API::AUTH');
     expect(QP2.name).to.equal('GITHUB::API::READ');
 
-    await QP1.queue().connect('CP1', 'tasks:connect');
-    await QP2.queue().connect('CP2', 'tasks:connect');
+    await QP1.queue().register('CP1', 'tasks:connect');
+    await QP2.queue().register('CP2', 'tasks:connect');
 
     let set = new Set<string>();
     set.add((<TxConnectorRabbitMQ>QP1.queue()).id);
@@ -135,8 +135,8 @@ describe('Registry Classes - TxMountPointRegitry', () => {
     expect(QP1.name).to.equal('GITHUB::API::AUTH');
     expect(QP2.name).to.equal('GITHUB::API::READ');
 
-    QP1.queue().connect('CP1', 'tasks:connect');
-    QP2.queue().connect('CP2', 'tasks:connect');
+    QP1.queue().register('CP1', 'tasks:connect');
+    QP2.queue().register('CP2', 'tasks:connect');
 
     let set = new Set<string>();
     set.add((<TxConnectorNoDefaultRabbitMQ>QP1.queue()).id);
@@ -161,7 +161,7 @@ describe('Registry Classes - TxMountPointRegitry', () => {
     expect(QP1.name).to.equal('GITHUB::API::AUTH');
     expect(QP2.name).to.equal('GITHUB::API::READ');
 
-    QP1.queue().connect('service-a', 'tasks.component')
+    QP1.queue().register('service-a', 'tasks.component')
 
     QP1.queue().subscribe((data) => {
       console.log("[QP1:subscribe] data = " + JSON.stringify(data, undefined, 2));

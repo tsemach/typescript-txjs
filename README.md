@@ -4,46 +4,16 @@
 
 # Application Execution Model
 
-## What's New 
+## Documentation
+###Full document is now [here](https://rxjs.gitbook.io/rx-txjs/) 
 
-**since 0.0.28**
-- **`TxQueueContainer | TxRouteContainer - component (injector)`** use dependency injection to inject TxQueuePoint | TxRoutePoint and other class into your component. you can create a component by injecting all its dependencies using those classes. They are just a wrappers around [*inversify*](https://www.npmjs.com/package/inversify) containers.
+##What's New
+* **`Recorder`** -  a job can now record all the data pass between components for debugging and regression tests. To use the recorder you need to build a class implement a the interface TxRecorderPersistenceAdapter or you can use one of the builtin recorder using MongoDB and in process memory. 
 
-**since 0.0.26**
-- **`C2C`** adding Component-2-Component direct communication over configurable transport I/S with builtin support for RabbitMQ even on different process, this is big, see below for more details.
-- **`TxMountPoint`** is now interface as part of C2C change.
-- **`TxMountPointRxJS`** is a mountpoint using RxJS implement TxMountPoint.
-- **`TxQueuePoint`** is a mountpoint using message queue as part of C2C. It use message queue to directly communicate between components. 
-- **`TxRoutePoint`** is a mountpoint using express as part of C2C. It use node express to directly communicate between components (not full implement yet).
-- **`TxQueueRegitry`** is use for getting TxQueuePoint object for queue communication (see below for more info).
-- **`TxRouteRegitry`** is use for getting TxRoutePoint object for queue communication (see below for more info).
+* **`Error Handling`** - a job now support error handling meaning it stop its current execution and start calling to each already called components in revers order to clean up their stuff.
 
-**since 0.0.21**
-- **`TxExecuteOption`** add execution options object able to influence the execution flow.
-- **`Option: run until`** an exection option of running a job until it reaching a certain component.
-- **`Option: presis on / off`** an exection option to presis the job state on external presistence adapter.
-- **`Option: presis destroy`** together with 'run until' option, destory the job when it reach to a cetrain job determine by exection options.
-- **`External Storage Adapter`** full persistence support, see description below. 
-- **`Job Registry`** adding job registry as part of persistence solution.  
- 
-**since 0.0.15** 
-- Change TxTask to be generic type of the header. 
-- Adding Symbol support as mountpoint identifier. see TxMountPoint below for more details
+* **`API change`**, change 'connect' method of TxConnector to be 'register' method.
 
-**since 0.0.8** - adding TxComponent creating a component using Angular style decorator.
-- **`TxComponent`** adding Angular style TypeScript decorator for more convenient way of 
- creating a component. 
-- Add documentation.
-- Fix minor bugs. 
-
-**since 0.0.3** - adding new API for handling a Job, see below for more details
-
-- **`toJSON`**, **`upJSON`** for serialize and deserialize a Job.
-- **`continue`** will conntinue running the job after deserializing.
-- **`step`** running the job step by step, each calling to step run next component.
-- **`add execute options`** add run **until** options to execute and continue so the  job is running until it reach a certain component then stop.
-- **`undo`** run undo on each component in both forward and backward order.
-- **`reset`** set initial state, rerun the job after reset. 
 
 ## Description
 **TxJS** implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.com/) and [TypeSript](https://www.typescriptlang.org/).
@@ -167,7 +137,7 @@ The classes involving the C2C:
 
 - **TxQueuePoint** - an object able to connect, send and receive data from other end-point components.
 It has internally an object implement TxConnector interface. the TxConnector define three methods
-*connect*, *next* and *subscribe*. The TxConnector implement the underline detail of your transport details.
+*register*, *next* and *subscribe*. The TxConnector implement the underline detail of your transport details.
 The class implement TxConnector, whether it is default TxConnectorRabbitMQ or your implementation, is injected into TxQueuePoint during creation.  
 
 >To use your implementation of TxConnector you need to register it on the TxQueuePointRegistry using setDriver method.
@@ -194,7 +164,7 @@ Use the method TxQueuePointRegistry.setDriver to register your driver (class tha
 export interface TxConnector {
   subscribe: (any) => void;
 
-  connect(service, route);
+  register(service, route);
   next(service: string, route: string, data: any);
   close();
 }
@@ -203,7 +173,7 @@ export interface TxConnector {
 The driver is one for all components. API is as follow:
 1. **subscribe** - a registration callback method where you will get the data.
 2. **next** - sending data to other service on a service/route.
-3. **connect** - set the connection. In the case RabbitMQ is set the exchange/queue/binding. This way other components may recognaize you.
+3. **register** - set the connection. In the case RabbitMQ is set the exchange/queue/binding. This way other components may recognaize you.
 
 Once your driver is working you need to register it into TxQeuePointRegistry as:
 ````typescript
@@ -228,16 +198,51 @@ export class Q1Component {
   }
 
   async init() {
-    // call to connect one time. this call the connect method on the connector you defined earlier (or use the builtin).
+    register
     routepoint
-    await this.queuepoint.queue().connect('service-1.queuepoint', 'Q1Component.tasks');
+    await this.queuepoint.queue().register('service-1.queuepoint', 'Q1Component.tasks');
 
     // incoming data from other components are received here using the subscribe method. 
     await this.queuepoint.queue().subscribe(
       async (data) => {
         console.log("[Q1Component:subscribe] got data = " + data);
 
-        // sending reply back to sender. 
+   // for example
+class MyConnector implements TxConnector {
+  ...
+}
+TxQueuePointRegistry.instance.setDriver(MyConnector);
+````
+- **use subscribe / next** - now you can define your connector (or use the builtin RabbitMQ connector)
+to define subscribe and next methods to receive and send data.
+
+See the following example:
+````typescript
+export class Q1Component {
+  presistDriver
+  queuepoint: TxQueuePoint = TxQueuePointRegistry.instance.queue('GITHUB::API::AUTH');
+
+  constructor() {
+  }
+
+  async init() {
+    register
+    routepoint
+    await this.queuepoint.queue().register('service-1.queuepoint', 'Q1Component.tasks');
+
+    // incoming data from other components are received here using the subscribe method.
+    await this.queuepoint.queue().subscribe(
+      async (data) => {
+        console.log("[Q1Component:subscribe] got data = " + data);
+
+        // sending reply back to sender.
+        await this.queuepoint.queue().next('service-2.queuepoint', 'Q2Component.tasks', {from: 'service-1.queuepoint', data: 'data'});
+      });
+
+    return this;
+  }
+}
+     // sending reply back to sender. 
         await this.queuepoint.queue().next('service-2.queuepoint', 'Q2Component.tasks', {from: 'service-1.queuepoint', data: 'data'});
       });
 
@@ -257,6 +262,111 @@ to all components, to a single one or to a group of components. This tool is gre
 - **MountPoint Names String Literal** - change mountpoint names to be TypeScript string literal instead of just string.   
 
 - **Persistence Adapter Per Type** - the ability to have different persistent drivers so different jobs can use different persistent driver.   
+// for example
+class MyConnector implements TxConnector {
+  ...
+}
+TxQueuePointRegistry.instance.setDriver(MyConnector);
+````
+- **use subscribe / next** - now you can define your connector (or use the builtin RabbitMQ connector)
+to define subscribe and next methods to receive and send data.
+
+See the following example:
+````typescript
+export class Q1Component {
+  presistDriver
+  queuepoint: TxQueuePoint = TxQueuePointRegistry.instance.queue('GITHUB::API::AUTH');
+
+// for example
+class MyConnector implements TxConnector {
+  ...
+}
+TxQueuePointRegistry.instance.setDriver(MyConnector);
+````
+- **use subscribe / next** - now you can define your connector (or use the builtin RabbitMQ connector)
+to define subscribe and next methods to receive and send data.
+
+See the following example:
+````typescript
+export class Q1Component {
+  presistDriver
+  queuepoint: TxQueuePoint = TxQueuePointRegistry.instance.queue('GITHUB::API::AUTH');
+
+  constructor() {
+  }
+
+  async init() {
+    register
+    routepoint
+    await this.queuepoint.queue().register('service-1.queuepoint', 'Q1Component.tasks');
+
+    // incoming data from other components are received here using the subscribe method.
+    await this.queuepoint.queue().subscribe(
+      async (data) => {
+        console.log("[Q1Component:subscribe] got data = " + data);
+
+        // sending reply back to sender.
+        await this.queuepoint.queue().next('service-2.queuepoint', 'Q2Component.tasks', {from: 'service-1.queuepoint', data: 'data'});
+      });
+
+    return this;
+  }
+}
+// for example
+class MyConnector implements TxConnector {
+  ...
+}
+TxQueuePointRegistry.instance.setDriver(MyConnector);
+````
+- **use subscribe / next** - now you can define your connector (or use the builtin RabbitMQ connector)
+to define subscribe and next methods to receive and send data.
+
+See the following example:
+````typescript
+export class Q1Component {
+  presistDriver
+  queuepoint: TxQueuePoint = TxQueuePointRegistry.instance.queue('GITHUB::API::AUTH');
+
+  constructor() {
+  }
+
+  async init() {
+    register
+    routepoint
+    await this.queuepoint.queue().register('service-1.queuepoint', 'Q1Component.tasks');
+
+    // incoming data from other components are received here using the subscribe method.
+    await this.queuepoint.queue().subscribe(
+      async (data) => {
+        console.log("[Q1Component:subscribe] got data = " + data);
+
+        // sending reply back to sender.
+        await this.queuepoint.queue().next('service-2.queuepoint', 'Q2Component.tasks', {from: 'service-1.queuepoint', data: 'data'});
+      });
+
+    return this;
+  }
+}
+  constructor() {
+  }
+
+  async init() {
+    register
+    routepoint
+    await this.queuepoint.queue().register('service-1.queuepoint', 'Q1Component.tasks');
+
+    // incoming data from other components are received here using the subscribe method.
+    await this.queuepoint.queue().subscribe(
+      async (data) => {
+        console.log("[Q1Component:subscribe] got data = " + data);
+
+        // sending reply back to sender.
+        await this.queuepoint.queue().next('service-2.queuepoint', 'Q2Component.tasks', {from: 'service-1.queuepoint', data: 'data'});
+      });
+
+    return this;
+  }
+}
    
 ## Conribution
 You can send me pull request on [GitHub] (https://github.com/tsemach/typescript-txjs) or you can 
@@ -444,7 +554,7 @@ module.exports = new Component();
       }
 
       async init() {
-        await this.queuepoint.queue().connect('example-1.queuepoint', 'Q1Component.tasks');
+        await this.queuepoint.queue().register('example-1.queuepoint', 'Q1Component.tasks');
         await this.queuepoint.queue().subscribe(
           async (data) => {
             console.log("[Q1Component:subscribe] got data = " + data);
