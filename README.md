@@ -14,6 +14,12 @@
 
 * **`API change`**, change 'connect' method of TxConnector to be 'register' method.
 
+##Plan Features
+* **`Cross Service / Process Job`** -  Running a job/s a cross processes or services. This is specially for microservice architecture.
+
+* **`Job Monitoring`** - A full job monitoring includoing a GUI to get full picture on the running jobs.
+
+* **`Partial or Full Job Transaction / Cluster Configuration`** - Enable running a job in cluster environment where if a service failed then other able to pick a job right on from the same spot and continue for there (or run error handling).
 
 ## Description
 **TxJS** implement an execution model based on [RxJS](https://rxjs-dev.firebaseapp.com/) and [TypeSript](https://www.typescriptlang.org/).
