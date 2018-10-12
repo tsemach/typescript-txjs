@@ -1113,7 +1113,7 @@ Wrapper classes around inversifyJS container library. You can create a component
 ----
 ##How to Check Changes on Local Package
 
-Change and test locally the package for publish to npm.
+:bulb: Change and test locally the package for publish to npm.
 - run ````npm pack```` to create local *.tgz package 
 - on a use code run ````npm install file:<path-to-rx-txjs-root-dirctory````
 - publish to npm by ```npm publish```    
