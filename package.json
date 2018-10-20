@@ -1,6 +1,6 @@
 {
   "name": "rx-txjs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "An applicaiton execution model using RxJS",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -25,17 +25,27 @@
   "homepage": "https://github.com/tsemach/typescript-txjs#readme",
   "dependencies": {
     "@types/assert": "0.0.31",
+    "@types/body-parser": "^1.17.0",
+    "@types/chai-http": "^3.0.5",
+    "@types/cors": "^2.8.4",
+    "@types/express": "^4.16.0",
+    "@types/request-promise-native": "^1.0.15",
     "assert": "^1.4.1",
+    "chai-http": "^4.2.0",
+    "cors": "^2.8.4",
     "inversify": "^4.13.0",
     "logging": "^3.2.0",
     "mongodb": "^3.1.6",
     "reflect-metadata": "^0.1.12",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.5",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.2.2",
     "short-uuid": "^3.0.0",
     "typescript": "^3.0.3",
     "typescript-rabbitmq": "0.0.8",
-    "validator": "^10.7.1"
+    "validator": "^10.7.1",
+    "wait-on": "^3.1.0"
   },
   "devDependencies": {
     "@types/chai": "^4.1.4",

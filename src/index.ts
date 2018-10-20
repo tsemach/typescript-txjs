@@ -17,4 +17,6 @@ export * from './tx-job-execution-id'
 export * from './tx-record-persist-memory'
 export * from './tx-record-persist-mongodb'
 export * from './tx-record-persist-adapter'
+export * from './monitor/tx-monitor-server-application'
+export * from './monitor/tx-monitor-server.component'
 

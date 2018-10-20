@@ -11,7 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "logging": "^3.2.0",
-    "rx-txjs": "file:../rx-txjs-0.0.30.tgz",
-    "typescript-rabbitmq": "0.0.6"
+    "rx-txjs": "file:../rx-txjs-0.1.2.tgz",
+    "typescript-rabbitmq": "0.0.6",
+    "wait-on": "^3.1.0"
   }
 }
