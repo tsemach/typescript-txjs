@@ -3,35 +3,25 @@ import createLogger from 'logging';
 const logger = createLogger('monitor-main');
 
 import 'mocha';
-import chai = require('chai');
 import {expect} from 'chai';
-import {assert} from 'chai';
 
 const request = require('request');
 import waitOn = require('wait-on');
 
-import { TxJob } from '../../src/tx-job';
-import { TxTask } from '../../src/tx-task';
-import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
-import { TxMonitorServerTaskHeader } from './../../src/monitor/tx-monitor-server-task-header';
-import '../../src/monitor/tx-monitor-server.component';
+import { TxTask } from '../../src';
+import { TxMountPointRegistry } from '../../src';
+import { TxMonitorServerTaskHeader } from '../../src/tx-monitor-server-task-header';
+import '../../src/tx-monitor-server.component';
 
 import './monitor-client.component';
 import './C1.component';
 import './C2.component';
-import { SSL_OP_NETSCAPE_CA_DN_BUG } from 'constants';
 
-describe('monitor-client.spec: Monitor Server - Start Server Test', () => {
-  it('monitor-client.spec: Monitor Server - Start Server Test', async (done) => {
-    logger.info('[run] example of using internal built in monitor server');
-    logger.info('goint to monitor built in server on 3002 ..');
+describe('monitor.spec: Monitor Server - Start Server Test', () => {
+  it('monitor.spec: Monitor Server - Start Server Test', async (done) => {
+    logger.info('[monitor.spec] example of using internal built in monitor server');
+    logger.info('[monitor.spec] going to test monitor built in server on localhost:3002 ..');
     logger.info('');
-
-    // define the job
-    let job = new TxJob('job-1'); // or create through the TxJobRegistry
-
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
 
     let mp = TxMountPointRegistry.instance.get('RX-TXJS::MONITOR::SERVER');
 
@@ -44,7 +34,7 @@ describe('monitor-client.spec: Monitor Server - Start Server Test', () => {
       await waitOn({
         resources: ['http://localhost:3002/monitor'],
         delay: 2000,
-        timeout: 20000,
+        timeout: 10000,
       });
       logger.info('(subscribe) monitor server is up on http://localhost:3002/monitor: ', task);      
 
@@ -62,7 +52,7 @@ describe('monitor-client.spec: Monitor Server - Start Server Test', () => {
       });
 
     mp.tasks().next(new TxTask<TxMonitorServerTaskHeader>({method: 'start'}, {host: 'localhost', port: 3002}));    
-  }).timeout(20000);  
+  }).timeout(10000);
 });
 
 

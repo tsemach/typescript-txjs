@@ -2,8 +2,8 @@
 import createLogger from 'logging'; 
 const logger = createLogger('TxMonitorServerComponent');
 
-import { TxMountPointRegistry } from '../tx-mountpoint-registry';
-import { TxTask } from '../tx-task';
+import { TxMountPointRegistry } from './tx-mountpoint-registry';
+import { TxTask } from './tx-task';
 import { TxMonitorServerTaskHeader } from "./tx-monitor-server-task-header";
 import { TxMonitorServerApplication } from "./tx-monitor-server-application";
 

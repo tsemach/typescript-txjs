@@ -2,9 +2,8 @@
 import createLogger from 'logging'; 
 const logger = createLogger('C1');
 
-import { TxTask } from '../../src/tx-task';
-import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
-import { TxMonitorServerTaskHeader } from '../../src/tx-monitor-server-task-header';
+import { TxTask } from 'rx-txjs';
+import { TxMountPointRegistry } from 'rx-txjs';
 
 export class MonitorClientComponent {
   private mountpoint = TxMountPointRegistry.instance.create('EXAMPLE::MONITOR::CLIENT');
@@ -19,7 +18,7 @@ export class MonitorClientComponent {
         this.method = task['method'];
 
         // just send the reply to whom is 'setting' on this reply subject
-        this.mountpoint.reply().next(new TxTask<TxMonitorServerTaskHeader>({method: 'start'}, task['data']));
+        this.mountpoint.reply().next(new TxTask({method: 'start'}, task['data']));
       }
     );
 
