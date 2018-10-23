@@ -15,7 +15,7 @@ export class TxRegistry<T, K extends string | Symbol> {
   constructor() {    
   }
 
-  add(name: K, object: T) {
+  add(name: K, object: T) {    
     logger.info("[TxRegistry:add] adding object '" + name.toString() + "'" );
     this.objects.set(name, object);
     this.names.set(name.toString(), name);

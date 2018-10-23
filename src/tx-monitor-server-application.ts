@@ -9,6 +9,7 @@ export class TxMonitorServerApplication {
   private static _instance: TxMonitorServerApplication = null;
 
   public express: express.Application;
+  private server: any;
   
   private constructor() {    
     this.express = express();
@@ -42,17 +43,16 @@ export class TxMonitorServerApplication {
   }
 
   listen(host: string, port: number) {
-    this.express.listen(port, () => {
+    this.server = this.express.listen(port, () => {
       // success callback
       console.log(`Listening at http://${host}:${port}/`);
     });
   }
+
+  close() {
+    this.server.close();
+  }
 }
-
-// make sure instance is ready 
-TxMonitorServerApplication.instance;
-
-require('./tx-monitor-server-service');
 
 // export default // let application = new Application();
 

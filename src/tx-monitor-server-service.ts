@@ -2,12 +2,10 @@ import createLogger from 'logging';
 const logger = createLogger('TxMonitorServerService');
 
 import * as express from 'express';
-import { TxMonitorServerApplication } from './tx-monitor-server-application';
 
-export class TxMonitorServerService {
+class TxMonitorServerService {
 
   constructor() {
-    TxMonitorServerApplication.instance.register('/monitor', this);
   }
 
   public add(): express.Router {
@@ -70,6 +68,7 @@ export class TxMonitorServerService {
     return router;
   // --------------------------------------------------------------------------
   }
+    
 }
 
 export default new TxMonitorServerService();
