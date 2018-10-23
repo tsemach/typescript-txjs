@@ -25,12 +25,22 @@ export class TxMountPointRegistry extends TxRegistry<TxMountPoint, string | Symb
       if (name === undefined || name.length === 0) {
         return mp;
       }
+
+      // if (this.has(name)) {
+      //   throw Error('already got mountpoint under the name ' + name);
+      // }
+
       return <TxMountPoint>this.add(name, mp);
     }
 
     if (name === undefined) {
       return mp;
     }
+
+    // if (this.has(name)) {
+    //   throw Error('already got mountpoint under the name ' + name);
+    // }
+
     return <TxMountPoint>this.add(name, mp);
   }
     

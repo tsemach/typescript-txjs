@@ -1,5 +1,29 @@
+import { TxTask } from './tx-task';
 import { Subject } from 'rxjs/Subject'
 import { TxMountPoint } from "./tx-mountpoint";
+
+class TxSubject extends Subject<TxTask<any>> {
+  private _methods = new Map<string, any>();
+
+  constructor() {
+    super();
+  }
+
+  method(name, target) {
+    this._methods.set(name, target);    
+
+    this.subscribe((task) => {
+      if ( ! this._methods.has(task.head.method) ) {
+        throw new Error(`method ${task.head.method} can't find in target object`);
+      }
+
+      let object = this._methods.get(task.head.method);
+      object[task.head.method](task);
+
+    });
+  }
+
+}
 
 /**
  * TxMountPoint: class is usually used by a component. 
@@ -11,11 +35,11 @@ import { TxMountPoint } from "./tx-mountpoint";
  */
 export class TxMountPointRxJS implements TxMountPoint {
 
-  _tasks = new Subject();
-  _reply = new Subject();
-  _undos = new Subject();
+  _tasks = new TxSubject();
+  _reply = new TxSubject();
+  _undos = new TxSubject();
 
-  constructor(private _name: string | Symbol) {
+  constructor(private _name: string | Symbol) {    
   }
 
   get name() {
@@ -27,7 +51,7 @@ export class TxMountPointRxJS implements TxMountPoint {
 
   /**
    * Use this subject to send back reply of some tasks.
-   * @returns {Subject<any>}
+   * @returns {TxSubject<any>}
    */
   reply() {
     return this._reply;
@@ -36,7 +60,7 @@ export class TxMountPointRxJS implements TxMountPoint {
   /**
    * Use this subject to receive some task to do
    * then reply on the reply subject about the result.
-   * @returns {Subject<any>}
+   * @returns {TxSubject<TxTask<any>>}
    */
   tasks() {
     return this._tasks;
