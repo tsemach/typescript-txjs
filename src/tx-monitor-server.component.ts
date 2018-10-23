@@ -6,6 +6,7 @@ import { TxMountPointRegistry } from './tx-mountpoint-registry';
 import { TxTask } from './tx-task';
 import { TxMonitorServerTaskHeader } from "./tx-monitor-server-task-header";
 import { TxMonitorServerApplication } from "./tx-monitor-server-application";
+import TxMonitorServerService from './tx-monitor-server-service';
 
 export class TxMonitorServerComponent {
   private mountpoint = TxMountPointRegistry.instance.create('RX-TXJS::MONITOR::SERVER');
@@ -17,6 +18,10 @@ export class TxMonitorServerComponent {
         
         if (task.getHead().method === 'start') {
           this.start(task.data);
+        }
+
+        if (task.getHead().method === 'close') {
+          this.close();
         }
 
       },
@@ -37,11 +42,22 @@ export class TxMonitorServerComponent {
 
   async start(data: any) {
     try {
+      TxMonitorServerApplication.instance.register('/monitor', TxMonitorServerService);
       TxMonitorServerApplication.instance.listen(data.host || 'localhost', data.port || 3001);
       this.mountpoint.reply().next(new TxTask<TxMonitorServerTaskHeader>({method: 'start'}, {status: 'ok'}));
     }
     catch (e) {
       this.mountpoint.reply().next(new TxTask<TxMonitorServerTaskHeader>({method: 'start'}, {status: 'error', error: e}));
+    }  
+  }
+
+  async close() {
+    try {      
+      TxMonitorServerApplication.instance.close();
+      this.mountpoint.reply().next(new TxTask<TxMonitorServerTaskHeader>({method: 'close'}, {status: 'ok'}));
+    }
+    catch (e) {
+      this.mountpoint.reply().next(new TxTask<TxMonitorServerTaskHeader>({method: 'close'}, {status: 'error', error: e}));
     }  
   }
 }  

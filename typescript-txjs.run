@@ -1,0 +1,2 @@
+mocha --require ts-node/register  tests/monitor/monitor.ts
+ts-node tests/monitor/monitor.ts

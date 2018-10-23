@@ -245,6 +245,7 @@ export class TxJob {
     this.subscribe(txMountPoint);
     this.stack.push(txMountPoint);
     this.block.push(txMountPoint);
+    TxJobRegistry.instance.addComponent(this.name, txMountPoint.name);
   }
 
   async execute(data, options: TxJobExecutionOptions = defaultOptions) {

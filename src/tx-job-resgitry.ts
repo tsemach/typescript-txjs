@@ -13,7 +13,8 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
   private _persistDriver: TxJobPersistAdapter = null;
   private _recorderDriver: TxRecordPersistAdapter = null;
   private _isRecordMap = new Map<string, boolean>();
-
+  private _jobComponents = new Map<string, Set<string>>();
+  
   private constructor() {
     super();
   }
@@ -30,6 +31,25 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
     }
     
     return this.add(job.uuid, job);
+  }
+  
+  add(uuid: string, job: TxJob) {    
+    job = super.add(uuid, job);
+    this._jobComponents.set(job.getName(), new Set<string>());
+
+    return job;
+  }
+
+  addComponent(job: string, mountpoint: string | Symbol) {
+    let components = this._jobComponents.get(job);
+    components.add(mountpoint.toString());
+  }
+  
+  getComponents(job: string = '') {
+    if (job === '' ) {
+      return this._jobComponents;
+    }
+    return this._jobComponents.get(job);
   }
 
   getPersistDriver() {
@@ -68,7 +88,7 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
     this._recorderDriver = _recordDriver;
   }
 
-  get isRecordMap() {
+  private get isRecordMap() {
     return this._isRecordMap;
   }
 
