@@ -4,6 +4,7 @@ const logger = createLogger('tx-monitor-server.spec');
 
 import 'mocha';
 import {expect} from 'chai';
+import {assert} from 'chai';
 
 const request = require('request');
 import waitOn = require('wait-on');
@@ -17,6 +18,7 @@ import './monitor-client.component';
 import './C1.component';
 import './C2.component';
 
+let url = 'http://localhost:3002/rx-txjs/monitor'
 async function checkMonitorServerUp(task, done) {
   if (task.head.method !== 'start') {        
     return; 
@@ -28,17 +30,17 @@ async function checkMonitorServerUp(task, done) {
   expect(task.data.status).to.equal('ok');          
 
   await waitOn({
-    resources: ['http://localhost:3002/monitor'],
+    resources: ['http://localhost:3002/rx-txjs/monitor'],
     delay: 2000,
     timeout: 10000,
   });
-  logger.info('(subscribe) monitor server is up on http://localhost:3002/monitor: ', task);      
+  logger.info(`(subscribe) monitor server is up on ${url}: ${task}`);      
 
-  request('http://localhost:3002/monitor', { json: true }, (err, response, body) => {
+  request(url, { json: true }, (err, response, body) => {
       logger.info('(subscribe) monitor server response, statue = ', response.statusCode);
       logger.info('(subscribe) monitor server response = ', JSON.stringify(response));                
       logger.info('(subscribe) monitor listen on port = ', response.request.port);                
-      logger.info('(subscribe) monitor server is ready on http://localhost:3002/monitor: body = ', body);
+      logger.info(`(subscribe) monitor server is ready on ${url}: body = ${body}`);
 
       expect(response.request.port).to.equal('3002');
       expect(response.statusCode).to.equal(200);        
@@ -57,29 +59,6 @@ describe('monitor.spec: Monitor Server Tests', () => {
     let mp = TxMountPointRegistry.instance.get('RX-TXJS::MONITOR::SERVER');
 
     mp.reply().subscribe(async (task) => {
-      // logger.info('(subscribe) got status from monitor server: ', task);
-
-      // expect(task.head.method).to.equal('start');        
-      // expect(task.data.status).to.equal('ok');        
-
-      // await waitOn({
-      //   resources: ['http://localhost:3002/monitor'],
-      //   delay: 2000,
-      //   timeout: 10000,
-      // });
-      // logger.info('(subscribe) monitor server is up on http://localhost:3002/monitor: ', task);      
-
-      // request('http://localhost:3002/monitor', { json: true }, (err, response, body) => {
-      //     logger.info('(subscribe) monitor server response, statue = ', response.statusCode);
-      //     logger.info('(subscribe) monitor server response = ', JSON.stringify(response));                
-      //     logger.info('(subscribe) monitor listen on port = ', response.request.port);                
-      //     logger.info('(subscribe) monitor server is ready on http://localhost:3002/monitor: body = ', body);
-
-      //     expect(response.request.port).to.equal('3002');
-      //     expect(response.statusCode).to.equal(200);        
-      //     expect(body.monitor).to.equal('on');
-      //     done();
-      //   })      
       checkMonitorServerUp(task, done);      
     });
     
@@ -88,7 +67,7 @@ describe('monitor.spec: Monitor Server Tests', () => {
 
   it('monitor.spec: Monitor Server - Server Close Test', async (done) => {
     logger.info('[monitor.spec] Monitor Server - Server Close Test');    
-    logger.info('[monitor.spec] going to test monitor built in server on localhost:3002 ..');
+    logger.info('[monitor.spec] going to test closing monitor built in server on localhost:3002 ..');
     logger.info('');
 
     let mp = TxMountPointRegistry.instance.get('RX-TXJS::MONITOR::SERVER');
@@ -98,35 +77,23 @@ describe('monitor.spec: Monitor Server Tests', () => {
         return;        
       }
 
-      logger.info('(subscribe) got status from monitor server: ', task);
+      logger.info('(subscribe) got status from closing monitor server component: ', task);
 
-      expect(task.head.method).to.equal('close');        
+      expect(task.head.method).to.equal('close');
       expect(task.data.status).to.equal('ok');        
+      
+      request(url, { json: true }, (err, response, body) => {
+        logger.info('got error', err, ' as expected');
 
-      await waitOn({
-        resources: ['http://localhost:3002/monitor'],
-        delay: 2000,
-        timeout: 10000,
-      });
-      logger.info('(subscribe) monitor server is up on http://localhost:3002/monitor: ', task);      
+        expect(err).to.not.equal(null);        
+        expect(body).to.equal(undefined);        
 
-      // request('http://localhost:3002/monitor', { json: true }, (err, response, body) => {
-      //     logger.info('(subscribe) monitor server response, statue = ', response.statusCode);
-      //     logger.info('(subscribe) monitor server response = ', JSON.stringify(response));                
-      //     logger.info('(subscribe) monitor listen on port = ', response.request.port);                
-      //     logger.info('(subscribe) monitor server is ready on http://localhost:3002/monitor: body = ', body);
-
-      //     expect(response.request.port).to.equal('3002');
-      //     expect(response.statusCode).to.equal(200);        
-      //     expect(body.monitor).to.equal('on');
-      //     done();
-      //   })      
-      // //checkMonitorServerUp(task, done);
-      // });
-      done();
-    });
-    mp.tasks().next(new TxTask<TxMonitorServerTaskHeader>({method: 'close'}));
-  }).timeout(20000);
+        done();
+      })
+      
+    });    
+    mp.tasks().next(new TxTask<TxMonitorServerTaskHeader>({method: 'close'}));        
+  }).timeout(5000);
 
 });
 
@@ -145,7 +112,7 @@ describe('monitor.spec: Monitor Server Tests', () => {
 //   mp.reply().subscribe(async (task) => {
 //     logger.info('got status from monitor: ', task);
 //     await waitOn({
-//       resources: ['http://localhost:3002/monitor'],
+//       resources: ['http://localhost:3002/rx-txjs/monitor'],
 //       timeout: 10000,
 //     });
 

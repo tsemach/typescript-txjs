@@ -19,7 +19,6 @@ class TxSubject extends Subject<TxTask<any>> {
 
       let object = this._methods.get(task.head.method);
       object[task.head.method](task);
-
     });
   }
 
