@@ -42,7 +42,7 @@ export class TxMonitorServerComponent {
 
   async start(data: any) {
     try {
-      TxMonitorServerApplication.instance.register('/monitor', TxMonitorServerService);
+      TxMonitorServerApplication.instance.register('/rx-txjs/monitor', TxMonitorServerService);
       TxMonitorServerApplication.instance.listen(data.host || 'localhost', data.port || 3001);
       this.mountpoint.reply().next(new TxTask<TxMonitorServerTaskHeader>({method: 'start'}, {status: 'ok'}));
     }
