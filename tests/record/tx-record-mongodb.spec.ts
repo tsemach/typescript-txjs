@@ -9,9 +9,10 @@ import * as uuid from 'uuid/v4';
 import { TxRecordPersistMongoDB, TxMongoDBJobId } from "../../src";
 import { TxRecordIndexSave, TxRecordInfoSave } from "../../src";
 
-describe('Record MongoDB - Insert | Update | Read', () => {
+var colors = require('colors');
 
-  logger.info('ATTENTION: Make sure you have mongodb running, you can use docker:');
+describe('Record MongoDB - Insert | Update | Read', () => {
+  logger.info(colors.cyan.underline('ATTENTION') + ': Make sure you have mongodb running, you can use docker:');
   logger.info('docker run --name mongodb -p 27017:27017 -v ~/data:/data/db -d mongo');
 
   const exeUuid = uuid();

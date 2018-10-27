@@ -1,0 +1,37 @@
+{
+  "name": "github",
+  "jobs": [
+    {
+      "name": "Job-1",
+      "components": [
+        {
+          "name": "GITHUB::GIST::C1"
+        },
+        {
+          "name": "GITHUB::GIST::C2"
+        },
+        {
+          "name": "GITHUB::GIST::C3"
+        },
+        {
+          "name": "GITHUB::GIST::C4"
+        }
+      ]
+    },
+    {
+      "name": "Job-2",
+      "components": [
+        {
+          "name": "GITHUB::APIS::C1"
+        },
+        {
+          "name": "GITHUB::APIS::C2"
+        },
+        {
+          "name": "GITHUB::APIS::C3"
+        }
+      ]
+    }
+  ]
+}
+

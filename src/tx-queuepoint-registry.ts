@@ -12,7 +12,6 @@ import { TxRegistryContainer } from "./tx-registry-container";
 export class TxQueuePointRegistry extends TxRegistry<TxQueuePoint, string | Symbol> {
   private static _instance: TxQueuePointRegistry;
 
-  //private queueContainer = new TxQueuePointRegistryContainer<TxQueuePoint>(TxQueuePoint, TxTYPES.TxQueuePoint);
   private queueContainer = new TxRegistryContainer<TxQueuePoint>(TxQueuePoint, TxTYPES.TxQueuePoint);
 
   private constructor() {
@@ -26,6 +25,10 @@ export class TxQueuePointRegistry extends TxRegistry<TxQueuePoint, string | Symb
     return this._instance || (this._instance = new this());
   }
 
+  create(name: string | Symbol) {
+    return this.queue(name);
+  }
+  
   queue(name: string | Symbol) {
     const cp = this.queueContainer.get(name);
 

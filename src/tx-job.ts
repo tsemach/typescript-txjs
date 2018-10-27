@@ -14,6 +14,7 @@ import { TxTask } from "./tx-task";
 import { TxJobExecutionOptions, TxJobExecutionOptionsChecker } from "./tx-job-execution-options";
 import { TxRecordPersistAdapter, TxRecordIndexSave } from "./tx-record-persist-adapter";
 import { TxJobExecutionId } from "./tx-job-execution-id";
+import { TxJobServices } from './tx-job-services';
 
 export const enum TxDirection {
   forward = 1,
@@ -52,8 +53,14 @@ export class TxJob {
   executionId: TxJobExecutionId = {uuid: '', sequence: 0};
   recorder: TxRecordPersistAdapter;
 
-  constructor(private name: string = '') {
-    TxJobRegistry.instance.add(this.uuid, this);
+  services = new TxJobServices(this);
+
+  constructor(private name) {
+    if (name === '' || typeof name !== 'string') {
+      throw Error('job name cah\'t be empty, add real name');
+    }
+
+    TxJobRegistry.instance.add(this.uuid, this);    
     this.recorder = TxJobRegistry.instance.getRecorderDriver();
   }
 
@@ -65,7 +72,12 @@ export class TxJob {
       throw new Error(`[TxJob:subscribe] ERROR: job: ${this.name} is on error but got subscribe callback from a mountpoint`);
     }
 
+
+      console.log("OPTIONS: options = ", this.options)
+
+
     if (this.isRecord(this.options)) {
+      console.log("BUG: options = ", this.options)
       await this.record({reply: data}, 'update');
     }
     this.onComponent.next(new TxTask<{name: string}>({name: <string>txMountPoint.name}, {data: data}));
@@ -241,6 +253,14 @@ export class TxJob {
     this.subscribers .push(subscribed);
   }
 
+  /**
+   * use when defining S2S. like: job.on('service').add('mountpoint')
+   * @param serivce in case of S2S set the service of the following mountpoint
+   */
+  on(serivce: string) {
+    return this.services.on(serivce);
+  }
+
   add(txMountPoint: TxMountPoint) {    
     this.subscribe(txMountPoint);
     this.stack.push(txMountPoint);
@@ -251,6 +271,11 @@ export class TxJob {
   async execute(data, options: TxJobExecutionOptions = defaultOptions) {
     this.single = false;
     this.options = options;
+
+    if (TxJobExecutionOptionsChecker.isService(this.options)) {
+      this.setFromServices();
+    }
+
     if (this.stack.length === 0) {
       logger.info(`[TxJob:execute] stack.length = 0`);  
 
@@ -386,6 +411,18 @@ export class TxJob {
     this.current.undos().next(data);
   }
 
+  /**
+   * S2S: in case of S2S take all the mountpoint defined in this.services
+   * and use them for the executions.
+   */
+  private setFromServices() {
+    console.log("IN setFromServices")
+    let service = TxJobRegistry.instance.getServiceName();
+
+    let names = this.services.getNames(service);
+    names.forEach(name => this.add(TxMountPointRegistry.instance.get(name)));
+  }
+
   shift() {
     this.current = this.stack.shift();
     this.trace.push(this.current);
@@ -420,6 +457,7 @@ export class TxJob {
   finish(data) {    
     this.revert = false;
     this.single = false;
+    this.services.shift(TxJobRegistry.instance.getServiceName(), data);
     this.isCompleted.next(data);
   }
 
@@ -435,7 +473,8 @@ export class TxJob {
       revert: this.revert,
       current: this.getCurrentName(),
       executeUuid: this.executionId.uuid,
-      sequence: this.executionId.sequence
+      sequence: this.executionId.sequence,
+      services: this.services.toJSON()
     }
   }
 
@@ -475,6 +514,9 @@ export class TxJob {
         this.block.push(mp);
       }
     });
+
+    this.services = new TxJobServices(this).upJSON(json.services);
+    TxJobRegistry.instance.add(this.uuid, this);
 
     return this;    
   }

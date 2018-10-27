@@ -1,5 +1,8 @@
 
 import { TxJobRegistry } from './tx-job-resgitry';
+import { TxMountPointRegistry } from './tx-mountpoint-registry';
+import { TxTask } from './tx-task';
+import { TxMonitorServerTaskHeader } from './tx-monitor-server-task-header';
 
 interface TxMonitorOverviewJods {
   name: string,
@@ -12,31 +15,35 @@ interface TxMonitorOverview {
 }
 
 class TxMonitor {
-  name = '';
 
   constructor() {
 
   }
 
-  setServiceName(name: string) { 
-    this.name = name;
+  runBuiltInServer(host: string, port: number) {
+    let mp = TxMountPointRegistry.instance.get('RX-TXJS::MONITOR::SERVER');
+    
+    mp.tasks().next(new TxTask<TxMonitorServerTaskHeader>({method: 'start'}, {host, port}));    
   }
 
   /** 
-   * getOverview return array of:
+   * getOverview return json similar to:
    * {
-   *   name: 'job-11',
-   *   uuid: '1234',
-   *   components: [
-   *     { name: 'AWS::CREATE' },
-   *     { name: 'AWS::DELETE' }
-   *   ]
+   *   name: <service-name>
+   *   {
+   *     name: 'job-11',
+   *     uuid: '1234',
+   *     components: [
+   *       { name: 'AWS::CREATE' },
+   *       { name: 'AWS::DELETE' }
+   *     ]
+   *   }
    * }
   */
-  getOverview() {
-    let jobs = <Map<string, Set<string>>>TxJobRegistry.instance.getComponents();
+  getOverview(serviceName) {
+    let jobs = <Map<string, Set<string>>>TxJobRegistry.instance.getJobs();
         
-    let overview: TxMonitorOverview = {name: this.name, jobs: []};   
+    let overview: TxMonitorOverview = {name: serviceName, jobs: []};   
     
     jobs.forEach((components, job)  => {
       overview.jobs.push({name: job, components: Array.from(components, item => { return {name :item} })});      

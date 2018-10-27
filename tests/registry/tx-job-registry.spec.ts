@@ -16,6 +16,9 @@ import { C1Component } from "../job/C1.component";
 import {C3Component} from "../job/C3.component";
 import {TxMountPointRegistry} from '../../src/tx-mountpoint-registry';
 import {C2Component} from "../job/C2.component";
+import { TxJobServicesComponent } from '../../src/tx-job-services-component';
+
+new TxJobServicesComponent().init();  
 
 describe('Job Registry Classes - TxJobRegistry', () => {
 

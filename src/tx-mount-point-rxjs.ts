@@ -3,23 +3,27 @@ import { Subject } from 'rxjs/Subject'
 import { TxMountPoint } from "./tx-mountpoint";
 
 class TxSubject extends Subject<TxTask<any>> {
-  private _methods = new Map<string, any>();
+  private methods = new Map<string, any>();
+    isSubscribe = false;
 
   constructor() {
     super();
   }
 
   method(name, target) {
-    this._methods.set(name, target);    
+    this.methods.set(name, target);    
+    
+    if ( ! this.isSubscribe ) {
+      this.subscribe((task) => {
+        if ( ! this.methods.has(task.head.method) ) {
+          throw new Error(`method ${task.head.method} can't find in target object`);
+        }
 
-    this.subscribe((task) => {
-      if ( ! this._methods.has(task.head.method) ) {
-        throw new Error(`method ${task.head.method} can't find in target object`);
-      }
-
-      let object = this._methods.get(task.head.method);
-      object[task.head.method](task);
-    });
+        let object = this.methods.get(task.head.method);
+        object[task.head.method](task);
+      });
+    }
+    this.isSubscribe = true;
   }
 
 }

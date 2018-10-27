@@ -27,7 +27,7 @@ describe('Job Class', () => {
     let persist = new Persist();
     TxJobRegistry.instance.setPersistDriver(persist);
 
-    let job = new TxJob();
+    let job = new TxJob('Job-1');
 
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
@@ -79,7 +79,7 @@ describe('Job Class', () => {
     let persist = new Persist();
     TxJobRegistry.instance.setPersistDriver(persist);
 
-    let job = new TxJob();
+    let job = new TxJob('Job-1');
 
     let MP1 = TxMountPointRegistry.instance.get('GITHUB::GIST::C1');
     let MP2 = TxMountPointRegistry.instance.get('GITHUB::GIST::C2');

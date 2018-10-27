@@ -99,7 +99,8 @@ export class TxRecordPersistMongoDB implements TxRecordPersistAdapter {
 
     this.db = client.db('txjs');
 
-    this.exct = await this.db.collecttion('execute');
+    console.log("TxRecordPersistMongoDB: db = ", this.db)
+    await this.db.collecttion('execute');
     await this.db.createCollection("jobs");
 
     this.exct = await this.db.collection('execute');

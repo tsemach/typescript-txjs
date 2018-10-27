@@ -49,21 +49,24 @@ describe('Queue Point Class', () => {
     let set = new Set<string>();
 
     const txContainer = new Container();
+
+    // dependenies: bind component type (itself) and the connector type
     txContainer.bind<TxQueuePoint>(TxTYPES.TxQueuePoint).to(TxQueuePoint);
     txContainer.bind<TxConnector>(TxTYPES.TxConnector).to(TxConnectorRabbitMQ);
 
+    // dependenies: before getting need to bind the component name.
+    txContainer.bind<string | Symbol>(TxTYPES.TxPointName).toConstantValue('GITHUB::API::AUTH');
     const CP1 = txContainer.get<TxQueuePoint>(TxTYPES.TxQueuePoint);
     const CP2 = txContainer.get<TxQueuePoint>(TxTYPES.TxQueuePoint);
 
     CP1.queue().register('CP1', 'tasks:connect');
-
     CP2.queue().register('CP2', 'tasks:connect');
 
     set.add((<TxConnectorRabbitMQ>CP1.queue()).id);
     set.add((<TxConnectorRabbitMQ>CP2.queue()).id);
 
     // make sure they all different UUIDs.
-    expect(set.size).to.equal(6);
+    expect(set.size).to.equal(2);
 
     // make sure they all valid UUID
     assert(isUUID((<TxConnectorRabbitMQ>CP1.queue()).id));
@@ -72,17 +75,15 @@ describe('Queue Point Class', () => {
 
   it('tx-queue-point.spec: binding TxConnectorRabbitMQ by variable', () => {
     logger.info('tx-queue-point.spec: binding TxConnectorRabbitMQ by variable')
+
     const txContainer = new Container();
-    txContainer.bind<TxQueuePoint>(TxTYPES.TxQueuePoint).to(TxQueuePoint);
 
     // bind TxConnectorRabbitMQ to TxTYPES.TxConnector as TxConnector
-    function bind(type) {
-      txContainer.bind<TxConnector>(TxTYPES.TxConnector).to(type);
+    txContainer.bind<TxQueuePoint>(TxTYPES.TxQueuePoint).to(TxQueuePoint);    
+    txContainer.bind<TxConnector>(TxTYPES.TxConnector).to(TxConnectorRabbitMQ);
 
-      return txContainer;
-    }
-    bind(TxConnectorRabbitMQ);
-
+    // dependenies: before getting need to bind the component name.
+    txContainer.bind<string | Symbol>(TxTYPES.TxPointName).toConstantValue('GITHUB::API::AUTH');
     const CP1 = txContainer.get<TxQueuePoint>(TxTYPES.TxQueuePoint);
     const CP2 = txContainer.get<TxQueuePoint>(TxTYPES.TxQueuePoint);
 
@@ -94,7 +95,7 @@ describe('Queue Point Class', () => {
     set.add((<TxConnectorRabbitMQ>CP2.queue()).id);
 
     // make sure they all different UUIDs.
-    expect(set.size).to.equal(6);
+    expect(set.size).to.equal(2);
 
     // make sure they all valid UUID
     assert(isUUID((<TxConnectorRabbitMQ>CP1.queue()).id));

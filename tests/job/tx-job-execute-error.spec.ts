@@ -10,6 +10,8 @@ import { TxJobExecutionOptions } from '../../src';
 import { TxTask } from '../../src';
 import { TxJob } from '../../src';
 import {TxJobExecutionId, TxJobRegistry} from "../../src";
+import { TxJobServicesComponent } from '../../src/tx-job-services-component';
+import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
 
 import { E1Component } from './E1.component';
 import { E2Component } from './E2.component';
@@ -17,6 +19,8 @@ import { E3Component } from './E3.component';
 import { Persist } from "./pesist-driver";
 
 import * as short from 'short-uuid';
+
+new TxJobServicesComponent().init();  
 
 describe('Job Class', () => {
   let persist = new Persist();
@@ -114,7 +118,7 @@ describe('Job Class', () => {
     let uuid = short().new();
     let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};
 
-    let job = new TxJob();
+    let job = new TxJob('Job-1');
     let from = {
       name: "Job-GitHub-API",
       uuid: uuid,
@@ -126,7 +130,8 @@ describe('Job Class', () => {
       revert: false,
       current: "GITHUB::GIST::E2",
       executeUuid: executionId.uuid,
-      sequence: executionId.sequence
+      sequence: executionId.sequence,
+      services: TxJobServicesEmptyJSON
     };
     let after = job.upJSON(from).toJSON();
 

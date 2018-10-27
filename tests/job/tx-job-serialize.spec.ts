@@ -10,6 +10,10 @@ import {TxTask} from '../../src/tx-task';
 import {TxJob} from '../../src/tx-job';
 import * as short from 'short-uuid';
 import {TxJobExecutionId} from "../../src";
+import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
+import { TxJobServicesComponent } from '../../src/tx-job-services-component';
+
+new TxJobServicesComponent().init();  
 
 describe('Job Class - Serialize', () => {
 
@@ -61,22 +65,43 @@ describe('Job Class - Serialize', () => {
     }
   }
 
+  const JobServices = {
+    "stack": [ "service-a", "service-b", "service-c" ],
+    "trace": [],
+    "block": [ "service-a", "service-b", "service-c" ],
+    "current": "",
+    "jobs": [ 
+      {
+        "service": "service-a",
+        "components": [ "GITHUB::GIST::A1", "GITHUB::GIST::A2", "GITHUB::GIST::A3" ]
+      },
+      {
+        "service": "service-b",
+        "components": [ "GITHUB::GIST::B1", "GITHUB::GIST::B2", "GITHUB::GIST::B3" ]
+      },
+      {
+        "service": "service-c",
+        "components": [ "GITHUB::GIST::C1", "GITHUB::GIST::C2", "GITHUB::GIST::C3" ]
+      }
+    ]
+  }
+
   /**
    */
 
-  it('check job-serialize.spec: toJSON | upJSON serialize', (done) => {
-    logger.info('tx-job-serialize.spec: check job-serialize.spec: toJSON | upJSON serialize');
+  it('check job-serialize.spec.ts: toJSON | upJSON serialize', (done) => {
+    logger.info('tx-job-serialize.spec.ts: check Job toJSON | upJSON serialize');
 
     new C1Component();
     new C2Component();
 
-    let src = new TxJob(); // or create through the TxJobRegistry
+    let src = new TxJob('Job-1'); // or create through the TxJobRegistry
 
     src.add(TxMountPointRegistry.instance.get(Names.GITHUB_GIST_C1));
     src.add(TxMountPointRegistry.instance.get(Names.GITHUB_GIST_C2));
     logger.info('[toJSON | upJSON] src.toJSON = ' + JSON.stringify(src.toJSON(), undefined, 2));
 
-    let dst = new TxJob();
+    let dst = new TxJob('Job-1');
 
     dst.upJSON(src.toJSON());
 
@@ -87,8 +112,8 @@ describe('Job Class - Serialize', () => {
 
   });
 
-  it('check job-serialize.spec: upJSON serialize with continue', (done) => {
-    logger.info('tx-job-serialize.spec: check job-serialize.spec: upJSON serialize with continue');
+  it('check tx-job-serialize.spec.ts: upJSON serialize with continue', (done) => {
+    logger.info('tx-tx-job-serialize.spec.ts: check tx-job-serialize.spec.ts: upJSON serialize with continue');
 
     new C1Component();
     new C2Component();
@@ -101,7 +126,7 @@ describe('Job Class - Serialize', () => {
      * load job where GITHUB_GIST_C1 is already called so need to continue from GITHUB_GIST_C2
      * @type {TxJob}
      */
-    let job = new TxJob();
+    let job = new TxJob('Job-1');
     let from = {
       name: 'GITHUB',
       uuid: uuid,
@@ -113,7 +138,8 @@ describe('Job Class - Serialize', () => {
       error: false,
       current: "Symbol(GITHUB_GIST_C2)",
       executeUuid: executionId.uuid,
-      sequence: executionId.sequence
+      sequence: executionId.sequence,
+      services: TxJobServicesEmptyJSON
     };
     let after = job.upJSON(from).toJSON();
     logger.info('[upJSON] after = ' + JSON.stringify(after, undefined, 2));
@@ -140,6 +166,42 @@ describe('Job Class - Serialize', () => {
       },
       {something: 'more data here'})
     );
+  });
+
+  it('check tx-job-serialize.spec.ts: check Job Services serialization toJSON | upJSON', () => {
+    logger.info('tx-tx-job-serialize.spec.ts: check Job Services serialization toJSON | upJSON');
+
+    new C1Component();
+    new C2Component();
+    new C3Component();
+
+    let uuid = short().new();
+    let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};
+
+    /**
+     * load job where GITHUB_GIST_C1 is already called so need to continue from GITHUB_GIST_C2
+     * @type {TxJob}
+     */
+    let job = new TxJob('Job-1');
+    let from = {
+      name: 'GITHUB',
+      uuid: uuid,
+      block: "Symbol(GITHUB_GIST_C1),Symbol(GITHUB_GIST_C2),Symbol(GITHUB_GIST_C3)",
+      stack: "Symbol(GITHUB_GIST_C3)",
+      trace: "Symbol(GITHUB_GIST_C1)",
+      single: false,
+      revert: false,
+      error: false,
+      current: "Symbol(GITHUB_GIST_C2)",
+      executeUuid: executionId.uuid,
+      sequence: executionId.sequence,
+      services: JobServices
+    };
+    let after = job.upJSON(from).toJSON();
+    console.log('[upJSON] after = ' + JSON.stringify(after, undefined, 2));
+
+    assert.deepEqual(JobServices, after.services);   
+    assert.deepEqual(from, after); 
   });
     
 });
