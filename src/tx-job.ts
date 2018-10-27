@@ -56,7 +56,9 @@ export class TxJob {
   services = new TxJobServices(this);
 
   constructor(private name: string = '') {
-    TxJobRegistry.instance.add(this.uuid, this);
+    if (name !== '') {
+      TxJobRegistry.instance.add(this.uuid, this);
+    }
     this.recorder = TxJobRegistry.instance.getRecorderDriver();
   }
 
@@ -464,7 +466,8 @@ export class TxJob {
       revert: this.revert,
       current: this.getCurrentName(),
       executeUuid: this.executionId.uuid,
-      sequence: this.executionId.sequence
+      sequence: this.executionId.sequence,
+      services: this.services.toJSON()
     }
   }
 
@@ -504,6 +507,9 @@ export class TxJob {
         this.block.push(mp);
       }
     });
+
+    this.services = new TxJobServices(this).upJSON(json.services);
+    TxJobRegistry.instance.add(this.uuid, this);
 
     return this;    
   }

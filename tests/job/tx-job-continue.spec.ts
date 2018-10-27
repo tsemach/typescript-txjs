@@ -7,6 +7,7 @@ import {assert, expect} from 'chai';
 import {TxTask} from '../../src/';
 import {TxJob} from '../../src';
 import { TxJobExecutionId } from '../../src/';
+import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
 
 import {C1Component} from './C1.component';
 import {C2Component} from './C2.component';
@@ -42,7 +43,8 @@ describe('Job Class - Continue', () => {
       error: false,
       current: "GITHUB::GIST::C2",
       executeUuid: executionId.uuid,
-      sequence: executionId.sequence
+      sequence: executionId.sequence,
+      services: TxJobServicesEmptyJSON
     };
     let after = job.upJSON(from).toJSON();
 
@@ -93,7 +95,8 @@ describe('Job Class - Continue', () => {
       error: false,
       current: "GITHUB::GIST::C2",
       executeUuid: executionId.uuid,
-      sequence: executionId.sequence
+      sequence: executionId.sequence,
+      services: TxJobServicesEmptyJSON
     };
     job.upJSON(from);
 
@@ -153,7 +156,8 @@ describe('Job Class - Continue', () => {
       error: true,
       current: "GITHUB::GIST::E2",
       executeUuid: executionId.uuid,
-      sequence: executionId.sequence
+      sequence: executionId.sequence,
+      services: TxJobServicesEmptyJSON
     };
     let after = job.upJSON(from).toJSON();
 

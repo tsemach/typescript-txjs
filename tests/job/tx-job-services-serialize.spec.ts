@@ -53,16 +53,17 @@ describe('S2S: Job With Service', () => {
     services.on('service-c').add('GITHUB::GIST::C3');
 
     let before = services.toJSON()
-    services = new TxJobServices(null).upJSON(before);
- 
+    console.log("TxJobServices: serialize = ", JSON.stringify(before, undefined, 2));
+
+    services = new TxJobServices(null).upJSON(before);   
     assert.deepEqual(before, services.toJSON());
   });
 
   it('tx-job-services-serialize.spec.ts: check job services serialization, check empty', () => {
     logger.info('tx-job-services-serialize.spec.ts: check job services serializationm check empty');
         
-    let services = new TxJobServices(null);
- 
+    let services = new TxJobServices(null);    
+
     assert.deepEqual(TxJobServicesEmptyJSON, services.toJSON());
   });
 

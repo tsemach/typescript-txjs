@@ -2,15 +2,16 @@ import createLogger from 'logging';
 import 'mocha';
 import {expect} from 'chai';
 
-import {TxMountPointRegistry} from '../../src/tx-mountpoint-registry';
-import {TxTask} from '../../src/tx-task';
 import {TxJob} from '../../src/tx-job';
+import {TxTask} from '../../src/tx-task';
+import {TxJobExecutionId} from "../../src";
+import {TxMountPointRegistry} from '../../src/tx-mountpoint-registry';
+import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
 
 import {C1Component} from './C1.component';
 import {C2Component} from './C2.component';
 import {C3Component} from './C3.component';
 import * as short from 'short-uuid';
-import {TxJobExecutionId} from "../../src";
 
 const logger = createLogger('Job-Test');
 
@@ -112,7 +113,9 @@ describe('Job Class', () => {
       error: false,
       current: "",
       executeUuid: executionId.uuid,
-      sequence: executionId.sequence
+      sequence: executionId.sequence,
+      services: TxJobServicesEmptyJSON
+
     };
     let after = job.upJSON(from).toJSON();
 
@@ -162,7 +165,8 @@ describe('Job Class', () => {
       error: false,
       current: "GITHUB::GIST::C2",
       executeUuid: executionId.uuid,
-      sequence: executionId.sequence
+      sequence: executionId.sequence,
+      services: TxJobServicesEmptyJSON
     };
 
     let after = job.upJSON(from).toJSON();
@@ -204,7 +208,8 @@ describe('Job Class', () => {
       error: false,
       current: "GITHUB::GIST::C2",
       executeUuid: executionId.uuid,
-      sequence: executionId.sequence
+      sequence: executionId.sequence,
+      services: TxJobServicesEmptyJSON
     };
     job.upJSON(from);
 

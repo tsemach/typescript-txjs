@@ -1,3 +1,4 @@
+import { TxJobServicesJSON } from './tx-job-services-json';
 
 /**
  * This is the JSON representation of TxJob
@@ -14,4 +15,5 @@ export interface TxJobJSON {
   current: string;
   executeUuid: string;
   sequence: number;
+  services: TxJobServicesJSON;
 }
