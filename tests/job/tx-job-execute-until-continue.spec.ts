@@ -9,6 +9,7 @@ import { TxJobExecutionOptions } from "../../src/tx-job-execution-options";
 import { TxTask } from '../../src/tx-task';
 import { TxJob } from '../../src/tx-job';
 import { TxJobRegistry } from "../../src";
+import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 
 import { C1Component } from './C1.component';
 import { C2Component } from './C2.component';
@@ -16,6 +17,8 @@ import { C3Component } from './C3.component';
 import { Persist } from "./pesist-driver";
 
 import * as short from 'short-uuid';
+
+new TxJobServicesComponent().init();  
 
 describe('Job Class', () => {
   // let persist = new Persist();

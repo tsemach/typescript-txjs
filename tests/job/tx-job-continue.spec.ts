@@ -8,6 +8,7 @@ import {TxTask} from '../../src/';
 import {TxJob} from '../../src';
 import { TxJobExecutionId } from '../../src/';
 import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
+import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 
 import {C1Component} from './C1.component';
 import {C2Component} from './C2.component';
@@ -17,6 +18,8 @@ import {E2Component} from './E2.component';
 import {E3Component} from './E3.component';
 
 import * as short from 'short-uuid';
+
+new TxJobServicesComponent().init();  
 
 describe('Job Class - Continue', () => {
 
@@ -31,7 +34,7 @@ describe('Job Class - Continue', () => {
     let uuid = short().new();
     let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};
 
-    let job = new TxJob();
+    let job = new TxJob('Job-1');
     let from = {
       name: "GitHub",
       uuid: uuid,
@@ -83,7 +86,7 @@ describe('Job Class - Continue', () => {
     let uuid = short().new();
     let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};
 
-    let job = new TxJob();
+    let job = new TxJob('Job-1');
     let from = {
       name: "GitHub",
       uuid: uuid,
@@ -144,7 +147,7 @@ describe('Job Class - Continue', () => {
     let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};
 
     let count = 3;
-    let job = new TxJob();
+    let job = new TxJob('Job-1');
     let from = {
       name: "GitHub",
       uuid: uuid,

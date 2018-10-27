@@ -7,6 +7,7 @@ import {TxTask} from '../../src/tx-task';
 import {TxJobExecutionId} from "../../src";
 import {TxMountPointRegistry} from '../../src/tx-mountpoint-registry';
 import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
+import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 
 import {C1Component} from './C1.component';
 import {C2Component} from './C2.component';
@@ -14,6 +15,8 @@ import {C3Component} from './C3.component';
 import * as short from 'short-uuid';
 
 const logger = createLogger('Job-Test');
+
+new TxJobServicesComponent().init();  
 
 describe('Job Class', () => {
 
@@ -26,7 +29,7 @@ describe('Job Class', () => {
     new C2Component();
     new C3Component();
     
-    let job = new TxJob(); // or create througth the TxJobRegistry
+    let job = new TxJob('Job-1'); // or create througth the TxJobRegistry
 
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
@@ -101,7 +104,7 @@ describe('Job Class', () => {
     let uuid = short().new();
     let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};
 
-    let job = new TxJob();
+    let job = new TxJob('Job-1');
     let from = {
       name: "GitHub",
       uuid: uuid,
@@ -153,7 +156,7 @@ describe('Job Class', () => {
     let uuid = short().new();
     let executionId = {uuid: short().new(), sequence: 1};
 
-    let job = new TxJob();
+    let job = new TxJob('Job-1');
     let from = {
       name: "GitHub",
       uuid: uuid,
@@ -196,7 +199,7 @@ describe('Job Class', () => {
     let uuid = short().new();
     let executionId = {uuid: short().new(), sequence: 1};
 
-    let job = new TxJob();
+    let job = new TxJob('Job-1');
     let from = {
       name: "GitHub",
       uuid: uuid,

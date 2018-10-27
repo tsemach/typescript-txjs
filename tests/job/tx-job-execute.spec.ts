@@ -16,6 +16,10 @@ import { C3Component } from './C3.component';
 import { Persist } from "./pesist-driver";
 
 import * as short from 'short-uuid';
+import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
+import { TxJobServicesComponent } from '../../src/tx-job-services-component';
+
+new TxJobServicesComponent().init();  
 
 describe('Job Class', () => {
   let a = 0;
@@ -80,7 +84,7 @@ describe('Job Class', () => {
     let uuid = short().new();
     let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};
 
-    let job = new TxJob();
+    let job = new TxJob('Job-1');
     let from = {
       name: "GitHub",
       uuid: uuid,
@@ -92,7 +96,8 @@ describe('Job Class', () => {
       error: false,
       current: "",
       executeUuid: executionId.uuid,
-      sequence: executionId.sequence
+      sequence: executionId.sequence,
+      services: TxJobServicesEmptyJSON
     };
     let after = job.upJSON(from).toJSON();
 

@@ -25,6 +25,10 @@ export class TxQueuePointRegistry extends TxRegistry<TxQueuePoint, string | Symb
     return this._instance || (this._instance = new this());
   }
 
+  create(name: string | Symbol) {
+    return this.queue(name);
+  }
+  
   queue(name: string | Symbol) {
     const cp = this.queueContainer.get(name);
 

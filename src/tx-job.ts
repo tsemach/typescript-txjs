@@ -55,10 +55,12 @@ export class TxJob {
 
   services = new TxJobServices(this);
 
-  constructor(private name: string = '') {
-    if (name !== '') {
-      TxJobRegistry.instance.add(this.uuid, this);
+  constructor(private name) {
+    if (name === '' || typeof name !== 'string') {
+      throw Error('job name cah\'t be empty, add real name');
     }
+
+    TxJobRegistry.instance.add(this.uuid, this);    
     this.recorder = TxJobRegistry.instance.getRecorderDriver();
   }
 
@@ -70,7 +72,12 @@ export class TxJob {
       throw new Error(`[TxJob:subscribe] ERROR: job: ${this.name} is on error but got subscribe callback from a mountpoint`);
     }
 
+
+      console.log("OPTIONS: options = ", this.options)
+
+
     if (this.isRecord(this.options)) {
+      console.log("BUG: options = ", this.options)
       await this.record({reply: data}, 'update');
     }
     this.onComponent.next(new TxTask<{name: string}>({name: <string>txMountPoint.name}, {data: data}));

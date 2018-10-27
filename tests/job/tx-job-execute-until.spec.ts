@@ -16,6 +16,7 @@ import { C3Component } from './C3.component';
 import { Persist } from "./pesist-driver";
 
 import * as short from 'short-uuid';
+import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
 
 describe('Job Class', () => {
   // let persist = new Persist();
@@ -137,7 +138,8 @@ describe('Job Class', () => {
       error: false,
       current: "",
       executeUuid: executionId.uuid,
-      sequence: executionId.sequence
+      sequence: executionId.sequence,
+      services: TxJobServicesEmptyJSON
     };
 
     let after = job.upJSON(from).toJSON();

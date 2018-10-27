@@ -21,7 +21,7 @@ describe('Component Decorator Class', () => {
     let D1 = new D1Component();
     let D2 = new D2Component();    
     
-    let job = new TxJob(); // or create througth the TxJobRegistry
+    let job = new TxJob('Job-1'); // or create througth the TxJobRegistry
 
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::D1'));
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::D2'));

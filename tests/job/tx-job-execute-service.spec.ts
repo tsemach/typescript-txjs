@@ -10,6 +10,7 @@ import { TxJobExecutionOptions } from "../../src/tx-job-execution-options";
 import { TxTask } from '../../src/tx-task';
 import { TxJob } from '../../src/tx-job';
 import {TxJobExecutionId, TxJobRegistry} from "../../src";
+import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 
 import { C1Component } from './C1.component';
 import { C2Component } from './C2.component';
@@ -56,6 +57,10 @@ describe('S2S: Job With Service', () => {
     ]
   }
 
+  it('tx-job-execute-service.spec.ts: init TxJobServicesComponent', async () => {
+    await new TxJobServicesComponent().init();      
+  });
+
   /**
    */
   it('tx-job-execute-service.spec.ts: check running C1-C2-C3 job chain under S2S service', (done) => {
@@ -90,8 +95,8 @@ describe('S2S: Job With Service', () => {
     );        
   }).timeout(2000);
 
-  it('check job-serialize.spec.ts: check Job Services serialization toJSON | upJSON with services', (done) => {
-    logger.info('tx-job-serialize.spec.ts: check Job Services serialization toJSON | upJSON with services');
+  it('tx-job-execute-service.spec.ts: check Job Services serialization toJSON | upJSON with services', (done) => {
+    logger.info('tx-job-execute-service.spec.ts: check Job Services serialization toJSON | upJSON with services');
     TxJobRegistry.instance.setServiceName('service-c');
 
     let uuid = short().new();
@@ -101,7 +106,7 @@ describe('S2S: Job With Service', () => {
      * load job where GITHUB_GIST_C1 is already called so need to continue from GITHUB_GIST_C2
      * @type {TxJob}
      */
-    let job = new TxJob();
+    let job = new TxJob('Job-1');
     let from = {
       name: 'GITHUB',
       uuid: uuid,
@@ -140,7 +145,7 @@ describe('S2S: Job With Service', () => {
       {something: 'more data here'}
       ),
       {
-        execute: {source: 'service'}
+        execute: {source: 'service' }
       } as TxJobExecutionOptions
     );            
   });

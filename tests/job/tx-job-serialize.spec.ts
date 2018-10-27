@@ -11,6 +11,9 @@ import {TxJob} from '../../src/tx-job';
 import * as short from 'short-uuid';
 import {TxJobExecutionId} from "../../src";
 import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
+import { TxJobServicesComponent } from '../../src/tx-job-services-component';
+
+new TxJobServicesComponent().init();  
 
 describe('Job Class - Serialize', () => {
 
@@ -92,13 +95,13 @@ describe('Job Class - Serialize', () => {
     new C1Component();
     new C2Component();
 
-    let src = new TxJob(); // or create through the TxJobRegistry
+    let src = new TxJob('Job-1'); // or create through the TxJobRegistry
 
     src.add(TxMountPointRegistry.instance.get(Names.GITHUB_GIST_C1));
     src.add(TxMountPointRegistry.instance.get(Names.GITHUB_GIST_C2));
     logger.info('[toJSON | upJSON] src.toJSON = ' + JSON.stringify(src.toJSON(), undefined, 2));
 
-    let dst = new TxJob();
+    let dst = new TxJob('Job-1');
 
     dst.upJSON(src.toJSON());
 
@@ -109,8 +112,8 @@ describe('Job Class - Serialize', () => {
 
   });
 
-  it('check job-serialize.spec: upJSON serialize with continue', (done) => {
-    logger.info('tx-job-serialize.spec: check job-serialize.spec: upJSON serialize with continue');
+  it('check tx-job-serialize.spec.ts: upJSON serialize with continue', (done) => {
+    logger.info('tx-tx-job-serialize.spec.ts: check tx-job-serialize.spec.ts: upJSON serialize with continue');
 
     new C1Component();
     new C2Component();
@@ -123,7 +126,7 @@ describe('Job Class - Serialize', () => {
      * load job where GITHUB_GIST_C1 is already called so need to continue from GITHUB_GIST_C2
      * @type {TxJob}
      */
-    let job = new TxJob();
+    let job = new TxJob('Job-1');
     let from = {
       name: 'GITHUB',
       uuid: uuid,
@@ -165,8 +168,8 @@ describe('Job Class - Serialize', () => {
     );
   });
 
-  it('check job-serialize.spec.ts: check Job Services serialization toJSON | upJSON', () => {
-    logger.info('tx-job-serialize.spec.ts: check Job Services serialization toJSON | upJSON');
+  it('check tx-job-serialize.spec.ts: check Job Services serialization toJSON | upJSON', () => {
+    logger.info('tx-tx-job-serialize.spec.ts: check Job Services serialization toJSON | upJSON');
 
     new C1Component();
     new C2Component();
@@ -179,7 +182,7 @@ describe('Job Class - Serialize', () => {
      * load job where GITHUB_GIST_C1 is already called so need to continue from GITHUB_GIST_C2
      * @type {TxJob}
      */
-    let job = new TxJob();
+    let job = new TxJob('Job-1');
     let from = {
       name: 'GITHUB',
       uuid: uuid,

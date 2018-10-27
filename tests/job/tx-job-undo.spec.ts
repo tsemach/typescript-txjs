@@ -22,7 +22,7 @@ describe('Job Class', () => {
     let C2 = new C2Component();
     let C3 = new C3Component();
 
-    let job = new TxJob();
+    let job = new TxJob('Job-1');
 
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
     job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));

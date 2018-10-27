@@ -17,6 +17,7 @@ import { C1Component } from './C1.component';
 import { C2Component } from './C2.component';
 import { C3Component } from './C3.component';
 import { TxJobExecutionOptions } from '../../src/tx-job-execution-options';
+import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 
 TxMountPointRegistry.instance.create('GITHUB::GIST::A1');
 TxMountPointRegistry.instance.create('GITHUB::GIST::A2');
@@ -29,6 +30,8 @@ TxMountPointRegistry.instance.create('GITHUB::GIST::B3');
 TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
 TxMountPointRegistry.instance.create('GITHUB::GIST::C2');
 TxMountPointRegistry.instance.create('GITHUB::GIST::C3');
+
+new TxJobServicesComponent().init();  
 
 describe('S2S: Job With Service', () => {
 

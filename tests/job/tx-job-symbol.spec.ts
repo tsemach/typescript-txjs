@@ -68,7 +68,7 @@ describe('Job Class', () => {
     let C1 = new C1Component();
     let C2 = new C2Component();
 
-    let job = new TxJob(); // or create througth the TxJobRegistry
+    let job = new TxJob('Job-1'); // or create througth the TxJobRegistry
 
     job.add(TxMountPointRegistry.instance.get(Names.GITHUB_GIST_C1));
     job.add(TxMountPointRegistry.instance.get(Names.GITHUB_GIST_C2));
