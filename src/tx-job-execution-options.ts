@@ -8,6 +8,7 @@ import {TxJobRegistry} from "./tx-job-resgitry";
  *  destroy - is destroy the job when persist
  * execute:
  *  until - run until reaching this mountpoint.
+ *  source - from where to take the mountpoints needed to be run.
  */
 export interface TxJobExecutionOptions {
   persist: {
@@ -17,6 +18,7 @@ export interface TxJobExecutionOptions {
   execute: {
     until: string;
     record: boolean;
+    source: string;
   }
 }
 
@@ -67,6 +69,20 @@ export class TxJobExecutionOptionsChecker {
       return false;
     }
     return options.execute.record !== undefined;
+  }
+
+  static isService(options: TxJobExecutionOptions) {
+    console.log("IN IS_SERVICE")
+    if (options.execute === undefined) {
+      console.log("IN IS_SERVICE: false")
+      return false;
+    }
+    if (options.execute.source === undefined) {
+      console.log("IN IS_SERVICE: false flase")
+      return false;
+    }
+    console.log("IN IS_SERVICE: options.execute.source = ", options.execute.source )
+    return options.execute.source === 'service';
   }
 
 }

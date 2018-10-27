@@ -1,7 +1,8 @@
-import { TxJobRegistry } from './../../src/tx-job-resgitry';
+
+const fs = require('fs');
 
 import createLogger from 'logging';
-const logger = createLogger('monitor-main');
+const logger = createLogger('Monitor-Overview');
 
 import 'mocha';
 import {expect, assert} from 'chai';
@@ -12,7 +13,8 @@ import waitOn = require('wait-on');
 import { TxJob } from '../../src';
 import { TxTask } from '../../src';
 import { TxMountPointRegistry } from '../../src';
-import { TxMonitorServerTaskHeader } from '../../src/tx-monitor-server-task-header';
+import { TxJobRegistry } from './../../src/tx-job-resgitry';
+
 import TxMonitor from '../../src/tx-monitor';
 import '../../src/tx-monitor-server.component';
 
@@ -41,16 +43,52 @@ job2.add(TxMountPointRegistry.instance.get('GITHUB::APIS::C1'));
 job2.add(TxMountPointRegistry.instance.get('GITHUB::APIS::C2'));
 job2.add(TxMountPointRegistry.instance.get('GITHUB::APIS::C3'));
 
-describe('monitor-overview.spec: load monitor overview from job registry test', () => {
-  it('monitor-overview.spec: load monitor overview from job registry test', async () => {
+let overview = {
+  "name": "github",
+  "jobs": [
+    {
+      "name": "Job-1",
+      "components": [
+        {
+          "name": "GITHUB::GIST::C1"
+        },
+        {
+          "name": "GITHUB::GIST::C2"
+        },
+        {
+          "name": "GITHUB::GIST::C3"
+        },
+        {
+          "name": "GITHUB::GIST::C4"
+        }
+      ]
+    },
+    {
+      "name": "Job-2",
+      "components": [
+        {
+          "name": "GITHUB::APIS::C1"
+        },
+        {
+          "name": "GITHUB::APIS::C2"
+        },
+        {
+          "name": "GITHUB::APIS::C3"
+        }
+      ]
+    }
+  ]
+}
+
+describe('tx-monitor-overview.spec.ts: load monitor overview from job registry test', () => {
+  
+  it('tx-monitor-overview.spec.ts: load monitor overview from job registry test', async () => {
     let jobs;
 
-    logger.info('registry.getComponents().size = ', registry.getComponents().size);    
+    logger.info('registry.getComponents().size = ', registry.getJobs().size);    
 
-    jobs = <Map<string, Set<string>>>registry.getComponents();
+    jobs = <Map<string, Set<string>>>registry.getJobs();
     expect(jobs.size).to.equal(2);    
-
-    TxMonitor.setServiceName('GitHub');
 
     // this part check the whole map
     //--------------------------------------------------------------------------------------------------------------------------
@@ -92,11 +130,14 @@ describe('monitor-overview.spec: load monitor overview from job registry test', 
 
   })
 
-  it('monitor-overview.spec: check monitor overview check', async () => {
-      //let monitor = new TxMonitor();
-
-      let overview = TxMonitor.getOverview();
-      console.log("jobsArray.components = ", JSON.stringify(overview, undefined, 2));
+  it('tx-monitor-overview.spec.ts: check monitor overview check', async () => {      
+    logger.info('tx-monitor-overview.spec.ts: check monitor overview check');
+      
+    let expectedOverview = JSON.parse(JSON.stringify(overview));
+    let loaddedOverview = TxMonitor.getOverview('github');
+    console.log("jobsArray.components = ", JSON.stringify(loaddedOverview));
+    console.log("jobsArray.components = ", JSON.stringify(expectedOverview));
+    assert.deepEqual(expectedOverview, loaddedOverview);
   });
 });
 

@@ -1,6 +1,6 @@
 
 import createLogger from 'logging';
-const logger = createLogger('tx-monitor-server.spec');
+const logger = createLogger('Monitor-Server');
 
 import 'mocha';
 import {expect} from 'chai';
@@ -10,64 +10,64 @@ const request = require('request');
 import waitOn = require('wait-on');
 
 import { TxTask } from '../../src';
+import TxMonitor from '../../src/tx-monitor';
 import { TxMountPointRegistry } from '../../src';
 import { TxMonitorServerTaskHeader } from '../../src/tx-monitor-server-task-header';
-import '../../src/tx-monitor-server.component';
+//import '../../src/tx-monitor-server.component';
 
 import './monitor-client.component';
 import './C1.component';
 import './C2.component';
 
-let url = 'http://localhost:3002/rx-txjs/monitor'
-async function checkMonitorServerUp(task, done) {
-  if (task.head.method !== 'start') {        
-    return; 
-  }
+let port = 3002
+let url = 'http://localhost:' + port + '/rx-txjs/monitor'
 
-  logger.info('(subscribe) got status from monitor server: ', task);
-
-  expect(task.head.method).to.equal('start');        
-  expect(task.data.status).to.equal('ok');          
-
-  await waitOn({
-    resources: ['http://localhost:3002/rx-txjs/monitor'],
-    delay: 2000,
-    timeout: 10000,
-  });
-  logger.info(`(subscribe) monitor server is up on ${url}: ${task}`);      
-
-  request(url, { json: true }, (err, response, body) => {
-      logger.info('(subscribe) monitor server response, statue = ', response.statusCode);
-      logger.info('(subscribe) monitor server response = ', JSON.stringify(response));                
-      logger.info('(subscribe) monitor listen on port = ', response.request.port);                
-      logger.info(`(subscribe) monitor server is ready on ${url}: body = ${body}`);
-
-      expect(response.request.port).to.equal('3002');
-      expect(response.statusCode).to.equal(200);        
-      expect(body.monitor).to.equal('on');
-      done();
-    })
-}
-
-describe('monitor.spec: Monitor Server Tests', () => {
-  it('monitor.spec: Monitor Server - Server Up Test', async (done) => {
+describe('tx-monitor-server.spec.ts: Monitor Server Tests', () => {
+  it('tx-monitor-server.spec.ts: Monitor Server - Server Up Test', async (done) => {
     logger.info('[monitor.spec] Monitor Server - Server Up Test');
     logger.info('[monitor.spec] example of using internal built in monitor server');
-    logger.info('[monitor.spec] going to test monitor built in server on localhost:3002 ..');
+    logger.info('[monitor.spec] going to test monitor built in server on localhost:' + port + ' ...');
     logger.info('');
 
     let mp = TxMountPointRegistry.instance.get('RX-TXJS::MONITOR::SERVER');
 
     mp.reply().subscribe(async (task) => {
-      checkMonitorServerUp(task, done);      
+      if (task.head.method !== 'start') {
+        return;
+      }
+
+      logger.info('(subscribe) got status from monitor server: ', task);
+
+      expect(task.head.method).to.equal('start');
+      expect(task.data.status).to.equal('ok');          
+
+      await waitOn({
+        resources: [url],
+        delay: 2000,
+        timeout: 10000,
+      });
+      logger.info(`(subscribe) monitor server is up on ${url}: ${task}`);      
+
+      request(url, { json: true }, (err, response, body) => {
+          logger.info('(subscribe) monitor server response, statue = ', response.statusCode);
+          logger.info('(subscribe) monitor server response = ', JSON.stringify(response));                
+          logger.info('(subscribe) monitor listen on port = ', response.request.port);                
+          logger.info(`(subscribe) monitor server is ready on ${url}: body = ${body}`);
+
+          expect(response.request.port).to.equal(port.toString());
+          expect(response.statusCode).to.equal(200);        
+          expect(body.monitor).to.equal('on');
+          done();
+        })
     });
     
-    mp.tasks().next(new TxTask<TxMonitorServerTaskHeader>({method: 'start'}, {host: 'localhost', port: 3002}));    
+    mp.tasks().next(new TxTask<TxMonitorServerTaskHeader>({method: 'start'}, {host: 'localhost', port: port}));    
+    //TxMonitor.runBuiltInServer('localhost', port);
   }).timeout(10000);
 
-  it('monitor.spec: Monitor Server - Server Close Test', async (done) => {
-    logger.info('[monitor.spec] Monitor Server - Server Close Test');    
-    logger.info('[monitor.spec] going to test closing monitor built in server on localhost:3002 ..');
+  it('tx-monitor-server.spec.ts: Monitor Server - Server Close Test', async (done) => {
+    logger.info('[tx-monitor-server.spec.ts] Monitor Server - Server Close Test');    
+    logger.info('[tx-monitor-server.spec.ts] going to test closing monitor built in server on localhost:3002 ..');
     logger.info('');
 
     let mp = TxMountPointRegistry.instance.get('RX-TXJS::MONITOR::SERVER');

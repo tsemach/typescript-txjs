@@ -9,10 +9,9 @@ import * as uuid from 'uuid/v4';
 import { TxRecordPersistMemory } from "../../src/tx-record-persist-memory";
 import { TxRecordIndexSave, TxRecordInfoSave } from "../../src/tx-record-persist-adapter";
 
-describe('Record Memory - Insert | Update | Read', () => {
-
-  logger.info('ATTENTION: Make sure you have mongodb running, you can use docker:');
-  logger.info('docker run --name mongodb -p 27017:27017 -v ~/data:/data/db -d mongo');
+describe('Record Memory - Insert | Update | Read', () => {  
+  // logger.info('ATTENTION: Make sure you have mongodb running, you can use docker:');
+  // logger.info('docker run --name mongodb -p 27017:27017 -v ~/data:/data/db -d mongo');
 
   const exeUuid = uuid();
   const jobUuid = uuid();

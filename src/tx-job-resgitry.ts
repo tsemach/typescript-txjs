@@ -14,6 +14,7 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
   private _recorderDriver: TxRecordPersistAdapter = null;
   private _isRecordMap = new Map<string, boolean>();
   private _jobComponents = new Map<string, Set<string>>();
+  private _serviceName = '';
   
   private constructor() {
     super();
@@ -45,10 +46,11 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
     components.add(mountpoint.toString());
   }
   
-  getComponents(job: string = '') {
-    if (job === '' ) {
-      return this._jobComponents;
-    }
+  getJobs() {
+      return this._jobComponents;    
+  }
+
+  getComponents(job: string) {
     return this._jobComponents.get(job);
   }
 
@@ -99,4 +101,13 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
   getRecordFlag(name: string): boolean {
     return this.isRecordMap.get(name);
   }
+
+  setServiceName(name: string) {
+    this._serviceName = name;
+  }
+
+  getServiceName() {
+    return this._serviceName;
+  }
+
 }

@@ -21,9 +21,3 @@ export class Q2Component {
     await this.queuepoint.queue().next('example-1.queuepoint', 'Q1Component.tasks', 'from Q2Component');
   }
 }
-
-
-
-
-
-

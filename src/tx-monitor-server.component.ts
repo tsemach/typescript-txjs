@@ -12,38 +12,44 @@ export class TxMonitorServerComponent {
   private mountpoint = TxMountPointRegistry.instance.create('RX-TXJS::MONITOR::SERVER');
 
   constructor() {
-    this.mountpoint.tasks().subscribe(
-      (task: TxTask<TxMonitorServerTaskHeader>) => {
-        logger.info('[TxMonitorServerComponent:tasks] got task = ' + JSON.stringify(task, undefined, 2));          
+    logger.info("TxMonitorServerComponent:con't is called, no need to subscribe, the method will take care of it");
+
+    this.mountpoint.tasks().method('start', this);
+    this.mountpoint.tasks().method('close', this);
+
+    // this.mountpoint.tasks().subscribe(
+    //   (task: TxTask<TxMonitorServerTaskHeader>) => {
+    //     logger.info('[TxMonitorServerComponent:tasks] got task = ' + JSON.stringify(task, undefined, 2));          
         
-        if (task.getHead().method === 'start') {
-          this.start(task.data);
-        }
+    //     if (task.getHead().method === 'start') {
+    //       this.start(task);
+    //     }
 
-        if (task.getHead().method === 'close') {
-          this.close();
-        }
+    //     if (task.getHead().method === 'close') {
+    //       this.close();
+    //     }
 
-      },
-      (error) => {
-        logger.info('[TxMonitorServerComponent:error] got error = ' + JSON.stringify(error, undefined, 2));        
-      }
-    );
+    //   },
+    //   (error) => {
+    //     logger.info('[TxMonitorServerComponent:error] got error = ' + JSON.stringify(error, undefined, 2));        
+    //   }
+    // );
 
-    this.mountpoint.undos().subscribe(
-      (task) => {
-        logger.info('[TxMonitorServerComponent:undo] undo got task = ' + JSON.stringify(task, undefined, 2));          
+    // this.mountpoint.undos().subscribe(
+    //   (task) => {
+    //     logger.info('[TxMonitorServerComponent:undo] undo got task = ' + JSON.stringify(task, undefined, 2));          
         
-        this.mountpoint.reply().next(new TxTask({method: 'start'}, {status: 'unsupported'}));
-      }
-    );
+    //     this.mountpoint.reply().next(new TxTask({method: 'start'}, {status: 'unsupported'}));
+    //   }
+    // );
 
   }
 
-  async start(data: any) {
+  async start(task) {
     try {
       TxMonitorServerApplication.instance.register('/rx-txjs/monitor', TxMonitorServerService);
-      TxMonitorServerApplication.instance.listen(data.host || 'localhost', data.port || 3001);
+      TxMonitorServerApplication.instance.listen(task.data.host, task.data.port);
+
       this.mountpoint.reply().next(new TxTask<TxMonitorServerTaskHeader>({method: 'start'}, {status: 'ok'}));
     }
     catch (e) {
@@ -60,6 +66,7 @@ export class TxMonitorServerComponent {
       this.mountpoint.reply().next(new TxTask<TxMonitorServerTaskHeader>({method: 'close'}, {status: 'error', error: e}));
     }  
   }
+  
 }  
 
 export default new TxMonitorServerComponent();

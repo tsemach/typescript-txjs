@@ -22,18 +22,18 @@ describe('Component Container Class', () => {
 
     let cp;
 
-    // prepare injector for Q1Component and Q1Component
+    // prepare injector for Q1Component and Q2Component
     TxQueueContainer.setDriver(TxConnectorRabbitMQ);
     TxQueueContainer.addComponent<Q1Component>(Q1Component, 'Q1Component');
     TxQueueContainer.addComponent<Q2Component>(Q2Component, 'Q2Component');
 
-    // prepare injector for R1Component and R1Component
+    // prepare injector for R1Component and R2Component
     TxRouteContainer.setDriver(TxConnectorExpress);
     TxRouteContainer.addComponent<R1Component>(R1Component, 'R1Component');
     TxRouteContainer.addComponent<R2Component>(R2Component, 'R2Component');
 
     cp = TxQueueContainer.get('Q1Component', 'Q1COMPONENT::QUEUE::CONTAINER');
-    logger.info("cp: name = " + cp.queuepoint.name.toString());
+    logger.info("cp: name = " + cp.queuepoint.name.toString());``
     expect(cp.queuepoint.name.toString()).to.equal('Q1COMPONENT::QUEUE::CONTAINER');
     expect(cp.description()).to.equal('This is Q1Component');
 
