@@ -8,13 +8,13 @@ import { A3Component } from './../A3.component';
 import { A2Component } from './../A2.component';
 import { A1Component } from './../A1.component';
 
-process.on('message', (msg) => {  
-  logger.info('service-a: message from parent:', msg);
+// process.on('message', (msg) => {  
+//   logger.info('[service-a: message from parent:', msg);
 
-  if (msg === 'service-a:exist') {
-    process.exit(0);
-  }
-});
+//   if (msg === 'service-a:exist') {
+//     process.exit(0);
+//   }
+// });
 
 TxJobRegistry.instance.setServiceName('service-a');
 
@@ -34,6 +34,8 @@ async function init() {
       run();
     }
     if (msg === 'service-a:exit') {
+      logger.info('[service-a:exit] service-a going to exist')
+
       process.exit(0);
     }
   });

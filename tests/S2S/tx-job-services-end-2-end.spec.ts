@@ -56,6 +56,19 @@ describe('Job Service Class - End-To-End', () => {
         services.c.ready = true;
         run();
       }    
+
+      if (msg.status === 'completed') {
+        logger.info('tx-job-services-end-2-end.spec.ts: service-c completed, looks good :)');
+
+        services.a.fork.send('service-a:exit');      
+        services.b.fork.send('service-b:exit');      
+        services.c.fork.send('service-c:exit');      
+        expect(msg.status).to.equal('completed');
+        expect(msg.task.data.head.status).to.equal('ok');
+        expect(msg.task.data.head.method).to.equal('from C3');
+
+        done();
+      }
     });
     
   }).timeout(2000);

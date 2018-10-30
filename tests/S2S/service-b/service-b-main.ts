@@ -31,9 +31,11 @@ async function init() {
   )
 
   process.on('message', (msg) => {  
-    logger.log('[service-b:init] message from parent:', msg);
+    logger.info('[service-b:init] message from parent:', msg);
     
     if (msg === 'service-b:exit') {
+      logger.info('[service-b:exit] service-b going to exist')
+
       process.exit(0);
     }
 

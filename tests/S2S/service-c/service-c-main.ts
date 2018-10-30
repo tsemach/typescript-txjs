@@ -30,12 +30,14 @@ async function init() {
   )
 
   process.on('message', (msg) => {  
-    logger.log('[service-c:init] message from parent:', msg);
+    logger.info('[service-c:init] message from parent:', msg);
 
     if (msg === 'service-c:run') {
       run();
     }
     if (msg === 'service-c:exit') {
+      logger.info('[service-c:exit] service-c going to exist')
+
       process.exit(0);
     }
   });
