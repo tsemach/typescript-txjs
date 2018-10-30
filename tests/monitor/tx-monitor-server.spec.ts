@@ -31,7 +31,7 @@ describe('tx-monitor-server.spec.ts: Monitor Server Tests', () => {
 
     let mp = TxMountPointRegistry.instance.get('RX-TXJS::MONITOR::SERVER');
 
-    mp.reply().subscribe(async (task) => {
+    const mpReplySubscribe = mp.reply().subscribe(async (task) => {
       if (task.head.method !== 'start') {
         return;
       }
@@ -57,6 +57,8 @@ describe('tx-monitor-server.spec.ts: Monitor Server Tests', () => {
           expect(response.request.port).to.equal(port.toString());
           expect(response.statusCode).to.equal(200);        
           expect(body.monitor).to.equal('on');
+          mpReplySubscribe.unsubscribe();
+
           done();
         })
     });

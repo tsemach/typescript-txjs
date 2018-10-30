@@ -70,40 +70,41 @@ describe('S2S: Job With Service', () => {
     assert.deepEqual(TxJobServicesEmptyJSON, services.toJSON());
   });
 
-  // it('tx-job-services-serialize.spec.ts: check running C1-C2-C3 S2S service after serialization', (done) => {
-  //   logger.info('tx-job-services-serialize.spec.ts: check running C1-C2-C3 S2S service after serialization');
+  it('tx-job-services-serialize.spec.ts: check running C1-C2-C3 S2S service after serialization', (done) => {
+    logger.info('tx-job-services-serialize.spec.ts: check running C1-C2-C3 S2S service after serialization');
 
-  //   new C1Component();
-  //   new C2Component();
-  //   new C3Component();
+    new C1Component();
+    new C2Component();
+    new C3Component();
     
-  //   TxJobRegistry.instance.setServiceName('service-a');
-  //   let job = new TxJob('job-1'); 
+    TxJobRegistry.instance.setServiceName('service-a');
+    let job = new TxJob('job-1'); 
 
-  //   job.on('service-a').add('GITHUB::GIST::C1');
-  //   job.on('service-a').add('GITHUB::GIST::C2');
-  //   job.on('service-a').add('GITHUB::GIST::C3');
+    job.on('service-a').add('GITHUB::GIST::C1');
+    job.on('service-a').add('GITHUB::GIST::C2');
+    job.on('service-a').add('GITHUB::GIST::C3');
 
-  //   job.getIsCompleted().subscribe(
-  //     (data) => {
-  //       console.log('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
-  //       expect(data['head']['method']).to.equal("from C3");
-  //       expect(data['head']['status']).to.equal("ok");
-  //       expect(job.current.name).to.equal('GITHUB::GIST::C3');
+    const isCompletedTxJobServicesSerializeSpec1 = job.getIsCompleted().subscribe(
+      (data) => {
+        console.log('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
+        expect(data['head']['method']).to.equal("from C3");
+        expect(data['head']['status']).to.equal("ok");
+        expect(job.current.name).to.equal('GITHUB::GIST::C3');
+        isCompletedTxJobServicesSerializeSpec1.unsubscribe();
 
-  //       done();
-  //     });                
+        done();
+      });                
 
-  //   job.execute(new TxTask({
-  //       method: 'create',
-  //       status: 'start'
-  //     },
-  //     {something: 'more data here'}
-  //     ),
-  //     {
-  //       execute: {source: 'service'}
-  //     } as TxJobExecutionOptions
-  //   );        
-  // }).timeout(2000);
+    job.execute(new TxTask({
+        method: 'create',
+        status: 'start'
+      },
+      {something: 'more data here'}
+      ),
+      {
+        execute: {source: 'service'}
+      } as TxJobExecutionOptions
+    );        
+  }).timeout(2000);
 
 }); 

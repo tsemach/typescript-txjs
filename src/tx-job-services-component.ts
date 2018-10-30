@@ -4,6 +4,8 @@ const logger = createLogger('TxJobServicesComponent');
 import { TxQueuePointRegistry } from './tx-queuepoint-registry';
 import { TxMountPointRegistry } from './tx-mountpoint-registry';
 import { TxJobRegistry } from './tx-job-resgitry';
+import { TxJob } from './tx-job';
+import { TxTask } from './tx-task';
 
 /**
  * S2S - 
@@ -18,28 +20,45 @@ export class TxJobServicesComponent {
   async init() {
     logger.info('[TxJobServicesComponent] init is called');
     
-    // subscribe to inporcess incoming messages that need to send over the queue
-    this.mountpoint.tasks().subscribe(
-      async (task) => {
-        logger.info('[TxJobServicesComponent] mountpoint: got task - ', JSON.stringify(task, undefined, 2));
-        logger.info('[TxJobServicesComponent] task.head.next - ', task.head.next);
-
-        await this.queuepoint.queue().next(task.head.next, 'job.services', task); 
-    })
-
-    // subscribe to incoming messages from other services from qeueu  
-    logger.info('TxJobServicesComponent: register on [' + TxJobRegistry.instance.getServiceName() + ']=[' + 'job.services]')
-    await this.queuepoint.queue().register(TxJobRegistry.instance.getServiceName(), 'job.services');
-    await this.queuepoint.queue().subscribe(      
-    async (data) => {
-      logger.info("[TxJobServicesComponent:subscribe] got data = ", JSON.stringify(JSON.parse(data), undefined, 2));
-    });
+    await this.initMountPoint();
+    await this.initQueuePoint();
 
     return this;
   }
 
-  // send(task) {
-  //   // await this.queuepoint.queue().next('service-2.queuepoint', 'Q2Component.tasks', {from: 'service-1.queuepoint', data: 'data'});
-  // }
+  initMountPoint() {   
+    // subscribe to inporcess incoming messages that need to send over the queue
+    this.mountpoint.tasks().subscribe(
+      async (task) => {        
+        logger.info('[TxJobServicesComponent] task.head.next - ', task.head.next);        
 
+        await this.queuepoint.queue().next(task.head.next, 'job.services', task); 
+    })    
+  }
+
+  async initQueuePoint() {
+    // subscribe to incoming messages from other services from qeueu  
+    logger.info('TxJobServicesComponent: register on [' + TxJobRegistry.instance.getServiceName() + ']=[' + 'job.services]')
+
+    await this.queuepoint.queue().register(TxJobRegistry.instance.getServiceName(), 'job.services');
+    await this.queuepoint.queue().subscribe(      
+      async (request) => {        
+        let service = JSON.parse(request);
+        //data = data.data.data;
+        console.log(`[TxJobServicesComponent:subscribe] service = ${JSON.stringify(service, undefined, 2)}`);
+        let job = TxJob.create(service.data.job);
+
+        job.getIsCompleted().subscribe(
+          (task) => {
+            logger.info(`[TxJobServicesComponent:subscribe] job('${job.getName()}') is completed task: ${JSON.stringify(task, undefined, 2)}`);
+            this.mountpoint.reply().next(new TxTask({status: 'completed'}, task));
+
+          (error) => {
+            logger.info(`[TxJobServicesComponent:subscribe] ERROR, job(${job.getName()}) end with error: ${JSON.stringify(error, undefined, 2)}`);
+          }  
+        });
+
+        job.execute(service.task, service.options);
+      });
+  }
 }

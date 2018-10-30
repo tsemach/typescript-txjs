@@ -89,11 +89,13 @@ describe('Job Class', () => {
     job.add(MP2);
     job.add(MP3);
 
-    job.getIsCompleted().subscribe(
+    const isCompletedJobStepSpec1 = job.getIsCompleted().subscribe(
       (data) => {
         logger.info('[job-step-by-step-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
         expect(data['head']['method']).to.equal("from C3");
         expect(data['head']['status']).to.equal("ok");
+        isCompletedJobStepSpec1.unsubscribe();
+
         done();
       });
 
@@ -173,18 +175,20 @@ describe('Job Class', () => {
     let isCompleted = false;
     let isStopped = false;
 
-    job.getIsCompleted().subscribe(
+    const isCompletedJobStepSpec2 = job.getIsCompleted().subscribe(
       (data) => {
         logger.info('[job-step-by-step-test-with-stop] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
         expect(data['head']['method']).to.equal("from C3");
         expect(data['head']['status']).to.equal("ok");
         isCompleted = true;
         if (isCompleted && isStopped) {
+          isCompletedJobStepSpec2.unsubscribe();
+
           done();
         }
       });
 
-    job.getIsStopped().subscribe(
+    const isStoppedJobStepSpec1 = job.getIsStopped().subscribe(
       (data) => {
         logger.info('[job-step-by-step-test-with-stop] job.getIsStopped: complete running step - data:' + JSON.stringify(data, undefined, 2));
         logger.info('[job-step-by-step-test-with-stop] job.getIsStopped: indexing = ' + indexing + ', checking[indexing] = ' + checking[indexing]);
@@ -195,6 +199,8 @@ describe('Job Class', () => {
         if (indexing === 3) {
           isStopped = true;
           if (isCompleted && isStopped) {
+            isStoppedJobStepSpec1.unsubscribe();
+            
             done();
           }
         }

@@ -23,9 +23,6 @@ export class TxJobServices {
   private block = [];   // list of all services needed to run in order, not change during execution  
   private current = ''; // the current service pass with 'on' method, this use jsut for add mountpoint
 
-  // S2S: use this mountpoint to continue the jop on the next service
-  private mountpoint = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
-
   constructor(private job: TxJob) {    
   } 
 
@@ -51,8 +48,8 @@ export class TxJobServices {
       throw Error('ERROR on add without on, service ' + this.current + ' is not define, use on method');
     }
 
-    if ( ! TxMountPointRegistry.instance.has(name) ) {
-      throw Error(`mountpoint - ${name} - is not exist in TxMountPointRegistry, make sure the component is initialize first`);
+    if ( ! this.jobs.has(this.current) ) {
+      throw Error(`service - ${this.current} - is not define, make sure you start with 'job.on('service').add('mountpoint)`);
     }
     this.jobs.get(this.current).push(name);    
   }
@@ -67,13 +64,17 @@ export class TxJobServices {
     }
     let current = this.stack[0];
     logger.info('shift: current job is - ', current)
-
+    
+    
     let data = {
-      job: this.job.toJSON(),
-      task
+      job: this.getJsonForSending(),
+      task,
+      options: this.job.getOptions()
     }
 
-    this.mountpoint.tasks().next(new TxTask<TxJobServicesHeadTask>({next: current}, {data}))
+    // S2S: use this mountpoint to continue the jop on the next service
+    let mountpoint = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
+    mountpoint.tasks().next(new TxTask<TxJobServicesHeadTask>({next: current}, data));
   }
 
   getNames(service: string) {
@@ -111,6 +112,20 @@ export class TxJobServices {
     })
 
     return this;
+  }
+
+  getJsonForSending() {
+    let json = this.job.toJSON();
+
+    json.current = '';
+    json.stack = '';
+    json.trace = '';
+    json.block = '';
+
+    return json;
+  }
+
+  release() {    
   }
 
 }

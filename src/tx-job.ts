@@ -60,7 +60,7 @@ export class TxJob {
       throw Error('job name cah\'t be empty, add real name');
     }
 
-    TxJobRegistry.instance.add(this.uuid, this);    
+    TxJobRegistry.instance.add(this.uuid, this);
     this.recorder = TxJobRegistry.instance.getRecorderDriver();
   }
 
@@ -72,12 +72,7 @@ export class TxJob {
       throw new Error(`[TxJob:subscribe] ERROR: job: ${this.name} is on error but got subscribe callback from a mountpoint`);
     }
 
-
-      console.log("OPTIONS: options = ", this.options)
-
-
     if (this.isRecord(this.options)) {
-      console.log("BUG: options = ", this.options)
       await this.record({reply: data}, 'update');
     }
     this.onComponent.next(new TxTask<{name: string}>({name: <string>txMountPoint.name}, {data: data}));
@@ -177,70 +172,6 @@ export class TxJob {
     const subscribed = txMountPoint.reply().subscribe(
       async (data) => {
         await this.subscribeCB(data, txMountPoint);
-        // logger.info(`[TxJob:subscribe] [${this.name}] got reply, data = ${JSON.stringify(data, undefined, 2)}`);
-        // logger.info(`[TxJob:subscribe] [${this.name}] before shift to next task, stack.len = ${this.stack.length}`);
-        //
-        // if (this.isRecord(this.options)) {
-        //   await this.record({reply: data}, 'update');
-        // }
-        // this.onComponent.next(new TxTask<{name: string}>({name: <string>txMountPoint.name}, {data: data}));
-        //
-        // if (this.revert) {
-        //   this.undoCB(data);
-        //
-        //   return;
-        // }
-        //
-        // if (this.single) {
-        //   this.getIsStopped().next(data);
-        // }
-        //
-        // if (this.stack.length === 0) {
-        //   logger.info(`[TxJob:subscribe] [${this.name}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}`);
-        //   this.finish(data);
-        //
-        //   return;
-        // }
-        //
-        // if (this.single) {
-        //   if (TxJobExecutionOptionsChecker.isDestroy(this.options)) {
-        //     logger.info(`[TxJob:subscribe] [${this.name}] single step - going to destroy job \'${this.getUuid()}\', on ${this.current.name} mount point`);
-        //
-        //     this.release();
-        //   }
-        //   return
-        // }
-        //
-        // /**
-        //  * make the next move, get the next mountpoint from the stack,
-        //  * and send the data to it's tasks subject.
-        //  */
-        // let next = this.shift();
-        // logger.info(`[TxJob:subscribe] [${this.name}] going to run next task: ${next.name}`);
-        //
-        // if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
-        //   await TxJobRegistry.instance.persist(this);
-        // }
-        //
-        // if (TxJobExecutionOptionsChecker.isUntil(this.options, next.name)) {
-        //   logger.info(`[TxJob:subscribe] [${this.name}] found execute.until, on ${next.name} mount point`);
-        //
-        //   if (TxJobExecutionOptionsChecker.isDestroy(this.options)) {
-        //     logger.info(`[TxJob:subscribe] [${this.name}] going to destroy job \'${this.getUuid()}\', on ${next.name} mount point`);
-        //
-        //     this.release();
-        //   }
-        //
-        //   this.getIsStopped().next(data);
-        //
-        //   return;
-        // }
-        //
-        // if (this.isRecord(this.options)) {
-        //   await this.record({tasks: data}, 'insert');
-        // }
-        //
-        // next.tasks().next(data);
       },
       async (error) => {
         await this.errorCB(error, txMountPoint);
@@ -415,8 +346,7 @@ export class TxJob {
    * S2S: in case of S2S take all the mountpoint defined in this.services
    * and use them for the executions.
    */
-  private setFromServices() {
-    console.log("IN setFromServices")
+  private setFromServices() {    
     let service = TxJobRegistry.instance.getServiceName();
 
     let names = this.services.getNames(service);
@@ -451,6 +381,7 @@ export class TxJob {
     this.subscribers.forEach(cb => {
       cb.unsubscribe();
     });
+    this.services.release();
     this.executionId = {uuid: '', sequence: 0};
   }
 
@@ -519,6 +450,10 @@ export class TxJob {
     TxJobRegistry.instance.add(this.uuid, this);
 
     return this;    
+  }
+
+  static create(json: TxJobJSON) {
+    return (new TxJob('internal')).upJSON(json);
   }
 
   /**
@@ -607,4 +542,7 @@ export class TxJob {
     return this.uuid;
   }
 
+  getOptions() {
+    return this.options;
+  }
 }

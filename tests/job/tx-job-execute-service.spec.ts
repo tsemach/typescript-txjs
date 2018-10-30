@@ -73,12 +73,13 @@ describe('S2S: Job With Service', () => {
     job.on('service-a').add('GITHUB::GIST::C2');
     job.on('service-a').add('GITHUB::GIST::C3');
 
-    job.getIsCompleted().subscribe(
+    const isCompletedTxJobExecuteServiceSpec1 = job.getIsCompleted().subscribe(
       (data) => {
         console.log('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
         expect(data['head']['method']).to.equal("from C3");
         expect(data['head']['status']).to.equal("ok");
         expect(job.current.name).to.equal('GITHUB::GIST::C3');
+        isCompletedTxJobExecuteServiceSpec1.unsubscribe();
 
         done();
       });                
@@ -128,12 +129,13 @@ describe('S2S: Job With Service', () => {
     assert.deepEqual(JobServices, after.services);   
     assert.deepEqual(from, after); 
 
-    job.getIsCompleted().subscribe(
+    const isCompletedTxJobExecuteServiceSpec2 = job.getIsCompleted().subscribe(
       (data) => {
         console.log('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
         expect(data['head']['method']).to.equal("from C3");
         expect(data['head']['status']).to.equal("ok");
         expect(job.current.name).to.equal('GITHUB::GIST::C3');
+        isCompletedTxJobExecuteServiceSpec2.unsubscribe();
 
         done();
       });                
