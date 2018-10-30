@@ -53,12 +53,13 @@ describe('S2S: Cross Service Jobs', () => {
     job.on('service-b').add('GITHUB::GIST::B2');
     job.on('service-b').add('GITHUB::GIST::B3');
 
-    job.getIsCompleted().subscribe(
+    const isCompletedTxJobervicesS2SSpec1 = job.getIsCompleted().subscribe(
       (data) => {
         console.log('[job-services-s2s-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
         expect(data['head']['method']).to.equal("from C3");
         expect(data['head']['status']).to.equal("ok");
         expect(job.current.name).to.equal('GITHUB::GIST::C3');
+        isCompletedTxJobervicesS2SSpec1.unsubscribe();
 
         done();
       });                

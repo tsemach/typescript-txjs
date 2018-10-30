@@ -72,16 +72,13 @@ export class TxJobExecutionOptionsChecker {
   }
 
   static isService(options: TxJobExecutionOptions) {
-    console.log("IN IS_SERVICE")
     if (options.execute === undefined) {
-      console.log("IN IS_SERVICE: false")
       return false;
     }
     if (options.execute.source === undefined) {
-      console.log("IN IS_SERVICE: false flase")
       return false;
     }
-    console.log("IN IS_SERVICE: options.execute.source = ", options.execute.source )
+    
     return options.execute.source === 'service';
   }
 
