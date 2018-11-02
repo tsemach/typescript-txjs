@@ -41,6 +41,11 @@ export class TxConnectorNoDefaultExpress implements TxConnector {
     console.log("next: TxConnectorNoDefaultExpress Method not implemented.");
   }
 
+  error(service: string, route: string, data: any) {
+    this.subscribeBC(data);
+    console.log("next: TxConnectorNoDefaultExpress Method not implemented.");
+  }
+  
   close() {
   }
 }

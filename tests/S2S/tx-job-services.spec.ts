@@ -8,9 +8,9 @@ import { assert } from 'chai';
 
 import { TxJobServices } from '../../src/tx-job-services';
 import { TxJob } from '../../src/tx-job';
-import { C1Component } from './C1.component';
-import { C2Component } from './C2.component';
-import { C3Component } from './C3.component';
+import { C1Component } from './components/C1.component';
+import { C2Component } from './components/C2.component';
+import { C3Component } from './components/C3.component';
 
 describe('Job Service Class - on | add', () => {
   /**

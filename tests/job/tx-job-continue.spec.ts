@@ -139,14 +139,14 @@ describe('Job Class - Continue', () => {
 
         if (count === 1) {
           expect(data['head']['name']).to.equal("GITHUB::GIST::E1");
-          expect(data['data']['data']['head']['method']).to.equal("from E1");
-          expect(data['data']['data']['head']['status']).to.equal("ERROR");
+          expect(data['data']['head']['method']).to.equal("from E1");
+          expect(data['data']['head']['status']).to.equal("ERROR");
           expect(job.error).to.equal(true);
         }
         if (count === 2) {
           expect(data['head']['name']).to.equal("GITHUB::GIST::E2");
-          expect(data['data']['data']['head']['method']).to.equal("from E2");
-          expect(data['data']['data']['head']['status']).to.equal("ERROR");
+          expect(data['data']['head']['method']).to.equal("from E2");
+          expect(data['data']['head']['status']).to.equal("ERROR");
           expect(job.error).to.equal(true);
         }
         //isOnErrorSubscribed.unsubscribe();

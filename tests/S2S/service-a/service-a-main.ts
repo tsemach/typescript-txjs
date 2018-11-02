@@ -4,9 +4,9 @@ const logger = createLogger('service-a:main');
 import { TxJobRegistry, TxJob, TxTask, TxJobExecutionOptions } from '../../../src/';
 import { TxJobServicesComponent } from '../../../src/tx-job-services-component';
 
-import { A3Component } from './../A3.component';
-import { A2Component } from './../A2.component';
-import { A1Component } from './../A1.component';
+import { A3Component } from '../components/A3.component';
+import { A2Component } from '../components/A2.component';
+import { A1Component } from '../components/A1.component';
 
 // process.on('message', (msg) => {  
 //   logger.info('[service-a: message from parent:', msg);

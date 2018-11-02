@@ -30,6 +30,11 @@ export class TxConnectorExpress implements TxConnector {
     console.log("next: TxConnectorExpress Method not implemented.");
   }
 
+  error(service: string, route: string, data: any) {
+    this.subscribeBC(data);
+    console.log("next: TxConnectorExpress Method not implemented.");
+  }
+
   close() {
   }
 }
