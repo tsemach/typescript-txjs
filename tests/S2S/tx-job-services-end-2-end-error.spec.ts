@@ -98,7 +98,23 @@ describe('Job Service Class - End-To-End', () => {
 
         services.a.ready = true;
         run();
+
       }      
+      if (msg.status === 'completed') {
+        logger.info('tx-job-services-end-2-end-error.spec.ts: (error) service-error-a completed, looks good :)');
+        console.log('tx-job-services-end-2-end-error.spec.ts: (error) service-error-a msg = '+ JSON.stringify(msg, undefined, 2));
+                
+        // expect(msg.status).to.equal('completed');
+        // expect(msg.service).to.equal('service-error-a');
+        // expect(msg.task.data.head.status).to.equal('ERROR');
+        // expect(msg.task.data.head.method).to.equal('from A1');
+
+        //done();
+
+        // services.a.fork.send('service-error-a:exit');      
+        // services.b.fork.send('service-error-b:exit');      
+        // services.c.fork.send('service-error-c:exit');      
+      }        
     });
 
     services.b.fork.on('message', (msg) => {
@@ -122,19 +138,6 @@ describe('Job Service Class - End-To-End', () => {
         run();
       }    
 
-      if (msg.status === 'completed') {
-        logger.info('tx-job-services-end-2-end-error.spec.ts: (error) service-error-c completed, looks good :)');
-
-        services.a.fork.send('service-error-a:exit');      
-        services.b.fork.send('service-error-b:exit');      
-        services.c.fork.send('service-error-c:exit');      
-        
-        // expect(msg.status).to.equal('completed');
-        // expect(msg.task.data.head.status).to.equal('ok');
-        // expect(msg.task.data.head.method).to.equal('from C3');
-
-        done();
-      }
     });
     
   }).timeout(2000);

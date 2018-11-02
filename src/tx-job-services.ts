@@ -53,13 +53,11 @@ export class TxJobServices {
       throw Error(`service - ${this.current} - is not define, make sure you start with 'job.on('service').add('mountpoint)`);
     }
     this.jobs.get(this.current).push(name);    
-  }
-
-  // this.services.shift(TxJobRegistry.instance.getServiceName(), data);
+  }  
 
   shift(task) {    
     this.trace.push(this.stack.shift());
-      logger.info(`[TxServices:shift] begin, stack.length = ${this.stack.length}, track.length = ${this.trace.length}`);
+    logger.info(`[TxServices:shift] begin, stack.length = ${this.stack.length}, track.length = ${this.trace.length}`);
 
     if (this.stack.length == 0) {
       logger.info('shift: no more jobs to run, stack.length = 0, track.length = ',  this.trace.length);
@@ -75,14 +73,30 @@ export class TxJobServices {
       options: this.job.getOptions()
     }
 
+    // diconnect pervious callback so will not collustion with next run.
+    this.job.unsubscribes();    
+
     // S2S: use this mountpoint to continue the jop on the next service
     let mountpoint = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
-    mountpoint.tasks().next(new TxTask<TxJobServicesHeadTask>({next: current}, data));
+    mountpoint.tasks().next(new TxTask<TxJobServicesHeadTask>({next: current}, data));``
+  }
+
+  // REMOVE THIS
+  print(uuid) {
+    console.log(`SERIVCE:IN_PRINT ... uuid = ${uuid} trace.length = ${this.trace.length}`);
+    for (let i = 0; i<this.trace.length; i++) {
+      console.log(`SERVICE:PRINT: uuid = ${uuid} trace.length = ${this.trace.length}`);
+      console.log(`SERVICE:PRINT: uuid = ${uuid} trace[${i}] = ${this.trace[i]}`);
+    }
   }
 
   error(task) {   
     let __name = TxJobRegistry.instance.getServiceName();
     logger.info(`[(${__name}):TxServices:error] enter to error, trace.length = ${this.trace.length}, stack.length = ${this.stack.length}`); 
+
+    if (this.trace.length > 0) {
+    console.log("SERIVE:error: trace = ", this.trace[0]);
+    }
 
     if (this.trace.length == 0) {
       logger.info(`[(${__name}):TxServices:error] no more service to run, stack.length = ${this.stack.length}, track.length = ${this.trace.length}`);
@@ -90,16 +104,17 @@ export class TxJobServices {
       return;
     }
 
-    this.current = this.trace.pop();
-    this.stack.push(this.current);
-
+    this.current = this.trace.pop();    
     logger.info(`[(${__name}):TxServices:error] going to send error to service - ${this.current}`);
         
     let data = {
       job: this.getJsonForSending(),
       task,
       options: this.job.getOptions()
-    }    
+    }  
+
+    // diconnect pervious callback so will not collustion with next run.
+    this.job.unsubscribes();    
 
     // S2S: use this mountpoint to continue the jop on the next service
     let mountpoint = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
@@ -135,10 +150,23 @@ export class TxJobServices {
     this.stack = from.stack;
     this.trace = from.trace;
     this.block = from.block;
+
     
+    console.log(`SERIVE:UP_JSON: trace.length = ${this.trace.length}`);
+    for (let i = 0; i<this.trace.length; i++) {
+    console.log(`SERIVE:UP_JSON: trace[${i}] = ${this.trace[i]}`);
+    }
+
     from.jobs.forEach(job => {      
       this.jobs.set(job.service, job.components)
     })
+
+
+    console.log(`SERIVE:UP_JSON: trace.length = ${this.trace.length}`);
+    for (let i = 0; i<this.trace.length; i++) {
+    console.log(`SERIVE:UP_JSON: trace[${i}] = ${this.trace[i]}`);
+    }
+
 
     return this;
   }
@@ -155,8 +183,8 @@ export class TxJobServices {
   }
 
   setError(): any {
-    //this.trace.pop();
   }
+
   release() {    
   }
 

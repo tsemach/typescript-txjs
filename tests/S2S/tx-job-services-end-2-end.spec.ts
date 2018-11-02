@@ -57,87 +57,26 @@ describe('Job Service Class - End-To-End', () => {
         services.c.ready = true;
         run();
       }    
-
+      
       if (msg.status === 'completed') {
+        logger.info('tx-job-services-end-2-end.spec.ts: msg = ', JSON.stringify(msg, undefined, 2));
         logger.info('tx-job-services-end-2-end.spec.ts: service-c completed, looks good :)');
 
-        services.a.fork.send('service-a:exit');      
-        services.b.fork.send('service-b:exit');      
-        services.c.fork.send('service-c:exit');      
-        
+        services.a.fork.send('service-a:exit');
+        services.b.fork.send('service-b:exit');
+        services.c.fork.send('service-c:exit');
+
+        expect(msg.service).to.equal('service-c');
         expect(msg.status).to.equal('completed');
-        expect(msg.task.data.head.status).to.equal('ok');
-        expect(msg.task.data.head.method).to.equal('from C3');
+        expect(msg.task.head.status).to.equal('ok');
+        expect(msg.task.head.method).to.equal('from C3');
+        assert.deepEqual(msg.task.data, {"something": "more data here"});
 
         done();
       }
     });
     
   }).timeout(2000);
-
-  // it('tx-job-services-end-2-end.spec.ts: test job services end to end with error', async (done) => {
-  //   logger.info('tx-job-services-end-2-end.spec.ts: test job services end to end with error');        
-
-  //   let services = {a: {fork, ready: false}, b: {fork, ready: false}, c: {fork, ready: false}};
-    
-  //   services.a.fork = fork('./dist/tests/S2S/service-error-a/service-a-main.js');
-  //   services.b.fork = fork('./dist/tests/S2S/service-error-b/service-b-main.js');
-  //   services.c.fork = fork('./dist/tests/S2S/service-error-c/service-c-main.js');
-
-  //   function run() {
-  //     if (services.a.ready && services.b.ready && services.c.ready) {
-  //       services.a.fork.send('service-a:run');
-  //     }
-  //   }
-
-  //   services.a.fork.on('message', (msg) => {
-  //     logger.info('message from service-a', msg);
-
-  //     if (msg === 'service-a:up') {
-  //       logger.info('tx-job-services-end-2-end.spec.ts: (error) service-a is up');      
-
-  //       services.a.ready = true;
-  //       run();
-  //     }      
-  //   });
-
-  //   services.b.fork.on('message', (msg) => {
-  //     logger.info('message from service-b', msg);
-
-  //     if (msg === 'service-b:up') {
-  //       logger.info('tx-job-services-end-2-end.spec.ts: (error) service-b is up');      
-
-  //       services.b.ready = true;
-  //       run();
-  //     }      
-  //   });
-
-  //   services.c.fork.on('message', (msg) => {
-  //     logger.info('message from service-c', msg);
-
-  //     if (msg === 'service-c:up') {
-  //       logger.info('tx-job-services-end-2-end.spec.ts: (error) service-c is up');
-
-  //       services.c.ready = true;
-  //       run();
-  //     }    
-
-  //     if (msg.status === 'completed') {
-  //       logger.info('tx-job-services-end-2-end.spec.ts: (error) service-c completed, looks good :)');
-
-  //       services.a.fork.send('service-a:exit');      
-  //       services.b.fork.send('service-b:exit');      
-  //       services.c.fork.send('service-c:exit');      
-        
-  //       expect(msg.status).to.equal('completed');
-  //       expect(msg.task.data.head.status).to.equal('ok');
-  //       expect(msg.task.data.head.method).to.equal('from C3');
-
-  //       done();
-  //     }
-  //   });
-    
-  // }).timeout(2000);
 
 });
   

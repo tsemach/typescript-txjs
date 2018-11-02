@@ -1,12 +1,13 @@
 import createLogger from 'logging';
 const logger = createLogger('service-error-a:main');
 
-import { TxJobRegistry, TxJob, TxTask, TxJobExecutionOptions } from '../../../src/';
+import { TxJobRegistry, TxJob, TxTask, TxJobExecutionOptions, TxMountPointRegistry } from '../../../src/';
 import { TxJobServicesComponent } from '../../../src/tx-job-services-component';
 
 import { A3Component } from '../components/A3.component';
 import { A2Component } from '../components/A2.component';
 import { A1Component } from '../components/A1.component';
+import { TxJobServicesEmptyJSON } from '../../../src/tx-job-services-json';
 
 TxJobRegistry.instance.setServiceName('service-error-a');
 
@@ -18,6 +19,16 @@ async function init() {
   logger.info('[service-error-a:init] start service-error-a init');
 
   await new TxJobServicesComponent().init();  
+
+  let mp = TxMountPointRegistry.instance.create('SERVICE-A::S2S::COMPLETED');  
+  mp.reply().subscribe(
+    (task) => {
+      logger.info("service-error-a: got data from TxJobServicesComponent: " + JSON.stringify(task, undefined, 2));
+      
+      // notify the caller (the tester) that job is completed
+      process.send({service: 'service-error-a', status: 'completed', task: task});
+    }
+  )
 
   process.on('message', (msg) => {  
     logger.info('[service-error-a:init] message from parent:', msg);
@@ -53,13 +64,13 @@ async function run() {
   job.on('service-error-c').add('GITHUB::GIST::C2');
   job.on('service-error-c').add('GITHUB::GIST::C3');
 
-  const isCompletedTxJobervicesEndToEnd1 = job.getIsCompleted().subscribe(
-    (task) => {
-      console.log('[service-error-a:run] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(task, undefined, 2));
-      process.send({service: 'service-error-a', status: 'completed', task: task});
+  // const isCompletedTxJobervicesEndToEnd1 = job.getIsCompleted().subscribe(
+  //   (task) => {
+  //     console.log('[service-error-a:run] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(task, undefined, 2));
+  //     process.send({service: 'service-error-a', status: 'completed', task: task});
 
-      isCompletedTxJobervicesEndToEnd1.unsubscribe();
-    });                
+  //     isCompletedTxJobervicesEndToEnd1.unsubscribe();
+  //   });                
 
   job.execute(new TxTask({
       method: 'create',
@@ -68,7 +79,14 @@ async function run() {
     {something: 'more data here'}
     ),
     {
-      execute: {source: 'service'}
+      execute: {
+        source: 'service',
+        notify: {
+          name: 'SERVICE-A::S2S::COMPLETED',
+          type: 'next',
+          from: TxJobRegistry.instance.getServiceName()
+        }
+      }
     } as TxJobExecutionOptions
   );        
   
