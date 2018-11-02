@@ -19,15 +19,15 @@ async function init() {
 
   await new TxJobServicesComponent().init();  
 
-  let mp = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
-  mp.reply().subscribe(
-    (task) => {
-      logger.info("service-error-c: got data from TxJobServicesComponent: " + JSON.stringify(task, undefined, 2));
+  // let mp = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
+  // mp.reply().subscribe(
+  //   (task) => {
+  //     logger.info("service-error-c: got data from TxJobServicesComponent: " + JSON.stringify(task, undefined, 2));
       
-      // notify the caller (the tester) that job is completed
-      process.send({service: 'service-error-c', status: 'completed', task: task});
-    }
-  )
+  //     // notify the caller (the tester) that job is completed
+  //     process.send({service: 'service-error-c', status: 'completed', task: task});
+  //   }
+  // )
 
   process.on('message', (msg) => {  
     logger.info('[service-error-c:init] message from parent:', msg);

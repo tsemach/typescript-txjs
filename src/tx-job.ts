@@ -136,12 +136,17 @@ export class TxJob {
   }
 
   async errorCB(data,  txMountPoint: TxMountPoint) {
-    logger.info(`[TxJob:errorCB] [${this.name}] got error, data = ${JSON.stringify(data, undefined, 2)}`);
-    logger.info(`[TxJob:errorCB] [${this.name}] before shift to next error, trace.len = ${this.trace.length}`);
+    let __name = TxJobRegistry.instance.getServiceName();
+
+    logger.info(`[(${__name}):TxJob:errorCB] [${this.name}] got error, data = ${JSON.stringify(data, undefined, 2)}`);
+    logger.info(`[(${__name}):TxJob:errorCB] [${this.name}] before shift to next error, trace.len = ${this.trace.length}`);
+
+    // REMOVE THIS!
+    this.services.print(this.uuid);
 
     // set error mode to true and rise onError event.
     if (this.error == false) {
-      logger.info(`[TxJob:errorCB] [${this.name}] first time enter to error handler, remove current occluding the error`);
+      logger.info(`[(${__name}):TxJob:errorCB] [${this.name}] first time enter to error handler, remove current occluding the error`);
 
       this.trace.pop();
       this.error = true;
@@ -150,22 +155,27 @@ export class TxJob {
     this.onError.next(new TxTask<{name: string}>({name: <string>txMountPoint.name}, data));
 
     if (this.trace.length === 0) {
-      logger.info(`[TxJob:errorCB] [${this.name}] complete running errors all mount points, trace.length = ${this.trace.length}, stack.length = ${this.stack.length}`);
+      logger.info(`[(${__name}):TxJob:errorCB] [${this.name}] complete running errors all mount points, trace.length = ${this.trace.length}, stack.length = ${this.stack.length}`);
             
       this.services.error(data);
       this.isCompleted.error(data);
+      this.notify(data);
 
       return;
     }
 
     this.current = this.trace.pop();
-    logger.info(`[TxJob:errorCB] [${this.name}] after pop this.currnet = ${this.current.name}`);
+    logger.info(`[(${__name}):TxJob:errorCB] [${this.name}] after pop this.currnet = ${this.current.name}`);
 
     this.stack.push(this.current);
 
     if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
       await TxJobRegistry.instance.persist(this);
     }
+
+    // REMOVE THIS!
+    console.log("errorCB: BEFORE callt to currnet.tasks().error ");
+    this.services.print(this.uuid);
 
     this.current.tasks().error(data);
   }
@@ -184,7 +194,7 @@ export class TxJob {
         logger.info(`[TxJob:subscribe] [${this.name}] complete is called`)
       }
     );
-   this.subscribers .push(subscribed);
+   this.subscribers.push(subscribed);
   }
 
   /**
@@ -352,30 +362,49 @@ export class TxJob {
    * @param options 
    */
   async errorAll(data, options: TxJobExecutionOptions = defaultOptions) {
-    logger.info(`[TxJob:errorAll] called, this.stack.length = ${this.stack.length}, options = ${JSON.stringify(options)}`);      
+    let __name = TxJobRegistry.instance.getServiceName();
+
+    logger.info(`[(${__name}):TxJob:errorAll] called, this.stack.length = ${this.stack.length}, options = ${JSON.stringify(options)}`);      
 
     this.error = true;
     this.options = options;
 
+    // REMOPVE THIS
+    this.services.print(this.uuid);
+
     if (TxJobExecutionOptionsChecker.isService(this.options)) {      
       this.setFromServices();      
     }    
+
+    // REMOPVE THIS
+    console.log("errorALL: AFTER setFromService");
+    this.services.print(this.uuid);
 
     this.trace = []
     this.stack.forEach(e => {
       this.trace.push(e);
     });
 
-    if (this.trace.length === 0) {
-      logger.info(`[TxJob:errorAll] this.trace.length = 0`);  
+    for (let i = 0; i < this.trace.length; i++) {
+      logger.info(`[(${__name}):TxJob:errorAll] this.trace [${i}] = ${this.trace[i].name}`);
+    }
 
+    if (this.trace.length === 0) {
+      logger.info(`[(${__name}):TxJob:errorAll] this.trace.length = 0`);  
+      
       return;
     }
 
-    this.current = this.trace.shift();        
-    logger.info(`[TxJob:errorAll] going to run ${this.current.name} mount point`);
+    this.current = this.trace.pop();        
+    logger.info(`[(${__name}):TxJob:errorAll] going to run ${this.current.name} mount point, this.trace.length = ${this.trace.length}`);
+  
+    // REMOVE THIS
+    this.services.print(this.uuid);
 
     this.current.tasks().error(data);
+
+    // REMOVE THIS
+    this.services.print(this.uuid);
   }
 
   /**
@@ -412,6 +441,12 @@ export class TxJob {
     this.executionId = {uuid: '', sequence: 0};
   }
 
+  unsubscribes() {
+    this.subscribers.forEach(cb => {
+      cb.unsubscribe();
+    });
+  }
+
   release() {
     TxJobRegistry.instance.del(this.getUuid());
     this.subscribers.forEach(cb => {
@@ -421,10 +456,42 @@ export class TxJob {
     this.executionId = {uuid: '', sequence: 0};
   }
 
+  notify(data) {
+    if (this.options.execute.notify.from !== TxJobRegistry.instance.getServiceName()) {
+      return;
+    }
+
+    console.log("NOTIFY: going to send messgae: ", this.options.execute.notify.name);
+
+    if (TxJobExecutionOptionsChecker.isNotify(this.options)) {
+      let mp = TxMountPointRegistry.instance.get(this.options.execute.notify.name);
+
+      if (this.options.execute.notify.type === 'next') {        
+        mp.reply().next(data);
+      }
+
+      if (this.options.execute.notify.type === 'error') {
+        mp.reply().error(data);
+      }      
+    }
+  }
+
   finish(data) {    
     this.revert = false;
     this.single = false;
-    this.services.shift(data);
+    this.services.shift(data);        
+    // if (TxJobExecutionOptionsChecker.isNotify(this.options)) {
+    //   let mp = TxMountPointRegistry.instance.get(this.options.execute.notify.name);
+
+    //   if (this.options.execute.notify.type === 'next') {        
+    //     mp.reply().next(data);
+    //   }
+
+    //   if (this.options.execute.notify.type === 'error') {
+    //     mp.reply().error(data);
+    //   }      
+    // }
+    this.notify(data);
     this.isCompleted.next(data);
   }
 

@@ -19,6 +19,11 @@ export interface TxJobExecutionOptions {
     until: string;
     record: boolean;
     source: string;
+    notify: {
+      name: string;
+      type: string;
+      from: string;
+    }
   }
 }
 
@@ -80,6 +85,17 @@ export class TxJobExecutionOptionsChecker {
     }
     
     return options.execute.source === 'service';
+  }
+
+  static isNotify(options: TxJobExecutionOptions) {
+    if (options.execute === undefined) {
+      return false;
+    }
+    if (options.execute.notify === undefined) {
+      return false;
+    }
+    
+    return true;
   }
 
 }
