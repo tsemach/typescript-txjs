@@ -4,9 +4,9 @@ const logger = createLogger('service-b:main');
 import { TxMountPointRegistry, TxJobRegistry } from '../../../src/';
 import { TxJobServicesComponent } from '../../../src/tx-job-services-component';
 
-import { B3Component } from './../B3.component';
-import { B2Component } from './../B2.component';
-import { B1Component } from './../B1.component';
+import { B3Component } from '../components/B3.component';
+import { B2Component } from '../components/B2.component';
+import { B1Component } from '../components/B1.component';
 
 TxJobRegistry.instance.setServiceName('service-b');
 

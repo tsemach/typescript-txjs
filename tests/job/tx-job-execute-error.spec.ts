@@ -76,20 +76,20 @@ describe('Job Class', () => {
         count++;
         if (count === 1) {
           expect(data['head']['name']).to.equal("GITHUB::GIST::E3");
-          expect(data['data']['data']['head']['method']).to.equal("from E3");
-          expect(data['data']['data']['head']['status']).to.equal("ERROR");
+          expect(data['data']['head']['method']).to.equal("from E3");
+          expect(data['data']['head']['status']).to.equal("ERROR");
           expect(job.error).to.equal(true);
         }
         if (count === 2) {
           expect(data['head']['name']).to.equal("GITHUB::GIST::E2");
-          expect(data['data']['data']['head']['method']).to.equal("from E2");
-          expect(data['data']['data']['head']['status']).to.equal("ERROR");
+          expect(data['data']['head']['method']).to.equal("from E2");
+          expect(data['data']['head']['status']).to.equal("ERROR");
           expect(job.error).to.equal(true);
         }
         if (count === 3) {
           expect(data['head']['name']).to.equal("GITHUB::GIST::E1");
-          expect(data['data']['data']['head']['method']).to.equal("from E1");
-          expect(data['data']['data']['head']['status']).to.equal("ERROR");
+          expect(data['data']['head']['method']).to.equal("from E1");
+          expect(data['data']['head']['status']).to.equal("ERROR");
           expect(job.error).to.equal(true);
         }
       }
@@ -167,14 +167,14 @@ describe('Job Class', () => {
 
         if (count === 1) {
           expect(data['head']['name']).to.equal("GITHUB::GIST::E1");
-          expect(data['data']['data']['head']['method']).to.equal("from E1");
-          expect(data['data']['data']['head']['status']).to.equal("ERROR");
+          expect(data['data']['head']['method']).to.equal("from E1");
+          expect(data['data']['head']['status']).to.equal("ERROR");
           expect(job.error).to.equal(true);
         }
         if (count === 2) {
           expect(data['head']['name']).to.equal("GITHUB::GIST::E2");
-          expect(data['data']['data']['head']['method']).to.equal("from E2");
-          expect(data['data']['data']['head']['status']).to.equal("ERROR");
+          expect(data['data']['head']['method']).to.equal("from E2");
+          expect(data['data']['head']['status']).to.equal("ERROR");
           expect(job.error).to.equal(true);
         }
         // if (count === 3) {

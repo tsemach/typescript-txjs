@@ -8,23 +8,15 @@ import { assert } from 'chai';
 
 import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 import { TxJob } from '../../src/tx-job';
-import { C1Component } from './C1.component';
-import { C2Component } from './C2.component';
-import { C3Component } from './C3.component';
+import { C1Component } from './components/C1.component';
+import { C2Component } from './components/C2.component';
+import { C3Component } from './components/C3.component';
 import { TxMountPointRegistry, TxJobRegistry, TxTask, TxJobExecutionOptions, TxJobExecutionId } from '../../src';
 
 //TxJobRegistry.instance.setServiceName('service-c');
 //new TxJobServicesComponent().init();
 
 describe('S2S: Cross Service Jobs', () => {
-
-  TxMountPointRegistry.instance.create('GITHUB::GIST::A1');
-  TxMountPointRegistry.instance.create('GITHUB::GIST::A2');
-  TxMountPointRegistry.instance.create('GITHUB::GIST::A3');
-
-  TxMountPointRegistry.instance.create('GITHUB::GIST::B1');
-  TxMountPointRegistry.instance.create('GITHUB::GIST::B2');
-  TxMountPointRegistry.instance.create('GITHUB::GIST::B3');
 
   new C1Component();
   new C2Component();

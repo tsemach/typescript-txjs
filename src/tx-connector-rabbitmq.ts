@@ -37,7 +37,8 @@ let config: any = {
 
 @injectable()
 export class TxConnectorRabbitMQ implements TxConnector {
-  subscribeBC: (any) => void;
+  dataCB: (any) => void;
+  errorCB: (any) => void
 
   broker = new Broker(config);
   id = uuid();
@@ -52,14 +53,18 @@ export class TxConnectorRabbitMQ implements TxConnector {
 
     await this.broker.addExchange(service + '.exchange', 'topic', {publishTimeout: 1000, persistent: true, durable: false} as BrokerExchangeOptions);
     await this.broker.addQueue(service + '.queue', {limit: 1000, queueLimit: 1000} as BrokerQueueOptions);
+    await this.broker.addQueue(service + '.queue.error', {limit: 1000, queueLimit: 1000} as BrokerQueueOptions);
     await this.broker.addBinding(service + '.exchange', service + '.queue', route);
-    await this.broker.addConsume(service + '.queue', this.queueCB.bind(this), false);
+    await this.broker.addBinding(service + '.exchange', service + '.queue.error', route + '.error')
+    await this.broker.addConsume(service + '.queue', this.queueDataCB.bind(this), false);
+    await this.broker.addConsume(service + '.queue.error', this.queueErrorCB.bind(this), false);
 
     console.log(`TxConnectorRabbit:connect - exist from - [${service}]-[${route}]-[${this.id}]`);
   }
 
-  subscribe(cb: (any) => void) {
-    this.subscribeBC = cb;
+  subscribe(dataCB: (any) => void, errorCB?: (any) => void) {
+    this.dataCB = dataCB;
+    this.errorCB = errorCB;
   };
 
   async next(service, route, data: any) {
@@ -67,8 +72,17 @@ export class TxConnectorRabbitMQ implements TxConnector {
     await this.broker.send(service + '.exchange', route, data);
   }
 
-  queueCB(data) {
-    this.subscribeBC(data.content.toString());
+  async error(service, route, data: any) {
+    await this.broker.addExchange(service + '.exchange', 'topic', {publishTimeout: 1000, persistent: true, durable: false} as BrokerExchangeOptions);
+    await this.broker.send(service + '.exchange', route + '.error', data);
+  }
+
+  queueDataCB(data) {
+    this.dataCB(data.content.toString());
+  }
+
+  queueErrorCB(data) {
+    this.errorCB(data.content.toString());
   }
 
   close() {

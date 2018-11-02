@@ -1,3 +1,4 @@
+import { TxJobRegistry } from './tx-job-resgitry';
 
 import createLogger from 'logging';
 const logger = createLogger('TxJobServices');
@@ -54,8 +55,11 @@ export class TxJobServices {
     this.jobs.get(this.current).push(name);    
   }
 
-  shift(service: string, task) {    
+  // this.services.shift(TxJobRegistry.instance.getServiceName(), data);
+
+  shift(task) {    
     this.trace.push(this.stack.shift());
+      logger.info(`[TxServices:shift] begin, stack.length = ${this.stack.length}, track.length = ${this.trace.length}`);
 
     if (this.stack.length == 0) {
       logger.info('shift: no more jobs to run, stack.length = 0, track.length = ',  this.trace.length);
@@ -64,8 +68,7 @@ export class TxJobServices {
     }
     let current = this.stack[0];
     logger.info('shift: current job is - ', current)
-    
-    
+        
     let data = {
       job: this.getJsonForSending(),
       task,
@@ -75,6 +78,32 @@ export class TxJobServices {
     // S2S: use this mountpoint to continue the jop on the next service
     let mountpoint = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
     mountpoint.tasks().next(new TxTask<TxJobServicesHeadTask>({next: current}, data));
+  }
+
+  error(task) {   
+    let __name = TxJobRegistry.instance.getServiceName();
+    logger.info(`[(${__name}):TxServices:error] enter to error, trace.length = ${this.trace.length}, stack.length = ${this.stack.length}`); 
+
+    if (this.trace.length == 0) {
+      logger.info(`[(${__name}):TxServices:error] no more service to run, stack.length = ${this.stack.length}, track.length = ${this.trace.length}`);
+
+      return;
+    }
+
+    this.current = this.trace.pop();
+    this.stack.push(this.current);
+
+    logger.info(`[(${__name}):TxServices:error] going to send error to service - ${this.current}`);
+        
+    let data = {
+      job: this.getJsonForSending(),
+      task,
+      options: this.job.getOptions()
+    }    
+
+    // S2S: use this mountpoint to continue the jop on the next service
+    let mountpoint = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
+    mountpoint.tasks().error(new TxTask<TxJobServicesHeadTask>({next: this.current}, data));
   }
 
   getNames(service: string) {
@@ -125,6 +154,9 @@ export class TxJobServices {
     return json;
   }
 
+  setError(): any {
+    //this.trace.pop();
+  }
   release() {    
   }
 

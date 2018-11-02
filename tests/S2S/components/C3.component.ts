@@ -1,9 +1,9 @@
 import createLogger from 'logging'; 
 const logger = createLogger('C3');
 
-import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
-import { TxMountPoint } from '../../src/tx-mountpoint';
-import { TxTask } from '../../src/tx-task';
+import { TxMountPointRegistry } from '../../../src/tx-mountpoint-registry';
+import { TxMountPoint } from '../../../src/tx-mountpoint';
+import { TxTask } from '../../../src/tx-task';
 
 export class C3Component {
   mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C3');

@@ -145,11 +145,14 @@ export class TxJob {
 
       this.trace.pop();
       this.error = true;
+      this.services.setError();
     }
-    this.onError.next(new TxTask<{ name: string }>({name: <string>txMountPoint.name}, {data: data}));
+    this.onError.next(new TxTask<{name: string}>({name: <string>txMountPoint.name}, data));
 
     if (this.trace.length === 0) {
       logger.info(`[TxJob:errorCB] [${this.name}] complete running errors all mount points, trace.length = ${this.trace.length}, stack.length = ${this.stack.length}`);
+            
+      this.services.error(data);
       this.isCompleted.error(data);
 
       return;
@@ -181,7 +184,7 @@ export class TxJob {
         logger.info(`[TxJob:subscribe] [${this.name}] complete is called`)
       }
     );
-    this.subscribers .push(subscribed);
+   this.subscribers .push(subscribed);
   }
 
   /**
@@ -343,6 +346,39 @@ export class TxJob {
   }
 
   /**
+   * do error handling on all components
+   * 
+   * @param data 
+   * @param options 
+   */
+  async errorAll(data, options: TxJobExecutionOptions = defaultOptions) {
+    logger.info(`[TxJob:errorAll] called, this.stack.length = ${this.stack.length}, options = ${JSON.stringify(options)}`);      
+
+    this.error = true;
+    this.options = options;
+
+    if (TxJobExecutionOptionsChecker.isService(this.options)) {      
+      this.setFromServices();      
+    }    
+
+    this.trace = []
+    this.stack.forEach(e => {
+      this.trace.push(e);
+    });
+
+    if (this.trace.length === 0) {
+      logger.info(`[TxJob:errorAll] this.trace.length = 0`);  
+
+      return;
+    }
+
+    this.current = this.trace.shift();        
+    logger.info(`[TxJob:errorAll] going to run ${this.current.name} mount point`);
+
+    this.current.tasks().error(data);
+  }
+
+  /**
    * S2S: in case of S2S take all the mountpoint defined in this.services
    * and use them for the executions.
    */
@@ -388,7 +424,7 @@ export class TxJob {
   finish(data) {    
     this.revert = false;
     this.single = false;
-    this.services.shift(TxJobRegistry.instance.getServiceName(), data);
+    this.services.shift(data);
     this.isCompleted.next(data);
   }
 
