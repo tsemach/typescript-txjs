@@ -81,22 +81,9 @@ export class TxJobServices {
     mountpoint.tasks().next(new TxTask<TxJobServicesHeadTask>({next: current}, data));``
   }
 
-  // REMOVE THIS
-  print(uuid) {
-    console.log(`SERIVCE:IN_PRINT ... uuid = ${uuid} trace.length = ${this.trace.length}`);
-    for (let i = 0; i<this.trace.length; i++) {
-      console.log(`SERVICE:PRINT: uuid = ${uuid} trace.length = ${this.trace.length}`);
-      console.log(`SERVICE:PRINT: uuid = ${uuid} trace[${i}] = ${this.trace[i]}`);
-    }
-  }
-
   error(task) {   
     let __name = TxJobRegistry.instance.getServiceName();
     logger.info(`[(${__name}):TxServices:error] enter to error, trace.length = ${this.trace.length}, stack.length = ${this.stack.length}`); 
-
-    if (this.trace.length > 0) {
-    console.log("SERIVE:error: trace = ", this.trace[0]);
-    }
 
     if (this.trace.length == 0) {
       logger.info(`[(${__name}):TxServices:error] no more service to run, stack.length = ${this.stack.length}, track.length = ${this.trace.length}`);
@@ -150,23 +137,10 @@ export class TxJobServices {
     this.stack = from.stack;
     this.trace = from.trace;
     this.block = from.block;
-
-    
-    console.log(`SERIVE:UP_JSON: trace.length = ${this.trace.length}`);
-    for (let i = 0; i<this.trace.length; i++) {
-    console.log(`SERIVE:UP_JSON: trace[${i}] = ${this.trace[i]}`);
-    }
-
+      
     from.jobs.forEach(job => {      
       this.jobs.set(job.service, job.components)
     })
-
-
-    console.log(`SERIVE:UP_JSON: trace.length = ${this.trace.length}`);
-    for (let i = 0; i<this.trace.length; i++) {
-    console.log(`SERIVE:UP_JSON: trace[${i}] = ${this.trace[i]}`);
-    }
-
 
     return this;
   }

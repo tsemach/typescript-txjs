@@ -141,9 +141,6 @@ export class TxJob {
     logger.info(`[(${__name}):TxJob:errorCB] [${this.name}] got error, data = ${JSON.stringify(data, undefined, 2)}`);
     logger.info(`[(${__name}):TxJob:errorCB] [${this.name}] before shift to next error, trace.len = ${this.trace.length}`);
 
-    // REMOVE THIS!
-    this.services.print(this.uuid);
-
     // set error mode to true and rise onError event.
     if (this.error == false) {
       logger.info(`[(${__name}):TxJob:errorCB] [${this.name}] first time enter to error handler, remove current occluding the error`);
@@ -172,10 +169,6 @@ export class TxJob {
     if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
       await TxJobRegistry.instance.persist(this);
     }
-
-    // REMOVE THIS!
-    console.log("errorCB: BEFORE callt to currnet.tasks().error ");
-    this.services.print(this.uuid);
 
     this.current.tasks().error(data);
   }
@@ -369,16 +362,9 @@ export class TxJob {
     this.error = true;
     this.options = options;
 
-    // REMOPVE THIS
-    this.services.print(this.uuid);
-
     if (TxJobExecutionOptionsChecker.isService(this.options)) {      
       this.setFromServices();      
-    }    
-
-    // REMOPVE THIS
-    console.log("errorALL: AFTER setFromService");
-    this.services.print(this.uuid);
+    }
 
     this.trace = []
     this.stack.forEach(e => {
@@ -398,13 +384,7 @@ export class TxJob {
     this.current = this.trace.pop();        
     logger.info(`[(${__name}):TxJob:errorAll] going to run ${this.current.name} mount point, this.trace.length = ${this.trace.length}`);
   
-    // REMOVE THIS
-    this.services.print(this.uuid);
-
     this.current.tasks().error(data);
-
-    // REMOVE THIS
-    this.services.print(this.uuid);
   }
 
   /**
@@ -459,9 +439,7 @@ export class TxJob {
   notify(data) {
     if (this.options.execute.notify.from !== TxJobRegistry.instance.getServiceName()) {
       return;
-    }
-
-    console.log("NOTIFY: going to send messgae: ", this.options.execute.notify.name);
+    }  
 
     if (TxJobExecutionOptionsChecker.isNotify(this.options)) {
       let mp = TxMountPointRegistry.instance.get(this.options.execute.notify.name);
