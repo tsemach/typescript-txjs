@@ -60,16 +60,12 @@ export class TxJobServicesComponent {
         logger.info(`[(${__name}):${__method}:subscribe] got request from service object: ${JSON.stringify(service['head'])}`);
         logger.info(`[(${__name}):${__method}:subscribe] going to execute service ${service.head.next}`);
 
-        //this.handleQueueRequest(service);
-        //let job = TxJob.create(service.data.job);                
-        //service.data.options.execute.notify = {name: this.mountpoint.name, type: 'next'};
         TxJob.create(service.data.job).execute(service.data.task, service.data.options);
       },
       (error) => {
         error = JSON.parse(error);
         logger.info(`[(${__name}):${__method}:subscribe] queuepoint error callback, got error from: ${JSON.stringify(error, undefined, 2)}`);
-
-        console.log(`IN SERVICE COMONENT: ${JSON.stringify(error.data.options.execute.notify)}`); 
+        
         TxJob.create(error.data.job).errorAll(error.data.task, error.data.options);
       });
   }

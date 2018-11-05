@@ -17,3 +17,5 @@ export interface TxJobJSON {
   sequence: number;
   services: TxJobServicesJSON;
 }
+
+

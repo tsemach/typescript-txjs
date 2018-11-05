@@ -15,6 +15,7 @@ import { TxJobExecutionOptions, TxJobExecutionOptionsChecker } from "./tx-job-ex
 import { TxRecordPersistAdapter, TxRecordIndexSave } from "./tx-record-persist-adapter";
 import { TxJobExecutionId } from "./tx-job-execution-id";
 import { TxJobServices } from './tx-job-services';
+import { TxSubscribe } from './tx-subscribe';
 
 export const enum TxDirection {
   forward = 1,
@@ -32,7 +33,8 @@ let defaultOptions: TxJobExecutionOptions = {
 } as TxJobExecutionOptions;
 
 export class TxJob {
-  isCompleted = new Subject();  // notify when the whole execution is completed.
+  //isCompleted = new Subject();  // notify when the whole execution is completed.  
+  isCompleted = new TxSubscribe();  // notify when the whole execution is completed.
   isStopped = new Subject();    // notify when execution reach to it's run-until component.
   onComponent = new Subject();  // notify the world on any coming in subscribe callback (reply from component).
   onError = new Subject();  // notify the world on any coming in subscribe callback (reply from component).
@@ -437,20 +439,22 @@ export class TxJob {
   }
 
   notify(data) {
+    if ( ! TxJobExecutionOptionsChecker.isNotify(this.options) ) {
+      return;
+    }
+
     if (this.options.execute.notify.from !== TxJobRegistry.instance.getServiceName()) {
       return;
     }  
 
-    if (TxJobExecutionOptionsChecker.isNotify(this.options)) {
-      let mp = TxMountPointRegistry.instance.get(this.options.execute.notify.name);
+    let mp = TxMountPointRegistry.instance.get(this.options.execute.notify.name);
 
-      if (this.options.execute.notify.type === 'next') {        
-        mp.reply().next(data);
-      }
+    if (this.options.execute.notify.type === 'next') {        
+      mp.reply().next(data);
+    }
 
-      if (this.options.execute.notify.type === 'error') {
-        mp.reply().error(data);
-      }      
+    if (this.options.execute.notify.type === 'error') {
+      mp.reply().error(data);    
     }
   }
 

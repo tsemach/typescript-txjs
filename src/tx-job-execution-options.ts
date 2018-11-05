@@ -94,7 +94,19 @@ export class TxJobExecutionOptionsChecker {
     if (options.execute.notify === undefined) {
       return false;
     }
-    
+
+    if ( ! options.execute.notify.hasOwnProperty('from') ) {
+      return false;
+    }
+
+    if ( ! options.execute.notify.hasOwnProperty('type') ) {
+      return false;
+    }
+
+    if ( ! options.execute.notify.hasOwnProperty('name') ) {
+      return false;
+    }
+
     return true;
   }
 
