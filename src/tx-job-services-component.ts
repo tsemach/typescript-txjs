@@ -56,7 +56,8 @@ export class TxJobServicesComponent {
     await this.queuepoint.queue().register(TxJobRegistry.instance.getServiceName(), TxNames.JOB_SERVICE);
     await this.queuepoint.queue().subscribe(
       async (request) => {        
-        let service = JSON.parse(request);        
+        let service = JSON.parse(request);
+        logger.info(`[(${__name}):${__method}:subscribe] got request from service object: ${JSON.stringify(service, undefined, 2)}`);
         logger.info(`[(${__name}):${__method}:subscribe] got request from service object: ${JSON.stringify(service['head'])}`);
         logger.info(`[(${__name}):${__method}:subscribe] going to execute service ${service.head.next}`);
 
@@ -70,15 +71,4 @@ export class TxJobServicesComponent {
       });
   }
 
-  // // this method called from other service using S2S. 
-  // handleQueueRequest(request) {
-  //   const __method = 'TxJobServicesComponent:handleQueueRequest';
-
-  //   let job = TxJob.create(request.data.job);
-            
-  //   logger.info(`[${__method}):subscribe] going to execute service ${request.head.next}`);
-
-  //   request.data.options.execute.notify = {name: this.mountpoint.name, type: 'next'};
-  //   job.execute(request.data.task, request.data.options);
-  // }
 }

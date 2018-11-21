@@ -13,7 +13,6 @@ import { TxTask } from '../../src';
 import TxMonitor from '../../src/tx-monitor';
 import { TxMountPointRegistry } from '../../src';
 import { TxMonitorServerTaskHeader } from '../../src/tx-monitor-server-task-header';
-//import '../../src/tx-monitor-server.component';
 
 import './monitor-client.component';
 import './C1.component';
@@ -63,7 +62,7 @@ describe('tx-monitor-server.spec.ts: Monitor Server Tests', () => {
         })
     });
     
-    mp.tasks().next(new TxTask<TxMonitorServerTaskHeader>({method: 'start'}, {host: 'localhost', port: port}));    
+    mp.tasks().next(new TxTask<TxMonitorServerTaskHeader>({method: 'start'}, {host: 'localhost', port: port}));
     //TxMonitor.runBuiltInServer('localhost', port);
   }).timeout(10000);
 

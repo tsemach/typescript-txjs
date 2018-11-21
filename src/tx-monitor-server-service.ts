@@ -71,4 +71,4 @@ class TxMonitorServerService {
     
 }
 
-export default new TxMonitorServerService();
+ export default new TxMonitorServerService();
