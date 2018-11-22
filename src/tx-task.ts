@@ -1,9 +1,10 @@
+import { TxSinglePoint } from './tx-singlepoint';
 
 export class TxTask<T> {  
   head: T;
   data: any;
 
-  constructor(head: T, data={}) {
+  constructor(head: T, data={}, private _reply?: TxSinglePoint) {
     this.head = head; 
     this.data = data;
   }
@@ -24,4 +25,21 @@ export class TxTask<T> {
     this.data = data;
   }
   
+  setReply(_reply: TxSinglePoint) {
+    this._reply = _reply;
+  }
+
+  reply() {
+    if ( ! this._reply ) {
+      throw Error('[TxTask::reply] reply singlepoint is null, add reply object in the constructor')
+    }
+    return this._reply;
+  }
+
+  get() {
+    return {
+      head: this.head,
+      data: this.data
+    }
+  }
 }

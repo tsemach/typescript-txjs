@@ -16,6 +16,8 @@ import { TxRecordPersistAdapter, TxRecordIndexSave } from "./tx-record-persist-a
 import { TxJobExecutionId } from "./tx-job-execution-id";
 import { TxJobServices } from './tx-job-services';
 import { TxSubscribe } from './tx-subscribe';
+import { TxSinglePoint } from './tx-singlepoint';
+import { TxDoublePoint } from './tx-doublepoint';
 
 export const enum TxDirection {
   forward = 1,
@@ -52,6 +54,7 @@ export class TxJob {
   current = null;
   options = defaultOptions;
 
+  pointnumber = 0;
   executionId: TxJobExecutionId = {uuid: '', sequence: 0};
   recorder: TxRecordPersistAdapter;
 
@@ -66,7 +69,7 @@ export class TxJob {
     this.recorder = TxJobRegistry.instance.getRecorderDriver();
   }
 
-  async subscribeCB(data, txMountPoint: TxMountPoint) {
+  async subscribeCB(data: TxTask<any>, txMountPoint: TxMountPoint) {
     logger.info(`[TxJob:subscribe] [${this.name}] got reply, data = ${JSON.stringify(data, undefined, 2)}`);
     logger.info(`[TxJob:subscribe] [${this.name}] before shift to next task, stack.len = ${this.stack.length}`);
 
@@ -134,6 +137,7 @@ export class TxJob {
       await this.record({tasks: data}, 'insert');
     }
 
+    data.setReply(txMountPoint.reply());
     next.tasks().next(data);
   }
 
@@ -172,6 +176,7 @@ export class TxJob {
       await TxJobRegistry.instance.persist(this);
     }
 
+    data.setReply(txMountPoint.reply());
     this.current.tasks().error(data);
   }
 
@@ -183,7 +188,6 @@ export class TxJob {
       },
       async (error) => {
         await this.errorCB(error, txMountPoint);
-        //logger.info(`[TxJob:subscribe] [${this.name}] error is called`);
       },
       () => {
         logger.info(`[TxJob:subscribe] [${this.name}] complete is called`)
@@ -199,12 +203,25 @@ export class TxJob {
   on(serivce: string) {
     return this.services.on(serivce);
   }
+  
+  /**
+   * TxDoublePoint hold to TxSinglePoint:
+   *  sender: user to send tasks from me to others
+   *  recver: user to subscribe and receive from others to me
+   * 
+   * @param sender - the mountpoint use to send tasks by me to others
+   */
+  add(sender: TxMountPoint) {
 
-  add(txMountPoint: TxMountPoint) {    
-    this.subscribe(txMountPoint);
-    this.stack.push(txMountPoint);
-    this.block.push(txMountPoint);
-    TxJobRegistry.instance.addComponent(this.name, txMountPoint.name);
+    let doublepoint = new TxDoublePoint(sender.name + ':' + this.uuid + ':' + ++this.pointnumber);
+    doublepoint.sender = <TxSinglePoint>sender;
+
+      //doublepoint.reply()
+
+    this.subscribe(doublepoint);
+    this.stack.push(doublepoint);
+    this.block.push(doublepoint);
+    TxJobRegistry.instance.addComponent(this.name, doublepoint.sender.name);
   }
 
   async execute(data, options: TxJobExecutionOptions = defaultOptions) {
@@ -242,6 +259,7 @@ export class TxJob {
       await this.record({tasks: data}, 'insert');
     }
 
+    data.setReply(runit.reply());
     runit.tasks().next(data);
   }
 
