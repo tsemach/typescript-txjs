@@ -1,5 +1,6 @@
 import createLogger from 'logging'; 
 const logger = createLogger('Job');
+import _ = require('lodash');
 
 import * as longUuid from 'uuid/v4';
 import * as short from 'short-uuid';
@@ -8,6 +9,7 @@ const uuid = short();
 import { Subject } from 'rxjs';
 import { TxMountPoint } from './tx-mountpoint';
 import { TxMountPointRegistry } from './tx-mountpoint-registry';
+import { TxSinglePointRegistry } from './tx-singlepoint-registry';
 import { TxJobRegistry } from './tx-job-resgitry';
 import { TxJobJSON } from "./tx-job-json";
 import { TxTask } from "./tx-task";
@@ -213,15 +215,26 @@ export class TxJob {
    */
   add(sender: TxMountPoint) {
 
-    let doublepoint = new TxDoublePoint(sender.name + ':' + this.uuid + ':' + ++this.pointnumber);
-    doublepoint.sender = <TxSinglePoint>sender;
+    // let doublepoint = new TxDoublePoint(sender.name, this.uuid + ':' + ++this.pointnumber);
+    // doublepoint.sender = <TxSinglePoint>sender;
 
-      //doublepoint.reply()
-
+    let doublepoint = this.newDoublePoint(sender);
     this.subscribe(doublepoint);
     this.stack.push(doublepoint);
     this.block.push(doublepoint);
+
     TxJobRegistry.instance.addComponent(this.name, doublepoint.sender.name);
+  }
+
+  private newDoublePoint(sender: TxMountPoint) {
+    let doublepoint = new TxDoublePoint(sender.name, this.uuid + ':' + ++this.pointnumber);
+    doublepoint.sender = <TxSinglePoint>sender; 
+
+    return doublepoint;
+  }
+
+  private getDoublePoint(name: string | Symbol) {
+    return _.find(this.block, (e) => { return e.name === name});
   }
 
   async execute(data, options: TxJobExecutionOptions = defaultOptions) {
@@ -266,6 +279,7 @@ export class TxJob {
   async continue(data, options: TxJobExecutionOptions = defaultOptions) {
     this.single = false;
     this.options = options;
+
     if (this.stack.length === 0) {
       logger.info(`[TxJob:continue] stack.length = 0`);
 
@@ -287,11 +301,12 @@ export class TxJob {
     }
 
     // if come back from serialization with error flag on than call to component on error channel.
+    data.setReply(this.current.reply());    
     if (this.error) {
       this.current.tasks().error(data);
 
       return;
-    }
+    }    
     this.current.tasks().next(data);
   }
 
@@ -320,6 +335,7 @@ export class TxJob {
       await this.record({tasks: data}, 'insert');
     }
 
+    data.setReply(this.current.reply());
     this.current.tasks().next(data);
   }
 
@@ -365,6 +381,7 @@ export class TxJob {
       await TxJobRegistry.instance.persist(this);
     }
 
+    data.setReply(this.current.reply());
     this.current.undos().next(data);
   }
 
@@ -404,6 +421,7 @@ export class TxJob {
     this.current = this.trace.pop();        
     logger.info(`[(${__name}):TxJob:errorAll] going to run ${this.current.name} mount point, this.trace.length = ${this.trace.length}`);
   
+    data.setReply(this.current.reply());
     this.current.tasks().error(data);
   }
 
@@ -415,7 +433,7 @@ export class TxJob {
     let service = TxJobRegistry.instance.getServiceName();
 
     let names = this.services.getNames(service);
-    names.forEach(name => this.add(TxMountPointRegistry.instance.get(name)));
+    names.forEach(name => this.add(TxSinglePointRegistry.instance.get(name)));
   }
 
   shift() {
@@ -480,17 +498,6 @@ export class TxJob {
     this.revert = false;
     this.single = false;
     this.services.shift(data);        
-    // if (TxJobExecutionOptionsChecker.isNotify(this.options)) {
-    //   let mp = TxMountPointRegistry.instance.get(this.options.execute.notify.name);
-
-    //   if (this.options.execute.notify.type === 'next') {        
-    //     mp.reply().next(data);
-    //   }
-
-    //   if (this.options.execute.notify.type === 'error') {
-    //     mp.reply().error(data);
-    //   }      
-    // }
     this.notify(data);
     this.isCompleted.next(data);
   }
@@ -515,39 +522,38 @@ export class TxJob {
   upJSON(json: TxJobJSON) {
     TxJobRegistry.instance.replace(this.uuid, json.uuid, this);
 
+    this.block = [];
+    json.block.split(',').forEach(name => {
+      if (name !== '') {
+        let doublepoint = this.newDoublePoint(TxSinglePointRegistry.instance.get(name));
+
+        this.subscribe(doublepoint);
+        this.block.push(doublepoint);
+      }
+    });
+
     this.name = json.name;
     this.uuid = json.uuid;
     this.error = json.error;
     this.single = json.single;
     this.revert = json.revert;
-    this.current = json.current !== '' ? TxMountPointRegistry.instance.get(json.current) : null;
+    this.current = json.current !== '' ? this.getDoublePoint(json.current) : null;
     this.executionId.uuid = json.executeUuid;
     this.executionId.sequence = json.sequence;
 
     this.stack = [];
     json.stack.split(',').forEach(name => {
       if (name !== '') {
-        this.stack.push(TxMountPointRegistry.instance.get(name));
-
+        this.stack.push(this.getDoublePoint(name));
       }
     });
 
     this.trace = [];
     json.trace.split(',').forEach(name => {      
       if (name !== '') {
-        this.trace.push(TxMountPointRegistry.instance.get(name));
+        this.trace.push(this.getDoublePoint(name));
       }
     }); 
-
-    this.block = [];
-    json.block.split(',').forEach(name => {
-      if (name !== '') {
-        let mp = TxMountPointRegistry.instance.get(name);
-
-        this.subscribe(mp);
-        this.block.push(mp);
-      }
-    });
 
     this.services = new TxJobServices(this).upJSON(json.services);
     TxJobRegistry.instance.add(this.uuid, this);
@@ -555,6 +561,7 @@ export class TxJob {
     return this;    
   }
 
+  
   static create(json: TxJobJSON) {
     return (new TxJob('internal')).upJSON(json);
   }

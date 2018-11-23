@@ -4,10 +4,14 @@ import { TxSinglePoint } from "./tx-singlepoint";
 export class TxDoublePoint implements TxMountPoint {
   
   sender: TxSinglePoint; // mount point use to send from me to others
-  recver: TxSinglePoint; // mount point use to recv from others to me
+  recver: TxSinglePoint; // mount point use to recv from others to me  
 
-  constructor(private _name: string | Symbol) {
-    this.recver = new TxSinglePoint(_name);
+  constructor(private _name: string | Symbol, private _suffix = '') {
+    let fullname = _name;
+    if (_suffix !== '') {
+      fullname = _name + ':' + _suffix
+    }
+    this.recver = new TxSinglePoint(fullname);
   }
 
   get name() {
