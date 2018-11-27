@@ -11,7 +11,7 @@ export class TxDoublePoint implements TxMountPoint {
     if (_suffix !== '') {
       fullname = _name + ':' + _suffix
     }
-    this.recver = new TxSinglePoint(fullname);
+    this.recver = new TxSinglePoint(fullname);    
   }
 
   get name() {
@@ -25,14 +25,12 @@ export class TxDoublePoint implements TxMountPoint {
     return this.sender.tasks();
   }
 
-  reply() {
-    console.log("TxDoublePoint:reply() goint to return this.recver.tasks");
-    console.log("TxDoublePoint:reply() this.recver.tasks = " + this.recver.name);
+  reply() {    
     return this.recver.tasks();
   }
 
   undos() {
-    throw new Error("undos is not supoprted on TxDoublePoint!");
+    return this.sender.undos();
   }
 
 }

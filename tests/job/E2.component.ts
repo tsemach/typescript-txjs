@@ -2,11 +2,11 @@
 import createLogger from 'logging'; 
 const logger = createLogger('E2Component');
 
-import { TxMountPointRegistry } from '../../src';
+import { TxSinglePointRegistry } from '../../src';
 import { TxTask } from '../../src';
 
 export class E2Component {
-  private mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::E2');
+  private mountpoint = TxSinglePointRegistry.instance.create('GITHUB::GIST::E2');
   method = '';
   //task: any;
 
@@ -18,7 +18,7 @@ export class E2Component {
         // this.task = task;
         
         // just send the reply to whom is 'setting' on this reply subject
-        this.mountpoint.reply().next(new TxTask({method: 'from E2', status: 'ok'}, task['data']))
+        task.reply().next(new TxTask({method: 'from E2', status: 'ok'}, task['data']))
 
         // E2Component got error, send reply on error channel to the caller.
         //this.mountpoint.reply().error(new TxTask({method: 'from E2', status: 'ERROR'}, task['data']))
@@ -28,7 +28,7 @@ export class E2Component {
         this.method = error['method'];
 
         // just send the reply to whom is 'setting' on this reply subject
-        this.mountpoint.reply().error(new TxTask({method: 'from E2', status: 'ERROR'}, error['data']))
+        error.reply().error(new TxTask({method: 'from E2', status: 'ERROR'}, error['data']))
       }
     );
 
@@ -38,7 +38,7 @@ export class E2Component {
           this.method = task['method'];
 
           // just send the reply to whom is 'setting' on this reply subject
-          this.mountpoint.reply().next(new TxTask({method: 'undo from E2', status: 'ok'}, task['data']))
+          task.reply().next(new TxTask({method: 'undo from E2', status: 'ok'}, task['data']))
       }
     )
   }

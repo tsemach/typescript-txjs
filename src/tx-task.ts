@@ -1,10 +1,10 @@
-import { TxSinglePoint } from './tx-singlepoint';
+import { TxSingleSubject } from './tx-singlepoint';
 
 export class TxTask<T> {  
   head: T;
   data: any;
 
-  constructor(head: T, data={}, private _reply?: TxSinglePoint) {
+  constructor(head: T, data={}, private _reply?: TxSingleSubject) {
     this.head = head; 
     this.data = data;
   }
@@ -25,8 +25,10 @@ export class TxTask<T> {
     this.data = data;
   }
   
-  setReply(_reply: TxSinglePoint) {
+  setReply(_reply: TxSingleSubject) {
     this._reply = _reply;
+    
+    return this;
   }
 
   reply() {

@@ -4,15 +4,15 @@ const logger = createLogger('Job-Continue-Test');
 import 'mocha';
 import {assert, expect} from 'chai';
 
-import {TxTask} from '../../src/';
+import {TxTask, TxSinglePoint} from '../../src/';
 import {TxJob} from '../../src';
 import { TxJobExecutionId } from '../../src/';
 import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
 import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 
-import {C1Component} from './C1.component';
-import {C2Component} from './C2.component';
-import {C3Component} from './C3.component';
+import {S1Component} from './S1.component';
+import {S2Component} from './S2.component';
+import {S3Component} from './S3.component';
 import {E1Component} from './E1.component';
 import {E2Component} from './E2.component';
 import {E3Component} from './E3.component';
@@ -23,14 +23,15 @@ new TxJobServicesComponent().init();
 
 describe('Job Class - Continue', () => {
 
+    new S1Component();
+    new S2Component();
+    new S3Component();
+
   /**
    */
 
-  it('tx-job-continue-spec: check C1-C2-C3 upJSON with continue', (done) => {
-    logger.info('tx-job-continue-spec: check C1-C2-C3 upJSON with continue');
-    new C1Component();
-    new C2Component();
-    new C3Component();
+  it('tx-job-continue-spec: check S1-S2-S3 upJSON with continue', (done) => {
+    logger.info('tx-job-continue-spec: check S1-S2-S3 upJSON with continue');
     let uuid = short().new();
     let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};
 
@@ -38,13 +39,13 @@ describe('Job Class - Continue', () => {
     let from = {
       name: "GitHub",
       uuid: uuid,
-      block: "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
-      stack: "GITHUB::GIST::C2,GITHUB::GIST::C3",
-      trace: "GITHUB::GIST::C1",
+      block: "GITHUB::S1,GITHUB::S2,GITHUB::S3",
+      stack: "GITHUB::S2,GITHUB::S3",
+      trace: "GITHUB::S1",
       single: false,
       revert: false,
       error: false,
-      current: "GITHUB::GIST::C2",
+      current: "GITHUB::S2",
       executeUuid: executionId.uuid,
       sequence: executionId.sequence,
       services: TxJobServicesEmptyJSON
@@ -64,7 +65,7 @@ describe('Job Class - Continue', () => {
     const isCompletedSubscribed1 = job.getIsCompleted().subscribe(
       (data) => {
         logger.debug('[job-continue-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));        
-        expect(data['head']['method']).to.equal("from C3");
+        expect(data['head']['method']).to.equal("from S3");
         expect(data['head']['status']).to.equal("ok");
         isCompletedSubscribed1.unsubscribe();
 
@@ -82,9 +83,11 @@ describe('Job Class - Continue', () => {
 
   it('tx-job-continue-spec:error check continue error on E1-E2-E3 upJSON with continue', async () => {
     logger.info('tx-job-continue-spec:error check error on E1-E2-E3 upJSON with continue');
+    
     new E1Component();
     new E2Component();
     new E3Component();
+
     let uuid = short().new();
     let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};
 
@@ -98,7 +101,7 @@ describe('Job Class - Continue', () => {
       trace: "GITHUB::GIST::E1",
       single: false,
       revert: false,
-      error: true,
+      error: true,  
       current: "GITHUB::GIST::E2",
       executeUuid: executionId.uuid,
       sequence: executionId.sequence,
@@ -152,21 +155,19 @@ describe('Job Class - Continue', () => {
         //isOnErrorSubscribed.unsubscribe();
       }
     );
-
-    job.continue(new TxTask({
+    
+    job.continue((new TxTask({
         method: 'continue',
         status: ''
       },
       {something: 'more data here'})
-    );
+    ).setReply(new TxSinglePoint('job-1:' + job.uuid).tasks()));
 
   });
 
-  it('tx-job-continue-spec: check C1-C2-C3 toJSON with continue', (done) => {
-    logger.info('tx-job-continue-spec: check C1-C2-C3 toJSON with continue');
-    new C1Component();
-    new C2Component();
-    new C3Component();
+  it('tx-job-continue-spec: check S1-S2-S3 toJSON with continue', (done) => {
+    logger.info('tx-job-continue-spec: check S1-S2-S3 toJSON with continue');
+
     let uuid = short().new();
     let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};
 
@@ -174,13 +175,13 @@ describe('Job Class - Continue', () => {
     let from = {
       name: "GitHub",
       uuid: uuid,
-      block: "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
-      stack: "GITHUB::GIST::C2,GITHUB::GIST::C3",
-      trace: "GITHUB::GIST::C1",
+      block: "GITHUB::S1,GITHUB::S2,GITHUB::S3",
+      stack: "GITHUB::S2,GITHUB::S3",
+      trace: "GITHUB::S1",
       single: false,
       revert: false,
       error: false,
-      current: "GITHUB::GIST::C2",
+      current: "GITHUB::S2",
       executeUuid: executionId.uuid,
       sequence: executionId.sequence,
       services: TxJobServicesEmptyJSON
@@ -208,7 +209,7 @@ describe('Job Class - Continue', () => {
     const subscribed = job.getIsCompleted().subscribe(
       (task) => {        
         logger.info('[job-continue-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(task, undefined, 2));        
-        expect(task['head']['method']).to.equal("from C3");
+        expect(task['head']['method']).to.equal("from S3");
         expect(task['head']['status']).to.equal("ok");
         subscribed.unsubscribe();
         done();

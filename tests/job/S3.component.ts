@@ -30,11 +30,11 @@ export class S3Component {
 
     this.singlepoint.undos().subscribe(
       (task) => {
-          logger.info('[S3Component:undo] undo got task = ' + JSON.stringify(task, undefined, 2));
+          logger.info('[S3Component:undo] undo got task = ' + JSON.stringify(task.get(), undefined, 2));
           this.method = task['method'];
 
           // just send the reply to whom is 'setting' on this reply subject
-          this.singlepoint.reply().next(new TxTask({method: 'undo from S1', status: 'ok'}, task['data']))
+          task.reply().next(new TxTask({method: 'undo from S1', status: 'ok'}, task['data']))
       }
     );
 

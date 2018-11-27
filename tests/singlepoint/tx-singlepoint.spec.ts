@@ -1,12 +1,12 @@
 
 import createLogger from 'logging'; 
-const logger = createLogger('MountPoint-Test');
+const logger = createLogger('SinglePoint-Test');
 
 import 'mocha';
 import { expect } from 'chai';
 import { assert } from 'chai';
 
-import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
+import { TxSinglePointRegistry } from '../../src/tx-singlepoint-registry';
 import { TxTask } from '../../src/tx-task';
 import { TxSinglePoint } from '../../src/tx-singlepoint';
 
@@ -15,7 +15,7 @@ describe('Single Point Class', () => {
   it('tx-singlepoint.spec: simple subscribe tasks test', (done) => {
     logger.info('tx-singlepoint.spec: simple subscribe tasks test')
 
-    let singlepoint: TxSinglePoint = <TxSinglePoint>TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
+    let singlepoint: TxSinglePoint = <TxSinglePoint>TxSinglePointRegistry.instance.create('GITHUB::GIST::C1');
 
     singlepoint.tasks().subscribe(
       (task) => {
@@ -41,9 +41,9 @@ describe('Single Point Class', () => {
 
   it('tx-singlepoint.spec: singlepoint with reply subscribe tasks test', (done) => {
     logger.info('tx-singlepoint.spec: singlepoint with reply subscribe tasks test')
-
-    let recver: TxSinglePoint = <TxSinglePoint>TxMountPointRegistry.instance.create('GITHUB::RECVER');
-    let sender: TxSinglePoint = <TxSinglePoint>TxMountPointRegistry.instance.create('GITHUB::SENDER');
+    
+    let recver: TxSinglePoint = <TxSinglePoint>TxSinglePointRegistry.instance.create('GITHUB::RECVER_1');
+    let sender: TxSinglePoint = <TxSinglePoint>TxSinglePointRegistry.instance.create('GITHUB::SENDER_1');
 
     recver.tasks().subscribe(
       (task: TxTask<any>) => {
@@ -66,7 +66,7 @@ describe('Single Point Class', () => {
 
     sender.tasks().subscribe(
       (task) => {
-        logger.info('[GITHUB::SENDER] got task = ' + JSON.stringify(task, undefined, 2));
+        logger.info('[GITHUB::SENDER] got task = ' + JSON.stringify(task.get(), undefined, 2));
 
         let expected = {
           head: {name: "simple", type: "test"},
@@ -81,78 +81,7 @@ describe('Single Point Class', () => {
     recver.tasks().next(new TxTask(
       {name: 'sender', type: 'test'},
       {from: 'sender, more data here'},
-      sender
-      )      
-    )
-
-  });
-
-  it('tx-singlepoint.spec: multiple reciever of the same singlepoints test', (done) => {
-    logger.info('tx-singlepoint.spec: multiple singlepoints test')
-
-    let recver: TxSinglePoint = <TxSinglePoint>TxMountPointRegistry.instance.create('GITHUB::RECVER');
-    let sender: TxSinglePoint = <TxSinglePoint>TxMountPointRegistry.instance.create('GITHUB::SENDER');
-    let receivers = 0;
-
-    recver.tasks().subscribe(
-      (task: TxTask<any>) => {
-        logger.info('[GITHUB::RECVER] got task = ' + JSON.stringify(task.get(), undefined, 2));
-
-        let expected = {
-          head: {
-            name: "sender",
-            type: "test"
-          },
-          data: {
-            from: "sender, more data here"
-          }
-        }
-        assert.deepEqual(expected, task.get());
-
-        task.reply().next(new TxTask({name: "simple", type: "test"}, {from: "recver"}))        
-      }
-    )   
-
-    sender.tasks().subscribe(
-      (task) => {
-        logger.info('[GITHUB::SENDER] [1] got task = ' + JSON.stringify(task, undefined, 2));
-
-        let expected = {
-          head: {name: "simple", type: "test"},
-          data: {from: "recver"}
-        }
-        assert.deepEqual(expected, task.get());
-        
-        receivers++;        
-        if (receivers >= 2) {
-          logger.info('[GITHUB::SENDER] [1] receivers = ' + receivers);
-          done();
-        }
-      }
-    )
-
-    sender.tasks().subscribe(
-      (task) => {
-        logger.info('[GITHUB::SENDER] [2] got task = ' + JSON.stringify(task, undefined, 2));
-
-        let expected = {
-          head: {name: "simple", type: "test"},
-          data: {from: "recver"}
-        }
-        assert.deepEqual(expected, task.get());
-        
-        receivers++;        
-        if (receivers >= 2) {
-          logger.info('[GITHUB::SENDER] [2] receivers = ' + receivers);
-          done();
-        }
-      }
-    )
-
-    recver.tasks().next(new TxTask(
-      {name: 'sender', type: 'test'},
-      {from: 'sender, more data here'},
-      sender
+      sender.tasks()
       )      
     )
 
@@ -161,9 +90,9 @@ describe('Single Point Class', () => {
   it('tx-singlepoint.spec: multiple reciever listen on differnet singlepoints test', (done) => {
     logger.info('tx-singlepoint.spec: multiple singlepoints listen on differnet singlepoints test')
 
-    let recver: TxSinglePoint = <TxSinglePoint>TxMountPointRegistry.instance.create('GITHUB::RECVER');
-    let send_1: TxSinglePoint = <TxSinglePoint>TxMountPointRegistry.instance.create('GITHUB::SEND-1');
-    let send_2: TxSinglePoint = <TxSinglePoint>TxMountPointRegistry.instance.create('GITHUB::SEND-2');    
+    let recver: TxSinglePoint = <TxSinglePoint>TxSinglePointRegistry.instance.create('GITHUB::RECVER_3');
+    let send_1: TxSinglePoint = <TxSinglePoint>TxSinglePointRegistry.instance.create('GITHUB::SEND-1');
+    let send_2: TxSinglePoint = <TxSinglePoint>TxSinglePointRegistry.instance.create('GITHUB::SEND-2');    
 
     let send_1_ok = false;
     let send_2_ok = false;
@@ -256,8 +185,8 @@ describe('Single Point Class', () => {
       }
     )
 
-    recver.tasks().next(new TxTask(send_1_task.head, send_1_task.data, send_1));
-    recver.tasks().next(new TxTask(send_2_task.head, send_2_task.data, send_2));
+    recver.tasks().next(new TxTask(send_1_task.head, send_1_task.data, send_1.tasks()));
+    recver.tasks().next(new TxTask(send_2_task.head, send_2_task.data, send_2.tasks()));
 
   });
 

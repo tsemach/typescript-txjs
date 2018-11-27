@@ -340,7 +340,7 @@ export class TxJob {
   }
 
   async undoCB(data) {
-    logger.info(`[TxJob:undoCB] got reply from '${data['method']}' method, data = ${JSON.stringify(data, undefined, 2)}`);
+    logger.info(`[TxJob:undoCB] got reply from '${this.current.name}' method, data = ${JSON.stringify(data, undefined, 2)}`);
     logger.info(`[TxJob:undoCB] before shift to next task, stack.len = ${this.stack.length}`);
       
     if (this.stack.length > 0) {
@@ -355,6 +355,7 @@ export class TxJob {
         await TxJobRegistry.instance.persist(this);
       }
 
+      data.setReply(next.reply());
       next.undos().next(data);
       
       return;
@@ -370,7 +371,7 @@ export class TxJob {
     this.stack = [];
     
     switch (direction) {
-      case TxDirection.forward: this.stack = this.trace; break;
+      case TxDirection.forward:  this.stack = this.trace; break;
       case TxDirection.backward: this.stack = this.trace.reverse(); break;
     }
 

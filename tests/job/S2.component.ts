@@ -13,14 +13,14 @@ export class S2Component {
   constructor() {
     this.singlepoint.tasks().subscribe(
       (task) => {
-        logger.info('[S2Component:tasks] got task = ' + JSON.stringify(task, undefined, 2));          
+        logger.info('[S2Component:tasks] got task = ' + JSON.stringify(task.get(), undefined, 2));          
         this.method = task['method'];
 
         // just send the reply to whom is 'setting' on this reply subject
         task.reply().next(new TxTask({method: 'from S2', status: 'ok'}, task['data']))
       },
       (error) => {
-        logger.info('[S2Component:error] got error = ' + JSON.stringify(error, undefined, 2));
+        logger.info('[S2Component:error] got error = ' + JSON.stringify(error.get(), undefined, 2));
         this.method = error['method'];
 
         // just send the reply to whom is 'setting' on this reply subject
@@ -30,11 +30,11 @@ export class S2Component {
 
     this.singlepoint.undos().subscribe(
       (task) => {
-          logger.info('[S2Component:undo] undo got task = ' + JSON.stringify(task, undefined, 2));
+          logger.info('[S2Component:undo] undo got task = ' + JSON.stringify(task.get(), undefined, 2));
           this.method = task['method'];
 
           // just send the reply to whom is 'setting' on this reply subject
-          this.singlepoint.reply().next(new TxTask({method: 'undo from S2', status: 'ok'}, task['data']))
+          task.reply().next(new TxTask({method: 'undo from S2', status: 'ok'}, task['data']))
       }
     );
 

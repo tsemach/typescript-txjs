@@ -34,7 +34,7 @@ export class S1Component {
           this.method = task['method'];
 
           // just send the reply to whom is 'setting' on this reply subject
-          this.singlepoint.reply().next(new TxTask({method: 'undo from S1', status: 'ok'}, task['data']))
+          task.reply().next(new TxTask({method: 'undo from S1', status: 'ok'}, task['data']))
       }
     );
 
