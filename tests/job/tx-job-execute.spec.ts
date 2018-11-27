@@ -4,15 +4,15 @@ const logger = createLogger('Job-Execute-Test');
 import 'mocha';
 import {expect} from 'chai';
 
-import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
+import { TxSinglePointRegistry } from '../../src/tx-singlepoint-registry';
 import { TxJobExecutionOptions } from "../../src/tx-job-execution-options";
 import { TxTask } from '../../src/tx-task';
 import { TxJob } from '../../src/tx-job';
-import {TxJobExecutionId, TxJobRegistry} from "../../src";
+import { TxJobExecutionId, TxJobRegistry } from "../../src";
 
-import { C1Component } from './C1.component';
-import { C2Component } from './C2.component';
-import { C3Component } from './C3.component';
+import { S1Component } from './S1.component';
+import { S2Component } from './S2.component';
+import { S3Component } from './S3.component';
 import { Persist } from "./pesist-driver";
 
 import * as short from 'short-uuid';
@@ -21,7 +21,11 @@ import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 
 new TxJobServicesComponent().init();  
 
-describe('Job Class', () => {
+describe('Job Class Execute Test', () => {
+    new S1Component();
+    new S2Component();
+    new S3Component();
+    
   let a = 0;
   before(() => {
     return new Promise((resolve) => {
@@ -35,30 +39,26 @@ describe('Job Class', () => {
   /**
    */
 
-  it('tx-job-execute.spec: check running C1-C2-C3 job chain', (done) => {
-    logger.info('running: tx-job-execute.spec: check running C1-C2-C3 job chain');
+  it('tx-job-execute.spec: check running S1-S2-S3 job chain', (done) => {
+    logger.info('running: tx-job-execute.spec: check running S1-S2-S3 job chain');
 
     let persist = new Persist();
     TxJobRegistry.instance.setPersistDriver(persist);
 
-    new C1Component();
-    new C2Component();
-    new C3Component();
-    
     let job = new TxJob('job-1'); // or create through the TxJobRegistry
 
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::S1'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::S2'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::S3'));
 
     job.getIsCompleted().subscribe(
       (data) => {
         console.log('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
-        expect(data['head']['method']).to.equal("from C3");
+        expect(data['head']['method']).to.equal("from S3");
         expect(data['head']['status']).to.equal("ok");
-        expect(job.current.name).to.equal('GITHUB::GIST::C3');
+        expect(job.current.name).to.equal('GITHUB::S3');
         expect(persist.read(job.getUuid()).uuid).to.equal(job.getUuid());
-        expect(persist.read(job.getUuid()).current).to.equal('GITHUB::GIST::C3');
+        expect(persist.read(job.getUuid()).current).to.equal('GITHUB::S3');
 
         done();
       });                
@@ -75,12 +75,9 @@ describe('Job Class', () => {
     );        
   });
 
-  it('tx-job-continue-spec: check C1-C2-C3 upJSON with execute', (done) => {
-    logger.info('running: tx-job-execute.spec: check C1-C2-C3 upJSON with execute');
+  it('tx-job-continue-spec: check S1-S2-S3 upJSON with execute', (done) => {
+    logger.info('running: tx-job-execute.spec: check S1-S2-S3 upJSON with execute');
 
-    new C1Component();
-    new C2Component();
-    new C3Component();
     let uuid = short().new();
     let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};
 
@@ -88,8 +85,8 @@ describe('Job Class', () => {
     let from = {
       name: "GitHub",
       uuid: uuid,
-      block: "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
-      stack: "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
+      block: "GITHUB::S1,GITHUB::S2,GITHUB::S3",
+      stack: "GITHUB::S1,GITHUB::S2,GITHUB::S3",
       trace: "",
       single: false,
       revert: false,
@@ -114,7 +111,7 @@ describe('Job Class', () => {
     job.getIsCompleted().subscribe(
       (data) => {
         logger.info('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));        
-        expect(data['head']['method']).to.equal("from C3");
+        expect(data['head']['method']).to.equal("from S3");
         expect(data['head']['status']).to.equal("ok");
 
         done();

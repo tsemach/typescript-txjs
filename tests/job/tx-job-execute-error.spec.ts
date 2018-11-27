@@ -9,7 +9,7 @@ import { TxMountPointRegistry } from '../../src';
 import { TxJobExecutionOptions } from '../../src';
 import { TxTask } from '../../src';
 import { TxJob } from '../../src';
-import {TxJobExecutionId, TxJobRegistry} from "../../src";
+import { TxJobExecutionId, TxJobRegistry } from "../../src";
 import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
 

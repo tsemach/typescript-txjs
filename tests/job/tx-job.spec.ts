@@ -5,13 +5,13 @@ import {expect} from 'chai';
 import {TxJob} from '../../src/tx-job';
 import {TxTask} from '../../src/tx-task';
 import {TxJobExecutionId} from "../../src";
-import {TxMountPointRegistry} from '../../src/tx-mountpoint-registry';
+import { TxSinglePointRegistry } from '../../src/tx-singlepoint-registry';
 import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
 import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 
-import {C1Component} from './C1.component';
-import {C2Component} from './C2.component';
-import {C3Component} from './C3.component';
+import {S1Component} from './S1.component';
+import {S2Component} from './S2.component';
+import {S3Component} from './S3.component';
 import * as short from 'short-uuid';
 
 const logger = createLogger('Job-Test');
@@ -23,17 +23,18 @@ describe('Job Class', () => {
   /**
    */
 
-  it('check running C1-C2-C3 job chain', () => {
-    
-    new C1Component();
-    new C2Component();
-    new C3Component();
+  it('tx-job.spec.ts: check running S1-S2-S3 job chain', () => {
+    logger.info('tx-job.spec.ts: check running S1-S2-S3 job chain')
+
+    new S1Component();
+    new S2Component();
+    new S3Component();
     
     let job = new TxJob('Job-1'); // or create througth the TxJobRegistry
 
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::S1'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::S2'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::S3'));
 
     job.getIsCompleted().subscribe(
       (data) => {
@@ -51,56 +52,26 @@ describe('Job Class', () => {
 
   });
 
-  it('check C1-C2-C3 toJSON begining', () => {
-    new C1Component();
-    new C2Component();
-    new C3Component();
+  it('check S1-S2-S3 toJSON begining', () => {
 
     let job = new TxJob('GitHub'); // or create througth the TxJobRegistry
 
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::S1'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::S2'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::S3'));
 
     console.log('toJSON = ' + JSON.stringify(job.toJSON(), undefined, 2));
 
     let json = job.toJSON();
 
     expect(json.name).to.equal('GitHub');
-    expect(json.stack).to.equal('GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3');
-    expect(json.block).to.equal("GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3");
+    expect(json.stack).to.equal('GITHUB::S1,GITHUB::S2,GITHUB::S3');
+    expect(json.block).to.equal("GITHUB::S1,GITHUB::S2,GITHUB::S3");
     expect(json.trace).to.equal('');
     expect(json.current).to.equal('');       
   });
 
-  it('check C1-C2-C3 toJSON middle', () => {
-    let C1 = new C1Component();
-    let C2 = new C2Component();
-    let C3 = new C3Component();
-
-    let job = new TxJob('GitHub'); // or create througth the TxJobRegistry
-
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
-    
-    console.log('toJSON = ' + JSON.stringify(job.toJSON(), undefined, 2));
-
-    // TODO: need to add step - running just one step
-    let json = job.toJSON();
-
-    expect(json.name).to.equal('GitHub');
-    expect(json.stack).to.equal('GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3');
-    expect(json.block).to.equal("GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3");
-    expect(json.single).to.equal(false);
-    expect(json.trace).to.equal('');
-    expect(json.current).to.equal('');    
-  });
-
-  it('check C1-C2-C3 upJSON with execute', (done) => {
-    new C1Component();
-    new C2Component();
-    new C3Component();
+  it('check S1-S2-S3 upJSON with execute', (done) => {
     let uuid = short().new();
     let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};
 
@@ -108,8 +79,8 @@ describe('Job Class', () => {
     let from = {
       name: "GitHub",
       uuid: uuid,
-      block: "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
-      stack: "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
+      block: "GITHUB::S1,GITHUB::S2,GITHUB::S3",
+      stack: "GITHUB::S1,GITHUB::S2,GITHUB::S3",
       trace: "",
       single: false,
       revert: false,
@@ -134,7 +105,7 @@ describe('Job Class', () => {
     job.getIsCompleted().subscribe(
       (data) => {
         logger.info('[job-test:upJSON] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));        
-        expect(data['head']['method']).to.equal("from C3");
+        expect(data['head']['method']).to.equal("from S3");
         expect(data['head']['status']).to.equal("ok"); 
         done();       
       });                
@@ -148,10 +119,7 @@ describe('Job Class', () => {
     
   });
 
-  it('check C1-C2-C3 upJSON with continue', () => {
-    new C1Component();
-    new C2Component();
-    new C3Component();
+  it('check S1-S2-S3 upJSON with continue', () => {
 
     let uuid = short().new();
     let executionId = {uuid: short().new(), sequence: 1};
@@ -160,13 +128,13 @@ describe('Job Class', () => {
     let from = {
       name: "GitHub",
       uuid: uuid,
-      block: "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
-      stack: "GITHUB::GIST::C2,GITHUB::GIST::C3",
-      trace: "GITHUB::GIST::C1",
+      block: "GITHUB::S1,GITHUB::S2,GITHUB::S3",
+      stack: "GITHUB::S2,GITHUB::S3",
+      trace: "GITHUB::S1",
       single: false,
       revert: false,
       error: false,
-      current: "GITHUB::GIST::C2",
+      current: "GITHUB::S2",
       executeUuid: executionId.uuid,
       sequence: executionId.sequence,
       services: TxJobServicesEmptyJSON
@@ -192,10 +160,9 @@ describe('Job Class', () => {
     
   });
 
-  it('check C1-C2-C3 upJSON with continue', () => {
-    new C1Component();
-    new C2Component();
-    new C3Component();
+  it('check S1-S2-S3 upJSON with continue', () => {
+    logger.info('check S1-S2-S3 upJSON with continue')
+
     let uuid = short().new();
     let executionId = {uuid: short().new(), sequence: 1};
 
@@ -203,13 +170,13 @@ describe('Job Class', () => {
     let from = {
       name: "GitHub",
       uuid: uuid,
-      block: "GITHUB::GIST::C1,GITHUB::GIST::C2,GITHUB::GIST::C3",
-      stack: "GITHUB::GIST::C2,GITHUB::GIST::C3",
-      trace: "GITHUB::GIST::C1",
+      block: "GITHUB::S1,GITHUB::S2,GITHUB::S3",
+      stack: "GITHUB::S2,GITHUB::S3",
+      trace: "GITHUB::S1",
       single: false,
       revert: false,
       error: false,
-      current: "GITHUB::GIST::C2",
+      current: "GITHUB::S2",
       executeUuid: executionId.uuid,
       sequence: executionId.sequence,
       services: TxJobServicesEmptyJSON
@@ -238,15 +205,12 @@ describe('Job Class', () => {
   });
   
   it('tx-job-spec: check job release', () => {
-    new C1Component();
-    new C2Component();
-    new C3Component();
-
+   
     let job = new TxJob('job-1');
 
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::S1'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::S2'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::S3'));
     
     job.release();
 

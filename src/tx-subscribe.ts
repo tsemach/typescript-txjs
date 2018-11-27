@@ -1,13 +1,16 @@
 
-export type TxCallback = (any: any) => void;
+//export type TxCallback = (any: any) => void;
+import { TxCallback } from './tx-callback';
 
 export class TxSubscribe {
   dataCB: TxCallback = null;
   errorCB: TxCallback = null;
+  completeCB: TxCallback
 
-  subscribe(dataCB: (any: any) => void, errorCB?: (any: any) => void) {
+  subscribe(dataCB: (any: any) => void, errorCB?: (any: any) => void, completeCB?: (any?: any) => void) {
     this.dataCB = dataCB;
     this.errorCB = errorCB;
+    this.completeCB = completeCB;
 
     return this;
   }

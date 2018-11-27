@@ -1,0 +1,1 @@
+export type TxCallback = (any: any) => void;
