@@ -21,5 +21,4 @@ export * from './tx-monitor-server-application'
 export * from './tx-monitor-server.component'
 export * from './tx-singlepoint-registry'
 export * from './tx-singlepoint'
-
-
+export * from './tx-subscribe'
