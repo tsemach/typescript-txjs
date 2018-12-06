@@ -180,14 +180,14 @@ export class TxJob {
 
       this.waiting.add(next.name.toString());
       data.setReply(txMountPoint.reply());
-      
+
       setTimeout( async () => {
         next.tasks().next(data)
       }, 0); 
 
       logger.info(`[TxJob:subscribe] [${this.name}] end of subscribe, ${next.name}`);
 
-      } while ( ! next.isWait() )
+    } while ( ! next.isWait() )
   }
 
   async errorCB(data,  txMountPoint: TxMountPoint) {
