@@ -4,7 +4,7 @@ import { TxMountPoint } from "./tx-mountpoint";
 
 export class TxSingleSubject extends TxSubscribe {
   private methods = new Map<string, any>();
-    isSubscribe = false;
+  isSubscribe = false;
 
   constructor() {
     super();
@@ -57,7 +57,6 @@ export class TxSinglePoint implements TxMountPoint {
    */
   reply() {
     throw new Error("reply is not allow on TxSinglePoint");
-    //return this._tasks;
   }
 
   /**

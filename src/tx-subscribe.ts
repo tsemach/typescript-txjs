@@ -1,13 +1,15 @@
-
-//export type TxCallback = (any: any) => void;
 import { TxCallback } from './tx-callback';
+import { TxMountPoint } from './tx-mountpoint';
 
 export class TxSubscribe {
   dataCB: TxCallback = null;
   errorCB: TxCallback = null;
-  completeCB: TxCallback
+  completeCB: TxCallback;
 
-  subscribe(dataCB: (any: any) => void, errorCB?: (any: any) => void, completeCB?: (any?: any) => void) {
+  constructor() {
+  }
+
+  subscribe(dataCB: TxCallback, errorCB?: TxCallback, completeCB?: (any?: any) => void) {
     this.dataCB = dataCB;
     this.errorCB = errorCB;
     this.completeCB = completeCB;
@@ -31,4 +33,5 @@ export class TxSubscribe {
     this.dataCB = null;
     this.errorCB = null;
   }
+
 }

@@ -50,7 +50,7 @@ describe('S2S: Cross Service Jobs', () => {
         console.log('[job-services-s2s-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
         expect(data['head']['method']).to.equal("from C3");
         expect(data['head']['status']).to.equal("ok");
-        expect(job.current.name).to.equal('GITHUB::GIST::C3');
+        expect(job.runit.name).to.equal('GITHUB::GIST::C3');
         isCompletedTxJobervicesS2SSpec1.unsubscribe();
 
         done();

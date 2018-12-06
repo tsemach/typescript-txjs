@@ -1,9 +1,10 @@
+import { TxMountPoint } from './tx-mountpoint';
 import { TxSingleSubject } from './tx-singlepoint';
 
 export class TxTask<T> {  
   head: T;
   data: any;
-
+  
   constructor(head: T, data={}, private _reply?: TxSingleSubject) {
     this.head = head; 
     this.data = data;

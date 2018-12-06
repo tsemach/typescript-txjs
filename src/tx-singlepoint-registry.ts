@@ -4,7 +4,7 @@ const logger = createLogger('MountPointRegistry');
 
 import { TxRegistry } from './tx-registry';
 import { TxMountPoint } from './tx-mountpoint';
-import { TxSinglePoint } from './tx-singlepoint';
+import { TxSinglePointRxJS } from './tx-singlepoint-rxjs';
 
 export class TxSinglePointRegistry extends TxRegistry<TxMountPoint, string | Symbol> {
   private static _instance: TxSinglePointRegistry;
@@ -18,7 +18,7 @@ export class TxSinglePointRegistry extends TxRegistry<TxMountPoint, string | Sym
   }
 
   create(name: string | Symbol): TxMountPoint {
-    const sp = new TxSinglePoint(name);
+    const sp = new TxSinglePointRxJS(name);
 
     if (typeof name === 'string') {
       if (name === undefined || name.length === 0) {
