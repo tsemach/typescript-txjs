@@ -7,9 +7,8 @@ import { expect } from 'chai';
 import { assert } from 'chai';
 
 import { TxSinglePointRegistry } from '../../src/tx-singlepoint-registry';
-import { TxMountPoint } from './../../src/tx-mountpoint';
 import { TxTask } from '../../src/tx-task';
-import { TxJob } from '../../src/tx-job';
+import { TxSinglePoint } from '../../src/tx-singlepoint';
 
 describe('Single Point Class', () => {
 
@@ -37,34 +36,6 @@ describe('Single Point Class', () => {
       }
     )   
     singlepoint.tasks().next(new TxTask({name: 'simple', type: 'test'}, {from: 'tsemach, more data here'}))
-
-  });
-
-  it('tx-singlepoint.spec: simple subscribe tasks test with TxMountPoint type', (done) => {
-    logger.info('tx-singlepoint.spec: simple subscribe tasks test')
-
-    let singlepoint = TxSinglePointRegistry.instance.create<TxMountPoint>('GITHUB::GIST::C2');
-
-    singlepoint.tasks().subscribe(
-      (task, mountpoint: TxMountPoint) => {
-        logger.info('[GITHUB::GIST::C2:tasks] got task = ' + JSON.stringify(task, undefined, 2));
-        logger.info('[GITHUB::GIST::C2:tasks] mountpoint = ' + mountpoint.name);
-
-        let expected = {
-          head: {
-            name: "simple",
-            type: "test"
-          },
-          data: {
-            from: "tsemach, more data here"
-          }
-        }
-        assert.deepEqual(expected, task.get());
-        
-        done();
-      }
-    )   
-    singlepoint.tasks().next(new TxTask({name: 'simple', type: 'test'}, {from: 'tsemach, more data here'}), singlepoint)
 
   });
 

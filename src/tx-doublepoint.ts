@@ -11,8 +11,8 @@ export class TxDoublePoint implements TxMountPoint {
   private _name;
   private _job: TxJob = null;
 
-  sender: TxSinglePoint; // mount point use to send from me to others
-  recver: TxSinglePoint; // mount point use to recv from others to me  
+  sender: TxSinglePoint<TxMountPoint>; // mount point use to send from me to others
+  recver: TxSinglePoint<TxMountPoint>; // mount point use to recv from others to me  
 
   _options = defaultComponentOptions;
 
@@ -24,8 +24,9 @@ export class TxDoublePoint implements TxMountPoint {
       fullname = _sender.name + ':' + _suffix
     }
 
-    this.recver = new TxSinglePoint(fullname);
-    this.sender = _sender    
+    this.sender = _sender
+    this.recver = new TxSinglePoint<TxMountPoint>(fullname);
+    this.recver.setFrom(this)
   }
 
   get name() {

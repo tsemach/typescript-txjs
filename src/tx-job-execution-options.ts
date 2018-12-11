@@ -27,6 +27,17 @@ export interface TxJobExecutionOptions {
   }
 }
 
+let defaultExecutionOptions: TxJobExecutionOptions = {
+  "persist": {
+    "ison": false,
+    "destroy": false
+  },
+  execute: {
+    record: false
+  }
+} as TxJobExecutionOptions;
+export { defaultExecutionOptions };
+
 export class TxJobExecutionOptionsChecker {
   constructor() {
   }

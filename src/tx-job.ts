@@ -14,7 +14,7 @@ import { TxJobRegistry } from './tx-job-resgitry';
 import { TxJobJSON } from "./tx-job-json";
 import { TxTask } from "./tx-task";
 import { TxJobComponentOptions, defaultComponentOptions } from './tx-job-component-options';
-import { TxJobExecutionOptions, TxJobExecutionOptionsChecker } from "./tx-job-execution-options";
+import { TxJobExecutionOptions, TxJobExecutionOptionsChecker, defaultExecutionOptions } from "./tx-job-execution-options";
 import { TxRecordPersistAdapter, TxRecordIndexSave } from "./tx-record-persist-adapter";
 import { TxJobExecutionId } from "./tx-job-execution-id";
 import { TxJobServices } from './tx-job-services';
@@ -27,16 +27,15 @@ export const enum TxDirection {
   backward,
 }
 
-let defaultExecutionOptions: TxJobExecutionOptions = {
-  "persist": {
-    "ison": false,
-    "destroy": false
-  },
-  execute: {
-    record: false
-  }
-} as TxJobExecutionOptions;
-
+// let defaultExecutionOptions: TxJobExecutionOptions = {
+//   "persist": {
+//     "ison": false,
+//     "destroy": false
+//   },
+//   execute: {
+//     record: false
+//   }
+// } as TxJobExecutionOptions;
 
 // class CBWrapper {
 //   num = Math.random();
@@ -61,10 +60,10 @@ let defaultExecutionOptions: TxJobExecutionOptions = {
 // }
 
 export class TxJob {  
-  isCompleted = new TxSubscribe();  // notify when the whole execution is completed.
-  isStopped = new Subject();        // notify when execution reach to it's run-until component.
-  onComponent = new TxSubscribe();  // notify the world on any coming in subscribe callback (reply from component).
-  onError = new Subject();          // notify the world on any coming in subscribe callback (reply from component).
+  isCompleted = new TxSubscribe<TxJob>();   // notify when the whole execution is completed.
+  isStopped = new Subject();                // notify when execution reach to it's run-until component.
+  onComponent = new TxSubscribe<TxJob>();   // notify the world on any coming in subscribe callback (reply from component).
+  onError = new Subject();                  // notify the world on any coming in subscribe callback (reply from component).
 
   uuid = uuid.new();
 
@@ -124,7 +123,7 @@ export class TxJob {
     }
 
     if (this.isFinish()) {
-      logger.info(`[TxJob:subscribe] [${this.name}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}`);
+      logger.info(`[TxJob:subscribe] [${this.name}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}, waiting.size = ${this.waiting.size}`);
       this.finish(data);
 
       return;
@@ -231,13 +230,13 @@ export class TxJob {
 
   subscribe(txMountPoint: TxMountPoint) {        
     const subscribed = txMountPoint.reply().subscribe(
-      async (task) => {        
+      async (task, mountpoint) => {        
         // DELETE this ------------------------------------------------------------------------------------------
-        logger.info(`DEPRECATED: IN subscribe: IN data CALLBACK  txMountPoint = ${txMountPoint.name.toString()}`);
+        logger.info(`DEPRECATED: IN subscribe: IN data CALLBACK  txMountPoint = ${mountpoint.name.toString()}`);
         logger.info(`DEPRECATED: IN subscribe: IN data CALLBACK  txMountPoint = ${JSON.stringify(task.get())}`);
         //-------------------------------------------------------------------------------------------------------
 
-        await this.subscribeCB(task, txMountPoint);
+        await this.subscribeCB(task, mountpoint);
       },
       async (error) => {
         await this.errorCB(error, txMountPoint);
@@ -346,7 +345,7 @@ export class TxJob {
 
     } while( ! this.current.isWait() );
   
-    logger.info(`[TxJob:execute] [${this.name}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}`);
+    logger.info(`[TxJob:execute] [${this.name}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}, waiting.size = ${this.waiting.size}`);
   } 
 
   async continue(data, options: TxJobExecutionOptions = defaultExecutionOptions) {
@@ -575,7 +574,7 @@ export class TxJob {
 
     if (notification) {
       this.notify(data);
-      this.isCompleted.next(data);
+      this.isCompleted.next(data, this);
     }
   }
   
