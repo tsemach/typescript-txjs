@@ -53,7 +53,7 @@ export class TxJobServicesComponent {
     // subscribe to incoming messages from other services from qeueu  
     logger.info(`[(${__name}):${__method}] register on [${TxJobRegistry.instance.getServiceName()}]=[${TxNames.JOB_SERVICE}`);
 
-    await this.queuepoint.queue().register(TxJobRegistry.instance.getServiceName(), TxNames.JOB_SERVICE);
+    await this.queuepoint.queue().listen(TxJobRegistry.instance.getServiceName(), TxNames.JOB_SERVICE);
     await this.queuepoint.queue().subscribe(
       async (request) => {        
         let service = JSON.parse(request);

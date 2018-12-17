@@ -16,7 +16,6 @@ import "reflect-metadata";
 
 import { TxRoutePointRegistry } from '../../src/';
 import { TxConnector } from "../../src/";
-import { TxConnectorRabbitMQ } from "../../src/tx-connector-rabbitmq";
 import { TxConnectorExpress } from "../../src/tx-connector-express";
 
 @injectable()
@@ -27,7 +26,7 @@ export class TxConnectorNoDefaultExpress implements TxConnector {
   constructor() {
 
   }
-  register(service: any, route: any) {
+  listen(service: any, route: any) {
     console.log(`TxConnectorNoDefaultExpress: ${service}-${route}-${this.id}`);
   }
 
@@ -52,8 +51,8 @@ export class TxConnectorNoDefaultExpress implements TxConnector {
 
 describe('Registry Classes - TxRoutePointRegitry', () => {
 
-  it('tx-routepoint.spec: check creation of TxQueuePoint with default RabbitMQ connector injection', async () => {
-    logger.info('tx-routepoint.spec: check creation of TxQueuePoint with default RabbitMQ connector injection');
+  it('tx-routepoint.spec: check creation of TxRoutePoint with default TxConnectorExpress connector injection', async () => {
+    logger.info('tx-routepoint.spec: check creation of TxRoutePoint with default TxConnectorExpress connector injection');
 
     const RP1 = TxRoutePointRegistry.instance.route('GITHUB::API::AUTH');
     const RP2 = TxRoutePointRegistry.instance.route('GITHUB::API::READ');
@@ -61,34 +60,8 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
     expect(RP1.name).to.equal('GITHUB::API::AUTH');
     expect(RP2.name).to.equal('GITHUB::API::READ');
 
-    await RP1.route().register('CP1', 'tasks:register');
-    await RP2.route().register('CP2', 'tasks:register');
-
-    let set = new Set<string>();
-    set.add((<TxConnectorRabbitMQ>RP1.route()).id);
-    set.add((<TxConnectorRabbitMQ>RP2.route()).id);
-
-    // make sure they all the same UUIDs, because the connector is singleton.
-    expect(set.size).to.equal(1);
-
-    // make sure they all valid UUID
-    assert(isUUID((<TxConnectorRabbitMQ>RP1.route()).id));
-    assert(isUUID((<TxConnectorRabbitMQ>RP2.route()).id));
-
-    RP1.route().close();
-  });
-
-  it('tx-routepoint.spec: check creation of TxRoutePoint with default Express connector injection', () => {
-    logger.info('tx-routepoint.spec: check creation of TxRoutePoint with default Express connector injection');
-
-    const RP1 = TxRoutePointRegistry.instance.route('GITHUB::API::AUTH');
-    const RP2 = TxRoutePointRegistry.instance.route('GITHUB::API::READ');
-
-    expect(RP1.name).to.equal('GITHUB::API::AUTH');
-    expect(RP2.name).to.equal('GITHUB::API::READ');
-
-    RP1.route().register('CP1', 'tasks:register');
-    RP2.route().register('CP2', 'tasks:register');
+    await RP1.route().listen('CP1', 'tasks:listen');
+    await RP2.route().listen('CP2', 'tasks:listen');
 
     let set = new Set<string>();
     set.add((<TxConnectorExpress>RP1.route()).id);
@@ -100,6 +73,8 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
     // make sure they all valid UUID
     assert(isUUID((<TxConnectorExpress>RP1.route()).id));
     assert(isUUID((<TxConnectorExpress>RP2.route()).id));
+
+    RP1.route().close();
   });
 
   it('tx-routepoint.spec: check creation of TxRoutePoint with Express connector injection', () => {
@@ -113,8 +88,8 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
     expect(RP1.name).to.equal('GITHUB::API::AUTH');
     expect(RP2.name).to.equal('GITHUB::API::READ');
 
-    RP1.route().register('CP1', 'tasks:register');
-    RP2.route().register('CP2', 'tasks:register');
+    RP1.route().listen('CP1', 'tasks:listen');
+    RP2.route().listen('CP2', 'tasks:listen');
 
     let set = new Set<string>();
     set.add((<TxConnectorNoDefaultExpress>RP1.route()).id);
@@ -128,8 +103,8 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
     assert(isUUID((<TxConnectorNoDefaultExpress>RP2.route()).id));
   });
 
-  it('tx-routepoint.spec: check calling to subscribe on TxQueuePoint with RabbitMQ', (done) => {
-    logger.info('tx-routepoint.spec: check calling to subscribe on TxQueuePoint with RabbitMQ');
+  it('tx-routepoint.spec: check calling to subscribe on TxRoutePoint with Express', (done) => {
+    logger.info('tx-routepoint.spec: check calling to subscribe on TxRoutePoint with Express');
 
     TxRoutePointRegistry.instance.setDriver(TxConnectorNoDefaultExpress);
 
@@ -139,24 +114,16 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
     expect(RP1.name).to.equal('GITHUB::API::AUTH');
     expect(RP2.name).to.equal('GITHUB::API::READ');
 
-    RP1.route().register('service-a', 'tasks.component')
+    RP1.route().listen('service-a', 'tasks.component')
 
     RP1.route().subscribe((data) => {
       console.log("[RP1:subscribe] data = " + JSON.stringify(data, undefined, 2));
+      assert.deepEqual({from: 'service-a', data: 'data'}, data)
+      
       done();
     });
 
     RP1.route().next('service-a', 'tasks.#', {from: 'service-a', data: 'data'});
-
-  });
-
-  it('tx-routepoint.spec: just exit', (done) => {
-    logger.info('tx-routepoint.spec: just exit');
-
-    done();
-    setTimeout(() => {
-      process.exit(0);
-    }, 2000)
 
   });
 

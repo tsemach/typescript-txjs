@@ -63,7 +63,6 @@ describe('tx-monitor-server.spec.ts: Monitor Server Tests', () => {
     });
     
     mp.tasks().next(new TxTask<TxMonitorServerTaskHeader>({method: 'start'}, {host: 'localhost', port: port}));
-    //TxMonitor.runBuiltInServer('localhost', port);
   }).timeout(10000);
 
   it('tx-monitor-server.spec.ts: Monitor Server - Server Close Test', async (done) => {
@@ -97,41 +96,3 @@ describe('tx-monitor-server.spec.ts: Monitor Server Tests', () => {
   }).timeout(5000);
 
 });
-
-
-// async function run() {
-//   logger.info('[run] example of using internal built in monitor server');
-
-//   // define the job
-//   let job = new TxJob('job-1'); // or create through the TxJobRegistry
-
-//   job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
-//   job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
-
-//   let mp = TxMountPointRegistry.instance.get('RX-TXJS::MONITOR::SERVER');
-
-//   mp.reply().subscribe(async (task) => {
-//     logger.info('got status from monitor: ', task);
-//     await waitOn({
-//       resources: ['http://localhost:3002/rx-txjs/monitor'],
-//       timeout: 10000,
-//     });
-
-//     superagent
-//       .open()
-//       .get('/monitor')
-//       .then(res => {
-//         console.log("SUPERAGENT res  = ", res);      
-//       })
-//       .catch(err => {      
-//         console.log("SUPERAGENT ERROR  = ", err);      
-//       });
-//   });
-//   mp.tasks().next(new TxTask<TxMonitorServerTaskHeader>({method: 'start'}, {host: 'localhost', port: 3002}));
-// }
-
-// logger.info('goint to monitor built in server on 3001 ..');
-// logger.info('');
-
-// run();
-

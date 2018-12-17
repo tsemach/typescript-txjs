@@ -25,7 +25,7 @@ export class TxConnectorNoDefaultRabbitMQ implements TxConnector {
 
   }
 
-  register(service: any, route: any) {
+  listen(service: any, route: any) {
     console.log(`TxConnectorNoDefaultRabbitMQ: ${service}-${route}-${this.id}`);
   }
 
@@ -57,7 +57,7 @@ export class TxConnectorNoDefaultExpress implements TxConnector {
   constructor() {
 
   }
-  register(service: any, route: any) {
+  listen(service: any, route: any) {
     console.log(`TxConnectorNoDefaultExpress: ${service}-${route}-${this.id}`);
   }
 

@@ -8,16 +8,9 @@ import { TxTYPES } from "./tx-injection-types";
 export class TxRoutePoint {
   @inject(TxTYPES.TxConnector) private _route: TxConnector;
   @inject(TxTYPES.TxPointName) private _name: string | Symbol = '';
-
-  //constructor(private _name: string | Symbol = '') {
+  
   constructor() {
   }
-
-  // set name (_name: string | Symbol) {
-  //   if (this._name === '') {
-  //     this._name = _name;
-  //   }
-  // }
 
   get name() {
     return this._name;

@@ -27,7 +27,6 @@ export class TxMonitorServerApplication {
 
   // configure express middleware.
   private middleware(): void {
-    //this.express.use(logger('dev'));
     this.express.use(cors());
     this.express.use(bodyParser.json());
     this.express.use(bodyParser.urlencoded({extended: false}));
@@ -35,7 +34,7 @@ export class TxMonitorServerApplication {
 
   /**
    *
-   * @param where - thed of which the service is route (regular express path)
+   * @param where - the path of which the service is route (regular express path)
    * @param service - a class which implement this route
    */
   register(where, service) {    
@@ -52,6 +51,7 @@ export class TxMonitorServerApplication {
   close() {
     this.server.close();
   }
+  
 }
 
 // export default // let application = new Application();

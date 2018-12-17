@@ -6,7 +6,7 @@ import { TxRegistry } from './tx-registry';
 import { TxRoutePoint } from "./tx-routepoint";
 import { TxTYPES } from "./tx-injection-types";
 import { TxConnectorExpress } from "./tx-connector-express";
-import { TxRegistryContainer } from "./tx-registry-container";
+import { TxRegistryContainer, TxRegistryContainerScopeEnum } from "./tx-registry-container";
 
 export class TxRoutePointRegistry extends TxRegistry<TxRoutePoint, string | Symbol> {
   private static _instance: TxRoutePointRegistry;
@@ -26,7 +26,6 @@ export class TxRoutePointRegistry extends TxRegistry<TxRoutePoint, string | Symb
 
   route(name: string | Symbol) {
     const cp = this.routeContainer.get(name);
-    //cp.name = name;
 
     if (typeof name === 'string') {
       if (name === undefined || name.length === 0) {
@@ -41,7 +40,11 @@ export class TxRoutePointRegistry extends TxRegistry<TxRoutePoint, string | Symb
     return this.add(name, cp);
   }
 
+  /**
+   * TxRegistryContainerScopeEnum.TRANSIENT - mean create new instence on every get.
+   * @param type 
+   */
   setDriver(type) {
-    this.routeContainer.setDriver(type);
+    this.routeContainer.setDriver(type, TxRegistryContainerScopeEnum.TRANSIENT);
   }
 }
