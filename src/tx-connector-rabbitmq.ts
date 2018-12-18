@@ -85,7 +85,7 @@ export class TxConnectorRabbitMQ implements TxConnector {
     this.errorCB(data.content.toString());
   }
 
-  close() {
+  close(service: string) {
     this.broker.close();
   }
 }

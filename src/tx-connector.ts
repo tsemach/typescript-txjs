@@ -7,5 +7,5 @@ export interface TxConnector {
   listen(service, route);
   next(service: string, route: string, data: any);  
   error(service: string, route: string, data: any);  
-  close();
+  close(service: string);
 }

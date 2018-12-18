@@ -6,15 +6,16 @@ import "reflect-metadata";
 
 import * as request from 'request-promise';
 
-import * as uuid from 'uuid/v4';
-import * as express from 'express';
-import * as bodyParser from 'body-parser';
-import * as cors from 'cors';
+// import * as uuid from 'uuid/v4';
+// import * as express from 'express';
+// import * as bodyParser from 'body-parser';
+// import * as cors from 'cors';
 
 import { TxCallback } from './tx-callback';
 import { TxConnector } from "./tx-connector"
 import { TxConnectorExpressService } from './tx-connector-express-service'
 import { TxConnectorExpressConnection } from './tx-connector-express-connection';
+import { TxConnectorExpressListener } from './tx-connector-express-listener';
 
 /**
  * C2C - part of component-2-component communication.
@@ -24,58 +25,48 @@ import { TxConnectorExpressConnection } from './tx-connector-express-connection'
 export class TxConnectorExpress implements TxConnector {
   
   private connection = new TxConnectorExpressConnection();
-  private service: TxConnectorExpressService;
-  private express: express.Application;
-  private server: any;
+  private listners = new Map<string, TxConnectorExpressListener>()
 
-  id = uuid();
-
-  constructor() {
-    this.service = new TxConnectorExpressService(this);
-    this.express = express();
-    this.middleware();    
+  constructor() {        
   }
 
-    // configure express middleware.
-  private middleware(): void {
-    this.express.use(cors());
-    this.express.use(bodyParser.json());
-    this.express.use(bodyParser.urlencoded({extended: false}));
+  private getListener(service: string) {  
+
+    if (this.listners.has(service)) {
+      return this.listners.get(service);
+    }
+
+    let listener = new TxConnectorExpressListener();    
+    this.listners.set(service, listener);
+
+    return listener;
   }
-  
+
   /**
+   * one listener is per port, on one port cloud be many paths.
+   * each path is handle by TxConnectorExpressService
    * 
    * @param service host:port where the service is locate
    * @param path the path of the service
    */
   listen(service: string, path: string) {
-    this.connection.parse(service, path);
-
     console.log('LISTEN: GOING TO ADD PATH: ' + path);
-    this.express.use(path, this.service.add());
+    let listener = this.getListener(service);
 
-    if (this.service.isDefined() && this.connection.isDefined()) {
-      console.log("IN LISTEN GOING TO CREATE SERTVICE")
-
-      this.createServer();
-    }
+    return listener.listen(service, path);
   }
 
-  private createServer() {
-    logger.info(`[TxConnectorExpress::createServer] going to listen on fule url: ${this.connection.getFullUrl()}`);
-
-    this.server = this.express.listen(this.connection.port, () => {
-      // success callback
-      console.log(`Listening at ${this.connection.getUrl()}`);      
-    });
-  }
-
-  subscribe(dataCB: TxCallback<any>, errorCB?: TxCallback<any>, completeCB?: TxCallback<any>) {
-    this.service.subscribe(dataCB, errorCB, completeCB);    
-
-    if (this.service.isDefined() && this.connection.isDefined()) {      
-      this.createServer();
-    }
+  /**
+   * find the right listener 
+   * 
+   * @param service - port of where the service is located
+   * @param path  - the path part of the request, http://<host>:<service>/path
+   * @param dataCB 
+   * @param errorCB 
+   * @param completeCB 
+   */
+  subscribe(dataCB: TxCallback<any>, errorCB?: TxCallback<any>, completeCB?: TxCallback<any>) {    
+    throw Error('calling subscribe on TxConnectorExpress is illegal, use the TxRoutePoint');
   };
 
   /**
@@ -90,6 +81,7 @@ export class TxConnectorExpress implements TxConnector {
     
     let method = 'POST'
     let path = route;
+
     if (route.includes(':')) {
       method = route.split(':')[0];
       path = route.split(':')[1];
@@ -111,11 +103,12 @@ export class TxConnectorExpress implements TxConnector {
   }
 
   error(service: string, route: string, data: any) {
-    console.log("[TxConnectorExpress::error] TxConnectorExpress Method not implemented.");
+    throw Error('calling error on TxConnectorExpress is illegal, use the TxRoutePoint');
   }
 
-  close() {
-    this.server.close();
+  close(service: string) {
+    let listener = this.getListener(service);
+    listener.close();
   }
 
 }

@@ -49,4 +49,9 @@ export class TxConnectorExpressConnection {
   getFullUrl() {
     return `http://${this.host}:${this.port}/${this.path}`;
   }
+
+  getService() {
+    return this.host + ':' + this.port;
+  }
+
 }

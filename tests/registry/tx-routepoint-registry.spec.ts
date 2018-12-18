@@ -60,21 +60,19 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
     expect(RP1.name).to.equal('GITHUB::API::AUTH');
     expect(RP2.name).to.equal('GITHUB::API::READ');
 
-    await RP1.route().listen('CP1', 'tasks:listen');
-    await RP2.route().listen('CP2', 'tasks:listen');
+    await RP1.listen('CP1', 'tasks:listen');
+    await RP2.listen('CP2', 'tasks:listen');
 
     let set = new Set<string>();
-    set.add((<TxConnectorExpress>RP1.route()).id);
-    set.add((<TxConnectorExpress>RP2.route()).id);
+    set.add(RP1.id);
+    set.add(RP2.id);
 
     // make sure they all the same UUIDs, because the connector is singleton.
     expect(set.size).to.equal(1);
 
     // make sure they all valid UUID
-    assert(isUUID((<TxConnectorExpress>RP1.route()).id));
-    assert(isUUID((<TxConnectorExpress>RP2.route()).id));
-
-    RP1.route().close();
+    assert(isUUID(RP1.id));
+    assert(isUUID(RP2.id));    
   });
 
   it('tx-routepoint.spec: check creation of TxRoutePoint with Express connector injection', () => {
@@ -88,43 +86,19 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
     expect(RP1.name).to.equal('GITHUB::API::AUTH');
     expect(RP2.name).to.equal('GITHUB::API::READ');
 
-    RP1.route().listen('CP1', 'tasks:listen');
-    RP2.route().listen('CP2', 'tasks:listen');
+    RP1.listen('CP1:3000', 'listen');
+    RP2.listen('CP2:3001', 'PORT:listen');
 
     let set = new Set<string>();
-    set.add((<TxConnectorNoDefaultExpress>RP1.route()).id);
-    set.add((<TxConnectorNoDefaultExpress>RP2.route()).id);
+    set.add(RP1.id);
+    set.add(RP2.id);
 
     // make sure they all the same UUIDs, because the connector is singleton.
     expect(set.size).to.equal(1);
 
     // make sure they all valid UUID
-    assert(isUUID((<TxConnectorNoDefaultExpress>RP1.route()).id));
-    assert(isUUID((<TxConnectorNoDefaultExpress>RP2.route()).id));
-  });
-
-  it('tx-routepoint.spec: check calling to subscribe on TxRoutePoint with Express', (done) => {
-    logger.info('tx-routepoint.spec: check calling to subscribe on TxRoutePoint with Express');
-
-    TxRoutePointRegistry.instance.setDriver(TxConnectorNoDefaultExpress);
-
-    const RP1 = TxRoutePointRegistry.instance.route('GITHUB::API::AUTH');
-    const RP2 = TxRoutePointRegistry.instance.route('GITHUB::API::READ');
-
-    expect(RP1.name).to.equal('GITHUB::API::AUTH');
-    expect(RP2.name).to.equal('GITHUB::API::READ');
-
-    RP1.route().listen('service-a', 'tasks.component')
-
-    RP1.route().subscribe((data) => {
-      console.log("[RP1:subscribe] data = " + JSON.stringify(data, undefined, 2));
-      assert.deepEqual({from: 'service-a', data: 'data'}, data)
-      
-      done();
-    });
-
-    RP1.route().next('service-a', 'tasks.#', {from: 'service-a', data: 'data'});
-
+    assert(isUUID(RP1.id));
+    assert(isUUID(RP2.id));
   });
 
 });
