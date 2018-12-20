@@ -6,14 +6,8 @@ import "reflect-metadata";
 
 import * as request from 'request-promise';
 
-// import * as uuid from 'uuid/v4';
-// import * as express from 'express';
-// import * as bodyParser from 'body-parser';
-// import * as cors from 'cors';
-
 import { TxCallback } from './tx-callback';
 import { TxConnector } from "./tx-connector"
-import { TxConnectorExpressService } from './tx-connector-express-service'
 import { TxConnectorExpressConnection } from './tx-connector-express-connection';
 import { TxConnectorExpressListener } from './tx-connector-express-listener';
 
@@ -24,7 +18,6 @@ import { TxConnectorExpressListener } from './tx-connector-express-listener';
 @injectable()
 export class TxConnectorExpress implements TxConnector {
   
-  private connection = new TxConnectorExpressConnection();
   private listners = new Map<string, TxConnectorExpressListener>()
 
   constructor() {        
@@ -36,7 +29,7 @@ export class TxConnectorExpress implements TxConnector {
       return this.listners.get(service);
     }
 
-    let listener = new TxConnectorExpressListener();    
+    let listener = new TxConnectorExpressListener(this);    
     this.listners.set(service, listener);
 
     return listener;
@@ -66,7 +59,7 @@ export class TxConnectorExpress implements TxConnector {
    * @param completeCB 
    */
   subscribe(dataCB: TxCallback<any>, errorCB?: TxCallback<any>, completeCB?: TxCallback<any>) {    
-    throw Error('calling subscribe on TxConnectorExpress is illegal, use the TxRoutePoint');
+    throw Error('[TxConnectorExpress] calling subscribe on TxConnectorExpress is illegal, use the TxRoutePoint');
   };
 
   /**
@@ -96,7 +89,7 @@ export class TxConnectorExpress implements TxConnector {
       body: data,
       json: true // automatically parses the JSON string in the response
     };
-    console.log("NEXT: OPTION + " + JSON.stringify(options, undefined, 2));
+    console.log("[TxConnectorExpress::next] NEXT: OPTION + " + JSON.stringify(options, undefined, 2));
     logger.info(`[TxConnectorExpress::next] going to send ${JSON.stringify(data, undefined, 2)} to: ${options.uri}`);
 
     await request(options);
@@ -106,9 +99,10 @@ export class TxConnectorExpress implements TxConnector {
     throw Error('calling error on TxConnectorExpress is illegal, use the TxRoutePoint');
   }
 
-  close(service: string) {
+  close(service: string, path: string) {
+    console.log("EXPRESS:CLOSE: path - " + path + ", this.listners.size = " + this.listners.size);
     let listener = this.getListener(service);
-    listener.close();
+    listener.close(path);
   }
 
 }

@@ -8,6 +8,7 @@ export enum TxRegistryContainerScopeEnum {
   SINGLETON = 1,
   TRANSIENT = 2
 }
+
 /**
  * a wrapper class for inversify container to keep presistDriver bind.
  */

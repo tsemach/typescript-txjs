@@ -8,15 +8,17 @@ import { TxConnector } from "./tx-connector"
 import { TxTYPES } from "./tx-injection-types";
 import { TxConnectorExpressService } from './tx-connector-express-service';
 import { TxCallback } from "./tx-callback";
+import { TxConnectorExpressConnection } from "./tx-connector-express-connection";
 
 @injectable()
 export class TxRoutePoint {
   @inject(TxTYPES.TxConnector) private _route: TxConnector;
   @inject(TxTYPES.TxPointName) private _name: string | Symbol = '';
   private _service: TxConnectorExpressService = null;
+  private _connection = new TxConnectorExpressConnection();
 
   id = uuid();
-    
+
   constructor() {
   }
 
@@ -24,13 +26,11 @@ export class TxRoutePoint {
     return this._name;
   }
 
-  //  */
-  // route() {
-  //   return this._route;
-  // }
-
   listen(service: string, path: string) {
     this._service = this._route.listen(service, path);
+    this._connection.parse(service, path);
+
+    return this._service;
   }
 
   subscribe(dataCB: TxCallback<any>, errorCB?: TxCallback<any>, completeCB?: (any?: any) => void) {  
@@ -43,7 +43,8 @@ export class TxRoutePoint {
     await this._route.next(service, route, data);
   }
 
-  close(service: string) {
-    this._route.close(service);
+  close() {
+    this._route.close(this._connection.service, this._connection.path);
   }
+
 }

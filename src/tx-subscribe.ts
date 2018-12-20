@@ -34,6 +34,7 @@ export class TxSubscribe<T> {
   unsubscribe() {
     this.dataCB = null;
     this.errorCB = null;
+    this.completeCB = null
   }
 
   setFrom(from: T) {

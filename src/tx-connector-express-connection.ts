@@ -32,6 +32,10 @@ export class TxConnectorExpressConnection {
     this._path = _path
   }
 
+  get service() {
+    return this.host + ':' + this.port;
+  }
+
   isDefined():boolean {
     return this.host !== null && this.port !== null && this.path !== null
   }

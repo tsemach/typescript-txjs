@@ -4,7 +4,6 @@ const logger = createLogger('TxMonitorServerService');
 import * as express from 'express';
 import * as request from 'request-promise';
 
-import { TxConnectorExpress } from './tx-connector-express';
 import { TxCallback } from './tx-callback';
 import { TxSubscribe } from './tx-subscribe';
 import { TxTask } from './tx-task';
@@ -108,6 +107,10 @@ export class TxConnectorExpressService {
 
   error(service: string, route: string, data: any) {
     console.log("[TxConnectorExpress::error] TxConnectorExpress Method not implemented.");
+  }
+
+  close() {
+    this.callbacks.unsubscribe();
   }
 
   getService() {
