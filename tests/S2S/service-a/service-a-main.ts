@@ -74,7 +74,14 @@ async function run() {
     {something: 'more data here'}
     ),
     {
-      execute: {source: 'service'}
+      execute: {
+        source: 'service',
+        notify: {
+          name: 'SERVICE-C::JOB::COMPLETED',
+          type: 'next',
+          from: 'service-c'
+        }
+      }
     } as TxJobExecutionOptions
   );        
   

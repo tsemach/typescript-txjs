@@ -2,7 +2,7 @@ import createLogger from 'logging';
 const logger = createLogger('service-a:main');
 //const { fork } = require('child_process');
 
-import { TxMountPointRegistry, TxJobRegistry } from '../../../src/';
+import { TxMountPointRegistry, TxJobRegistry, TxQueuePointRegistry } from '../../../src/';
 import { TxJobServicesComponent } from '../../../src/tx-job-services-component';
 
 import { A3Component } from '../components/A3.component';

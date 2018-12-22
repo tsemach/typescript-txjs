@@ -105,7 +105,9 @@ export class TxJob {
     }
 
     logger.info(`[TxJob:subscribe] [${this.name}] going to delete ${txMountPoint.name.toString()} from waiting`);    
-    this.waiting.delete(txMountPoint.name.toString());
+    // remove this comment when finish waitfor bug
+    // this.waiting.delete(txMountPoint.name.toString());
+    this.waiting.clear();
 
     if (this.isRecord(this.options)) {
       await this.record({reply: data}, 'update');
@@ -144,7 +146,7 @@ export class TxJob {
       // that there are still component outside, need to wait for them.
       if (this.waiting.size > 0 && this.stack.length === 0) {
         logger.info(`[TxJob:subscribe] [${this.name}] nothing to next but still need to wait for components to completed, ${this.waiting.size}`);
-
+        
         return;
       }
 
@@ -574,8 +576,8 @@ export class TxJob {
 
     if (notification) {
       this.notify(data);
-      this.isCompleted.next(data, this);
     }
+    this.isCompleted.next(data, this);
   }
   
   private isFinish() {

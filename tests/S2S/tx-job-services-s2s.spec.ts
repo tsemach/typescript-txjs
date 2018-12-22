@@ -11,7 +11,7 @@ import { TxJob } from '../../src/tx-job';
 import { C1Component } from './components/C1.component';
 import { C2Component } from './components/C2.component';
 import { C3Component } from './components/C3.component';
-import { TxMountPointRegistry, TxJobRegistry, TxTask, TxJobExecutionOptions, TxJobExecutionId } from '../../src';
+import { TxJobRegistry, TxTask, TxJobExecutionOptions, TxJobExecutionId } from '../../src';
 
 //TxJobRegistry.instance.setServiceName('service-c');
 //new TxJobServicesComponent().init();
@@ -50,7 +50,7 @@ describe('S2S: Cross Service Jobs', () => {
         console.log('[job-services-s2s-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
         expect(data['head']['method']).to.equal("from C3");
         expect(data['head']['status']).to.equal("ok");
-        expect(job.runit.name).to.equal('GITHUB::GIST::C3');
+        expect(job.current.name).to.equal('GITHUB::GIST::C3');
         isCompletedTxJobervicesS2SSpec1.unsubscribe();
 
         done();

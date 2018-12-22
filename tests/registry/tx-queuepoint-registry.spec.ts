@@ -14,7 +14,7 @@ import * as uuid from 'uuid/v4';
 import {injectable} from "inversify";
 import "reflect-metadata";
 
-import {TxMountPointRegistry, TxRoutePointRegistry} from '../../src/';
+import { TxMountPointRegistry } from '../../src/';
 import { TxQueuePointRegistry } from '../../src/';
 import { TxConnector } from "../../src/";
 import { TxConnectorRabbitMQ } from "../../src/tx-connector-rabbitmq";
@@ -131,7 +131,8 @@ describe('Registry Classes - TxMountPointRegitry', () => {
     assert(isUUID((<TxConnectorRabbitMQ>QP1.queue()).id));
     assert(isUUID((<TxConnectorRabbitMQ>QP2.queue()).id));
 
-    QP1.queue().close();
+    QP1.queue().close('CP1');
+    QP1.queue().close('CP2');
   });
 
   it('tx-queuetpoint-registry.spec: check creation of TxQueuePoint with RabbitMQ connector injection', () => {

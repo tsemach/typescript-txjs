@@ -6,13 +6,14 @@ import { TxMountPointRegistry } from './tx-mountpoint-registry';
 import { TxJobRegistry } from './tx-job-resgitry';
 import TxNames from './tx-names';
 import { TxJob } from './tx-job';
+import { TxTask } from './tx-task';
 
 /**
  * S2S - 
  */
 export class TxJobServicesComponent {
   mountpoint = TxMountPointRegistry.instance.create('JOB::SERVICES::MOUNTPOINT::COMPONENT');
-  queuepoint = TxQueuePointRegistry.instance.create('JOB::SERVICES::QUEUEPOINT::COMPONENT');  
+  queuepoint = TxQueuePointRegistry.instance.create('JOB::SERVICES::QUEUEPOINT::COMPONENT');
 
   constructor() {    
   }
@@ -50,18 +51,19 @@ export class TxJobServicesComponent {
     const __method = 'TxJobServicesComponent:initQueuePoint';
     const __name = TxJobRegistry.instance.getServiceName();
 
-    // subscribe to incoming messages from other services from qeueu  
+    // subscribe to incoming messages from other services from qeueu
     logger.info(`[(${__name}):${__method}] register on [${TxJobRegistry.instance.getServiceName()}]=[${TxNames.JOB_SERVICE}`);
 
     await this.queuepoint.queue().listen(TxJobRegistry.instance.getServiceName(), TxNames.JOB_SERVICE);
     await this.queuepoint.queue().subscribe(
       async (request) => {        
         let service = JSON.parse(request);
+
         logger.info(`[(${__name}):${__method}:subscribe] got request from service object: ${JSON.stringify(service, undefined, 2)}`);
         logger.info(`[(${__name}):${__method}:subscribe] got request from service object: ${JSON.stringify(service['head'])}`);
         logger.info(`[(${__name}):${__method}:subscribe] going to execute service ${service.head.next}`);
 
-        TxJob.create(service.data.job).execute(service.data.task, service.data.options);
+        TxJob.create(service.data.job).execute(new TxTask(service.data.task.head, service.data.task.data), service.data.options);
       },
       (error) => {
         error = JSON.parse(error);

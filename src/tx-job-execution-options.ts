@@ -20,9 +20,9 @@ export interface TxJobExecutionOptions {
     record: boolean;
     source: string;
     notify: {
-      name: string;
-      type: string;
-      from: string;
+      name: string;   // the name of the mountpoint needed to send reply
+      type: string;   // 'next | error', send on next() or error() channel
+      from: string;   // the service name where need to notify
     }
   }
 }

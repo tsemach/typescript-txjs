@@ -14,7 +14,7 @@ export class C1Component {
   constructor() {
     this.mountpoint.tasks().subscribe(
       (task) => {
-        logger.info('[C1Component:tasks] got task = ' + JSON.stringify(task, undefined, 2));          
+        logger.info('[C1Component:tasks] got task = ' + JSON.stringify(task.get(), undefined, 2));          
         this.method = task['method'];
 
         // just send the reply to whom is 'setting' on this reply subject

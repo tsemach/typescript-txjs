@@ -2,6 +2,7 @@
 import { Container } from "inversify";
 import { TxTYPES } from "./tx-injection-types";
 import { TxConnector } from "./tx-connector";
+import { some } from "bluebird";
 
 export enum TxRegistryContainerScopeEnum {
   DEFAULT = 0,
@@ -38,13 +39,15 @@ export class TxRegistryContainer<T> {
       this.txContainer.unbind(TxTYPES.TxConnector);
     }
 
-    switch(scope) {
-      case TxRegistryContainerScopeEnum.DEFAULT: 
+    switch(scope) {      
       case TxRegistryContainerScopeEnum.SINGLETON:    
         this.txContainer.bind<TxConnector>(TxTYPES.TxConnector).to(type).inSingletonScope();
+        return;
       case TxRegistryContainerScopeEnum.TRANSIENT:
         this.txContainer.bind<TxConnector>(TxTYPES.TxConnector).to(type).inTransientScope();
+        return;
     }
+    this.txContainer.bind<TxConnector>(TxTYPES.TxConnector).to(type).inTransientScope();
   }
 
 }
