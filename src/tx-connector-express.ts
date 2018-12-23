@@ -100,7 +100,6 @@ export class TxConnectorExpress implements TxConnector {
   }
 
   close(service: string, path: string) {
-    console.log("EXPRESS:CLOSE: path - " + path + ", this.listners.size = " + this.listners.size);
     let listener = this.getListener(service);
     listener.close(path);
   }

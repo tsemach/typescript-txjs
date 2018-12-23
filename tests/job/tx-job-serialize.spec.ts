@@ -87,6 +87,20 @@ describe('Job Class - Serialize', () => {
         "service": "service-c",
         "components": [ "GITHUB::GIST::C1", "GITHUB::GIST::C2", "GITHUB::GIST::C3" ]
       }
+    ],
+    "connectors": [
+      {
+        "service": "service-a",
+        "connector": {"mode": "route", "host": "localhost", "port": "3001", "path": "route1"}
+      },
+      {
+        "service": "service-b",
+        "connector": {"mode": "route", "host": "localhost", "port": "3002", "path": "route2"},
+      },
+      {
+        "service": "service-c",
+        "connector": {"mode": "queue", "host": "service-a", "port": "0000", "path": "queue1"}
+      }
     ]
   }
 
