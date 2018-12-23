@@ -20,7 +20,7 @@ export class E1Component {
         task.reply().next(new TxTask({method: 'from E1', status: 'ok'}, task['data']))
       },
       (error) => {
-        logger.info('[E1Component:error] got error = ' + JSON.stringify(error, undefined, 2));
+        logger.info('[E1Component:error] got error = ' + JSON.stringify(error.get(), undefined, 2));
         this.method = error['method'];
 
         // just send the reply to whom is 'setting' on this reply subject

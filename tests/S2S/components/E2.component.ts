@@ -19,7 +19,7 @@ export class E2Component {
         task.reply().error(new TxTask({method: 'from E2', status: 'ERROR'}, task['data']))
       },
       (error) => {
-        logger.info('[E2Component:error] got error = ' + JSON.stringify(error, undefined, 2));
+        logger.info('[E2Component:error] got error = ' + JSON.stringify(error.get(), undefined, 2));
         this.method = error['method'];
 
         // just send the reply to whom is 'setting' on this reply subject
@@ -29,7 +29,7 @@ export class E2Component {
 
     this.mountpoint.undos().subscribe(
       (task) => {
-          logger.info('[E2Component:undo] undo got task = ' + JSON.stringify(task, undefined, 2));
+          logger.info('[E2Component:undo] undo got task = ' + JSON.stringify(task.get(), undefined, 2));
           this.method = task['method'];
 
           // just send the reply to whom is 'setting' on this reply subject

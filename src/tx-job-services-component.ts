@@ -3,6 +3,7 @@ const logger = createLogger('TxJobServicesComponent');
 
 import { TxQueuePointRegistry } from './tx-queuepoint-registry';
 import { TxMountPointRegistry } from './tx-mountpoint-registry';
+import { TxRoutePointRegistry } from './tx-routepoint-registry';
 import { TxJobRegistry } from './tx-job-resgitry';
 import TxNames from './tx-names';
 import { TxJob } from './tx-job';
@@ -14,6 +15,7 @@ import { TxTask } from './tx-task';
 export class TxJobServicesComponent {
   mountpoint = TxMountPointRegistry.instance.create('JOB::SERVICES::MOUNTPOINT::COMPONENT');
   queuepoint = TxQueuePointRegistry.instance.create('JOB::SERVICES::QUEUEPOINT::COMPONENT');
+  routepoint = TxRoutePointRegistry.instance.create('JOB::SERVICES::ROUTEPOINT::COMPONENT');
 
   constructor() {    
   }
@@ -23,6 +25,7 @@ export class TxJobServicesComponent {
     
     await this.initMountPoint();
     await this.initQueuePoint();
+    await this.initRoutePoint();
 
     return this;
   }
@@ -69,8 +72,34 @@ export class TxJobServicesComponent {
         error = JSON.parse(error);
         logger.info(`[(${__name}):${__method}:subscribe] queuepoint error callback, got error from: ${JSON.stringify(error, undefined, 2)}`);
         
-        TxJob.create(error.data.job).errorAll(error.data.task, error.data.options);
+        TxJob.create(error.data.job).errorAll(new TxTask(error.data.task.head, error.data.task.data), error.data.options);
       });
   }
 
+  async initRoutePoint() {
+    const __name = TxJobRegistry.instance.getServiceName();
+    const __method = 'TxJobServicesComponent:initRoutePoint';
+    const __connection = TxJobRegistry.instance.getRouteConnection();
+    const __service = __connection.service;
+
+    if ( ! __connection.isInit() ) {
+      logger.info(`[${__name}:${__method}] S2S rotue is not initialize`);
+
+      return 
+    }
+
+    // subscribe to incoming messages from other services from route
+    logger.info(`[(${__service}):${__method}] S2S rotue is on [${__service}:${__connection.port}`);
+
+    this.routepoint.listen(__connection.service, __connection.path);
+    this.routepoint.subscribe(
+      (request) => {        
+        logger.info(`[(${__name}):${__method}:subscribe] got request from service object: ${JSON.stringify(request, undefined, 2)}`);        
+        //TxJob.create(service.data.job).execute(new TxTask(service.data.task.head, service.data.task.data), service.data.options);
+      },
+      (error) => {        
+        logger.info(`[(${__name}):${__method}:subscribe] queuepoint error callback, got error from: ${JSON.stringify(error, undefined, 2)}`);        
+        //TxJob.create(error.data.job).errorAll(new TxTask(error.data.task.head, error.data.task.data), error.data.options);
+      });      
+  }
 }

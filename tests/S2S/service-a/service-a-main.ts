@@ -8,14 +8,6 @@ import { A3Component } from '../components/A3.component';
 import { A2Component } from '../components/A2.component';
 import { A1Component } from '../components/A1.component';
 
-// process.on('message', (msg) => {  
-//   logger.info('[service-a: message from parent:', msg);
-
-//   if (msg === 'service-a:exist') {
-//     process.exit(0);
-//   }
-// });
-
 TxJobRegistry.instance.setServiceName('service-a');
 
 new A1Component();
@@ -78,7 +70,6 @@ async function run() {
         source: 'service',
         notify: {
           name: 'SERVICE-C::JOB::COMPLETED',
-          type: 'next',
           from: 'service-c'
         }
       }

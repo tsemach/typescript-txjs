@@ -58,4 +58,7 @@ export class TxConnectorExpressConnection {
     return this.host + ':' + this.port;
   }
 
+  isInit() {
+    return this._host !== null && this._port !== null && this._path !== null
+  }
 }

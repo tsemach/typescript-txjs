@@ -557,16 +557,15 @@ export class TxJob {
     if (this.options.execute.notify.from !== TxJobRegistry.instance.getServiceName()) {
       return;
     }  
-
     let mp = TxMountPointRegistry.instance.get(this.options.execute.notify.name);
 
-    if (this.options.execute.notify.type === 'next') {        
-      mp.reply().next(data);
-    }
-
-    if (this.options.execute.notify.type === 'error') {
+    if (this.error) {        
       mp.reply().error(data);    
+
+      return
     }
+    
+    mp.reply().next(data);
   }
 
   private finish(data, notification = true) {    

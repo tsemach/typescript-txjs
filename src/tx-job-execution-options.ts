@@ -21,7 +21,6 @@ export interface TxJobExecutionOptions {
     source: string;
     notify: {
       name: string;   // the name of the mountpoint needed to send reply
-      type: string;   // 'next | error', send on next() or error() channel
       from: string;   // the service name where need to notify
     }
   }
@@ -109,11 +108,7 @@ export class TxJobExecutionOptionsChecker {
     if ( ! options.execute.notify.hasOwnProperty('from') ) {
       return false;
     }
-
-    if ( ! options.execute.notify.hasOwnProperty('type') ) {
-      return false;
-    }
-
+    
     if ( ! options.execute.notify.hasOwnProperty('name') ) {
       return false;
     }
