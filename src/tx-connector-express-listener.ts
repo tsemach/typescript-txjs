@@ -85,7 +85,6 @@ export class TxConnectorExpressListener {
   }
 
   close(path: string) {
-    console.log("EXPRESS-LISTENER: path = " + path + " this.services.size = " + this.services.size)
     if (path && this.services.has(path)) {        
       let service = this.services.get(path);
 
@@ -94,10 +93,8 @@ export class TxConnectorExpressListener {
     }
 
     if (this.services.size === 0) {
-      console.log("EXPRESS-LISTENER: closing server after path = " + path + " this.services.size = " + this.services.size)
       this.server.close();
     }
-    console.log("EXPRESS-LISTENER: path = " + path + " this.services.size = " + this.services.size)
   }
 
 }

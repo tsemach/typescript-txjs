@@ -72,14 +72,11 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
   }
 
   async rebuild(uuid: string) {
-
     let json = await this.getPersistDriver().read(uuid);
-    //console.log("TxJobRegistry::rebuild : this.driver.read(uuid) = " + JSON.stringify(json, undefined, 2));
     return new TxJob(json.name).upJSON(json);
   }
 
-  replace(oldUuid: string, newUuid: string, job: TxJob) {
-    //console.log("TxJobRegistry::replace: oldUuid = " + oldUuid + ' newUuid = ' + newUuid);
+  replace(oldUuid: string, newUuid: string, job: TxJob) {    
     this.del(oldUuid);
     this.add(newUuid, job);
   }

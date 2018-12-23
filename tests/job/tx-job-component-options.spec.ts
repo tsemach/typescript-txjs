@@ -62,12 +62,12 @@ describe('Job Class: Test Job Component Options', () => {
         
     let job = new TxJob('Job-1'); 
 
-    job.add(TxSinglePointRegistry.instance.get('GITHUB::T1'), {wait: false} as TxJobComponentOptions);
-    job.add(TxSinglePointRegistry.instance.get('GITHUB::T2'), {wait: false} as TxJobComponentOptions);
-    job.add(TxSinglePointRegistry.instance.get('GITHUB::T3'), {wait: false} as TxJobComponentOptions);
-    job.add(TxSinglePointRegistry.instance.get('GITHUB::T4'), {wait: false} as TxJobComponentOptions);
-    job.add(TxSinglePointRegistry.instance.get('GITHUB::T5'), {wait: false} as TxJobComponentOptions);
-    job.add(TxSinglePointRegistry.instance.get('GITHUB::T6'), {wait: false} as TxJobComponentOptions);
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::T1'), {wait: true} as TxJobComponentOptions);
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::T2'), {wait: true} as TxJobComponentOptions);
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::T3'), {wait: true} as TxJobComponentOptions);
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::T4'), {wait: true} as TxJobComponentOptions);
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::T5'), {wait: true} as TxJobComponentOptions);
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::T6'), {wait: true} as TxJobComponentOptions);
 
     job.getIsCompleted().subscribe(
       (data) => {
@@ -104,7 +104,7 @@ describe('Job Class: Test Job Component Options', () => {
     job.getIsCompleted().subscribe(
       (task) => {
         logger.info('[job-test:execute] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(task.get(), undefined, 2));        
-        expect(task['head']['method']).to.equal("from T1");
+        expect(task['head']['method']).to.equal("from T3");
         expect(task['head']['status']).to.equal("ok");        
 
         setTimeout(() => {

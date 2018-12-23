@@ -4,7 +4,7 @@ const logger = createLogger('Job-Reset-Test');
 import 'mocha';
 import {expect} from 'chai';
 
-import {TxMountPointRegistry} from '../../src/tx-mountpoint-registry';
+import {TxSinglePointRegistry} from '../../src/tx-singlepoint-registry';
 import {TxTask} from '../../src/tx-task';
 import {TxJob} from '../../src/tx-job';
 
@@ -22,35 +22,42 @@ describe('Job Class', () => {
     
     let job = new TxJob('Job-1'); // or create througth the TxJobRegistry
 
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
-
-    job.execute(new TxTask({
-        method: 'create',
-        status: ''
-      },
-      {something: 'more data here'})
-    );            
-    logger.info("end of first execution");
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C1'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C2'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C3'));
 
     job.getIsCompleted().subscribe(
-      (data) => {
-        logger.info('[job-reset-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
-        expect(data['head']['method']).to.equal("from C3");
-        expect(data['head']['status']).to.equal("ok");
-        done();
+      (data) => {        
+        logger.info("end of first execution");
+
+        job.reset();        
+        job.getIsCompleted().subscribe(
+          (task) => {
+            logger.info("end of second execution");
+
+            logger.info('[job-reset-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(task.get(), undefined, 2));
+            expect(task['head']['method']).to.equal("from C3");
+            expect(task['head']['status']).to.equal("ok");
+
+            done();
+          }
+        )
+
+        job.execute(new TxTask({
+            method: 'create',
+            status: ''
+          },
+          {something: 'more data here'})
+        );            
       }
     );
-    
-    job.reset();
+
     job.execute(new TxTask({
         method: 'create',
         status: ''
       },
       {something: 'more data here'})
     );            
-    logger.info("end of second execution");    
-    
+        
   });
 });

@@ -5,12 +5,11 @@ import 'mocha';
 import {expect} from 'chai';
 import {assert} from 'chai';
 
-import { TxMountPointRegistry } from '../../src';
+import { TxSinglePointRegistry } from '../../src';
 import { TxJobExecutionOptions } from '../../src';
 import { TxTask } from '../../src';
 import { TxJob } from '../../src';
 import { TxJobExecutionId, TxJobRegistry } from "../../src";
-import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
 
 import { E1Component } from './E1.component';
@@ -20,7 +19,9 @@ import { Persist } from "./pesist-driver";
 
 import * as short from 'short-uuid';
 
-new TxJobServicesComponent().init();  
+new E1Component();
+new E2Component();
+new E3Component();
 
 describe('Job Class', () => {
   let persist = new Persist();
@@ -39,22 +40,18 @@ describe('Job Class', () => {
   /**
    */
 
-  it('tx-job-execute-error.spec: check running error on E1-E2-E3 job chain', async () => {
+  it('tx-job-execute-error.spec: check running error on E1-E2-E3 job chain', (done) => {
     logger.info('running: tx-job-execute-error.spec: check running error on E1-E2-E3 job chain');
 
     let count = 0;
     let persist = new Persist();
     TxJobRegistry.instance.setPersistDriver(persist);
 
-    new E1Component();
-    new E2Component();
-    new E3Component();
-
     let job = new TxJob('job-1'); // or create through the TxJobRegistry
 
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::E1'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::E2'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::E3'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::E1'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::E2'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::E3'));
 
     job.getIsCompleted().subscribe(
       (data) => {
@@ -91,6 +88,7 @@ describe('Job Class', () => {
           expect(data['data']['head']['method']).to.equal("from E1");
           expect(data['data']['head']['status']).to.equal("ERROR");
           expect(job.error).to.equal(true);
+          done();
         }
       }
     );
@@ -107,12 +105,11 @@ describe('Job Class', () => {
     );
   });
 
-  it('[tx-job-execute-error.spec:error]: check error on E1-E2-E3 upJSON with execute', async () => {
-    logger.info('[tx-job-execute-error.spec:error]: check on E1-E2-E3 upJSON with execute');
+  it('tx-job-execute-error.spec:error: check error on E1-E2-E3 upJSON with execute', (done) => {
+    logger.info('tx-job-execute-error.spec:error: check on E1-E2-E3 upJSON with execute');
 
-    new E1Component();
-    new E2Component();
-    new E3Component();
+    let persist = new Persist();
+    TxJobRegistry.instance.setPersistDriver(persist);
 
     let count = 3;
     let uuid = short().new();
@@ -156,7 +153,7 @@ describe('Job Class', () => {
 
         expect(job.error).to.equal(true);
         expect(job.getCurrentName()).to.be.equal('GITHUB::GIST::E1');
-        expect(count).to.equal(1);
+        expect(count).to.equal(3);
       });
 
     job.getOnError().subscribe(
@@ -170,6 +167,8 @@ describe('Job Class', () => {
           expect(data['data']['head']['method']).to.equal("from E1");
           expect(data['data']['head']['status']).to.equal("ERROR");
           expect(job.error).to.equal(true);
+          
+          done();
         }
         if (count === 2) {
           expect(data['head']['name']).to.equal("GITHUB::GIST::E2");
@@ -177,12 +176,6 @@ describe('Job Class', () => {
           expect(data['data']['head']['status']).to.equal("ERROR");
           expect(job.error).to.equal(true);
         }
-        // if (count === 3) {
-        //   expect(data['head']['name']).to.equal("GITHUB::GIST::E1");
-        //   expect(data['data']['data']['head']['method']).to.equal("from E1");
-        //   expect(data['data']['data']['head']['status']).to.equal("ERROR");
-        //   expect(job.error).to.equal(true);
-        // }
       }
     );
 

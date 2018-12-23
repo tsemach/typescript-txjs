@@ -30,6 +30,25 @@ describe('Job Class', () => {
     job.add(TxSinglePointRegistry.instance.get('GITHUB::S2'));
     job.add(TxSinglePointRegistry.instance.get('GITHUB::S3'));
     
+    let end1 = job.getIsCompleted().subscribe(
+      (data1) => {
+
+        job.getIsCompleted().subscribe(
+          (task) => {
+            logger.info('[job-undo-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(task.get(), undefined, 2));
+            expect(task['head']['method']).to.equal("undo from S1");  
+            expect(task['head']['status']).to.equal("ok");            
+          });
+
+        end1.unsubscribe();        
+        job.undo(new TxTask({
+          method: 'create',
+          status: ''
+        },
+        {something: 'more data here'}));
+      }
+    );
+
     job.execute(new TxTask({
         method: 'create',
         status: ''
@@ -38,18 +57,6 @@ describe('Job Class', () => {
     );            
     logger.info("end of first execution");
       
-    job.getIsCompleted().subscribe(
-      (data) => {
-        logger.info('[job-undo-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
-        expect(data['head']['method']).to.equal("undo from S1");  
-        expect(data['head']['status']).to.equal("ok");
-      }
-    );
-    job.undo(new TxTask({
-        method: 'create',
-        status: ''
-      },
-      {something: 'more data here'}));
   }); 
   
 });

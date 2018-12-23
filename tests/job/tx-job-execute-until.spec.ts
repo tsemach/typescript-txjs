@@ -4,7 +4,7 @@ const logger = createLogger('Job-Execute-Until-Test');
 import 'mocha';
 import {expect} from 'chai';
 
-import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
+import { TxSinglePointRegistry } from '../../src/tx-singlepoint-registry';
 import { TxJobExecutionOptions } from "../../src/tx-job-execution-options";
 import { TxTask } from '../../src/tx-task';
 import { TxJob } from '../../src/tx-job';
@@ -18,6 +18,10 @@ import { Persist } from "./pesist-driver";
 import * as short from 'short-uuid';
 import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
 
+new C1Component();
+new C2Component();
+new C3Component();
+    
 describe('Job Class', () => {
   // let persist = new Persist();
   // TxJobRegistry.instance.driver = persist;
@@ -40,15 +44,11 @@ describe('Job Class', () => {
     let persist = new Persist();
     TxJobRegistry.instance.setPersistDriver(persist);
 
-    new C1Component();
-    new C2Component();
-    new C3Component();
-    
     let job = new TxJob('job-1'); // or create through the TxJobRegistry
 
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C1'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C2'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C3'));
 
     job.getIsStopped().subscribe(
       (data) => {
@@ -58,6 +58,7 @@ describe('Job Class', () => {
         logger.info("UUIID " + JSON.stringify(persist.read(job.getUuid()), undefined, 2));
         expect(persist.read(job.getUuid()).uuid).to.equal(job.getUuid());
         expect(persist.read(job.getUuid()).current).to.equal('GITHUB::GIST::C2');
+        
         done();
       });                
 
@@ -79,15 +80,11 @@ describe('Job Class', () => {
     let persist = new Persist();
     TxJobRegistry.instance.setPersistDriver(persist);
 
-    new C1Component();
-    new C2Component();
-    new C3Component();
-
     let job = new TxJob('job-1'); // or create through the TxJobRegistry
 
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
-    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C1'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C2'));
+    job.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C3'));
 
     job.getIsStopped().subscribe(
       (data) => {
@@ -118,10 +115,6 @@ describe('Job Class', () => {
     logger.info('running: tx-job-execute-until-spec: check run until C3 with upJSON');
     let persist = new Persist();
     TxJobRegistry.instance.setPersistDriver(persist);
-
-    new C1Component();
-    new C2Component();
-    new C3Component();
 
     let uuid = short().new();
     let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};
@@ -185,15 +178,11 @@ describe('Job Class', () => {
     let persist = new Persist();
     TxJobRegistry.instance.setPersistDriver(persist);
 
-    new C1Component();
-    new C2Component();
-    new C3Component();
-
     let job1 = new TxJob('job-1'); // or create through the TxJobRegistry
 
-    job1.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
-    job1.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
-    job1.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+    job1.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C1'));
+    job1.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C2'));
+    job1.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C3'));
 
     job1.getIsStopped().subscribe(
       async (data) => {

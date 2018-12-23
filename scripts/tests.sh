@@ -8,14 +8,15 @@ reset=`tput sgr0`
 failed=()
 pass=()
 
-for f in `cat ./tests.list`
+tsc
+for f in `find ./dist -name \*.spec.js`
 do
 	mocha $f
 	isok=$?
 
 	if [ $isok -ne 0 ]
 	then	
-		failed+=($f\n)
+		failed+=($f)
 		
 		continue;
 	fi

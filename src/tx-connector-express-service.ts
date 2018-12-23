@@ -34,7 +34,6 @@ export class TxConnectorExpressService {
     });
     
     router.post('/', (req, res) => {
-      console.log("TTTTTTTTTT ADDING POST")
       logger.info('[/TxConnectorExpressService:POST] data received was: ' + JSON.stringify(req.body));
 
       //this.callbacks.dataCB(new TxTask<any>(req.body.head, req.body.data));
@@ -72,38 +71,6 @@ export class TxConnectorExpressService {
     this.callbacks.subscribe(dataCB, errorCB, completeCB);    
     this.defined = true;
   }
-
-  // /**
-  //  * send data through the express C2C to endpoint. 
-  //  * @param service - host:port like 'localhost:3000'
-  //  * @param route - method:path like 'POST:/somewhere', default is GET
-  //  * @param data - data as TxTask<any>
-  //  */
-  // async next(service: string, route: string, data: any) {
-  //   let host = service.split(':')[0];
-  //   let port = service.split(':')[1];
-    
-  //   let method = 'POST'
-  //   let path = route;
-  //   if (route.includes(':')) {
-  //     method = route.split(':')[0];
-  //     path = route.split(':')[1];
-  //   }     
-
-  //   let options = {
-  //     method: method,
-  //     uri: `http://${host}:${port}/${path}`,
-  //     headers: {
-  //       'Content-Type': 'application/json'        
-  //     },
-  //     body: data,
-  //     json: true // automatically parses the JSON string in the response
-  //   };
-  //   console.log("NEXT: OPTION + " + JSON.stringify(options, undefined, 2));
-  //   logger.info(`[TxConnectorExpress::next] going to send ${JSON.stringify(data, undefined, 2)} to: ${options.uri}`);
-
-  //   await request(options);
-  // }
 
   error(service: string, route: string, data: any) {
     console.log("[TxConnectorExpress::error] TxConnectorExpress Method not implemented.");

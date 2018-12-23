@@ -26,7 +26,7 @@ export class TxSinglePointRegistry extends TxRegistry<TxMountPoint, string | Sym
       }
 
       if (this.has(name)) {
-        throw Error('already got singlepoint under the name ' + name);
+        throw Error('already got singlepoint under the name ' + name.toString());
       }
 
       return <TxMountPoint>this.add(name, sp);
@@ -37,7 +37,7 @@ export class TxSinglePointRegistry extends TxRegistry<TxMountPoint, string | Sym
     }
 
     if (this.has(name)) {
-      throw Error('already got singlepoint under the name ' + name);
+      throw Error('already got singlepoint under the name ' + name.toString());
     }
 
     return <TxMountPoint>this.add(name, sp);

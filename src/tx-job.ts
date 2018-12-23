@@ -63,7 +63,7 @@ export class TxJob {
   isCompleted = new TxSubscribe<TxJob>();   // notify when the whole execution is completed.
   isStopped = new Subject();                // notify when execution reach to it's run-until component.
   onComponent = new TxSubscribe<TxJob>();   // notify the world on any coming in subscribe callback (reply from component).
-  onError = new Subject();                  // notify the world on any coming in subscribe callback (reply from component).
+  onError = new TxSubscribe<TxJob>();       // notify the world on any coming in subscribe callback (reply from component).
 
   uuid = uuid.new();
 
@@ -304,6 +304,7 @@ export class TxJob {
     // if come back from serialization with error flag on than call to
     // current component on error channel.
     if (this.error) {
+      task.setReply(this.current.reply());
       this.current.tasks().error(task);
 
       return;
@@ -530,6 +531,7 @@ export class TxJob {
     this.current = null;
     this.single = false;
     this.error = false;
+    this.revert = false;
 
     this.executionId = {uuid: '', sequence: 0};
   }
@@ -542,9 +544,7 @@ export class TxJob {
 
   release() {
     TxJobRegistry.instance.del(this.getUuid());
-    this.subscribers.forEach(cb => {
-      cb.unsubscribe();
-    });
+    this.unsubscribes()
     this.services.release();
     this.executionId = {uuid: '', sequence: 0};
   }
