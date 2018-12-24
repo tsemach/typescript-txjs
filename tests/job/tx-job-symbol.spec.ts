@@ -4,7 +4,7 @@ const logger = createLogger('Job-Symbol-Test');
 import 'mocha';
 import {expect} from 'chai';
 
-import {TxMountPointRegistry} from '../../src/tx-mountpoint-registry';
+import {TxSinglePointRegistry} from '../../src/tx-singlepoint-registry';
 import {TxTask} from '../../src/tx-task';
 import {TxJob} from '../../src/tx-job';
 
@@ -33,49 +33,47 @@ describe('Job Class', () => {
   }
 
   class C1Component {
-    mountpoint = TxMountPointRegistry.instance.create(Names.GITHUB_GIST_C1);
+    mountpoint = TxSinglePointRegistry.instance.create(Names.GITHUB_GIST_C1);
 
     constructor() {
       this.mountpoint.tasks().subscribe(
         (task) => {
-          logger.info('[C1Component:tasks] got task = ' + JSON.stringify(task, undefined, 2));
+          logger.info('[C1Component:tasks] got task = ' + JSON.stringify(task.get(), undefined, 2));
 
 
-          this.mountpoint.reply().next(new TxTask({method: 'from C1Component', status: 'ok'}, task['data']));
+          task.reply().next(new TxTask({method: 'from C1Component', status: 'ok'}, task['data']));
         });
     }
 
   }
 
   class C2Component {
-    mountpoint = TxMountPointRegistry.instance.create(Names.GITHUB_GIST_C2);
+    mountpoint = TxSinglePointRegistry.instance.create(Names.GITHUB_GIST_C2);
 
     constructor() {
       this.mountpoint.tasks().subscribe(
         (task) => {
-          logger.info('[C2Component:tasks] got task = ' + JSON.stringify(task, undefined, 2));
+          logger.info('[C2Component:tasks] got task = ' + JSON.stringify(task.get(), undefined, 2));
 
 
-          this.mountpoint.reply().next(new TxTask({method: 'from C2Component', status: 'ok'}, task['data']));
+          task.reply().next(new TxTask({method: 'from C2Component', status: 'ok'}, task['data']));
         });
     }
-
   }
-
 
   it('check job-symbol.spec: running C1-C2 job chain by symbols', (done) => {
     
-    let C1 = new C1Component();
-    let C2 = new C2Component();
+    new C1Component();
+    new C2Component();
 
     let job = new TxJob('Job-1'); // or create througth the TxJobRegistry
 
-    job.add(TxMountPointRegistry.instance.get(Names.GITHUB_GIST_C1));
-    job.add(TxMountPointRegistry.instance.get(Names.GITHUB_GIST_C2));
+    job.add(TxSinglePointRegistry.instance.get(Names.GITHUB_GIST_C1));
+    job.add(TxSinglePointRegistry.instance.get(Names.GITHUB_GIST_C2));
 
     job.getIsCompleted().subscribe(
       (data) => {
-        console.log('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
+        console.log('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data.get(), undefined, 2));
         expect(data['head']['method']).to.equal("from C2Component");
         expect(data['head']['status']).to.equal("ok");
         done();

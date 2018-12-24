@@ -1,18 +1,19 @@
 
 // fork example taking from: https://medium.freecodecamp.org/node-js-child-processes-everything-you-need-to-know-e69498fe970a
 
-const { fork } = require('child_process');
-
-import { TxMountPointRegistry } from './../../../src/tx-mountpoint-registry';
-
 import createLogger from 'logging';
 const logger = createLogger('service-a:client');
 
-import { TxQueuePointRegistry, TxJobRegistry, TxTask } from '../../../src/';
+const { fork } = require('child_process');
+
+import { TxMountPointRegistry } from './../../../src/tx-mountpoint-registry';
+import { TxJobRegistry, TxTask, TxQueuePointRegistry } from '../../../src/';
 import { TxJobServicesComponent } from '../../../src/tx-job-services-component';
 import { TxJobServicesHeadTask } from '../../../src/tx-job-services-task';
+import { TxConnectorRabbitMQ } from '../../../src/tx-connector-rabbitmq'
 
 TxJobRegistry.instance.setServiceName('service-c');
+TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
 
 const data = {
   "head": {
@@ -60,7 +61,7 @@ async function run() {
   await (new TxJobServicesComponent()).init();  
   let mp = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
   
-  const forked = fork('./dist/tests/S2S/service-a/main.js');
+  const forked = fork('./dist/tests/S2S/main-client/main.js');
 
   forked.on('message', (msg) => {
     logger.info('message from main', msg);

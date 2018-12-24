@@ -3,6 +3,7 @@ import { TxRegistry } from './tx-registry';
 import { TxJob } from './tx-job';
 import { TxJobPersistAdapter } from "./tx-job-persist-adapter";
 import { TxRecordPersistAdapter } from "./tx-record-persist-adapter"
+import { TxConnectorConnection } from './tx-connector-connection';
 
 /**
  * TxJobRegistry - is class store TxJob by their ids.
@@ -15,6 +16,7 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
   private _isRecordMap = new Map<string, boolean>();
   private _jobComponents = new Map<string, Set<string>>();
   private _serviceName = '';
+  private _routeConnection = new TxConnectorConnection()
   
   private constructor() {
     super();
@@ -70,14 +72,11 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
   }
 
   async rebuild(uuid: string) {
-
     let json = await this.getPersistDriver().read(uuid);
-    //console.log("TxJobRegistry::rebuild : this.driver.read(uuid) = " + JSON.stringify(json, undefined, 2));
     return new TxJob(json.name).upJSON(json);
   }
 
-  replace(oldUuid: string, newUuid: string, job: TxJob) {
-    //console.log("TxJobRegistry::replace: oldUuid = " + oldUuid + ' newUuid = ' + newUuid);
+  replace(oldUuid: string, newUuid: string, job: TxJob) {    
     this.del(oldUuid);
     this.add(newUuid, job);
   }
@@ -110,4 +109,11 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
     return this._serviceName;
   }
 
+  setRouteConnection(_service: string, _path: string) {
+    return this._routeConnection.parse(_service, _path)
+  }
+
+  getRouteConnection() {
+    return this._routeConnection;
+  }  
 }

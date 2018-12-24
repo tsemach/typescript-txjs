@@ -22,9 +22,9 @@ import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 new TxJobServicesComponent().init();  
 
 describe('Job Class Execute Test', () => {
-    new S1Component();
-    new S2Component();
-    new S3Component();
+  new S1Component();
+  new S2Component();
+  new S3Component();
     
   let a = 0;
   before(() => {

@@ -5,7 +5,7 @@ const logger = createLogger('TxJobServices');
 
 import { TxJob } from "./tx-job";
 import { TxMountPointRegistry } from './tx-mountpoint-registry';
-import { TxJobServicesJSON } from "./tx-job-services-json";
+import { TxJobServicesJSON, TxJobServiceConnector } from "./tx-job-services-json";
 import { TxTask } from "./tx-task";
 import { TxJobServicesHeadTask } from "./tx-job-services-task";
 
@@ -19,12 +19,13 @@ import { TxJobServicesHeadTask } from "./tx-job-services-task";
 
 export class TxJobServices {
   private jobs = new Map<string, Array<string | Symbol>>(); // mapping between service name and all its job's mountpoints (components)
-  private stack = [];   // list of all services needed to be run, this change during execution
-  private trace = [];   // list of already run servies, fill during execution
-  private block = [];   // list of all services needed to run in order, not change during execution  
-  private current = ''; // the current service pass with 'on' method, this use jsut for add mountpoint
+  private stack = [];        // list of all services needed to be run, this change during execution
+  private trace = [];        // list of already run servies, fill during execution
+  private block = [];        // list of all services needed to run in order, not change during execution  
+  private current = '';      // the current service pass with 'on' method, this use jsut for add mountpoint
+  private connectors = new Map<string, TxJobServiceConnector>(); // mapping service to it's connection paramerters
 
-  constructor(private job: TxJob) {    
+  constructor(private job: TxJob) {
   } 
 
   on(service: string) {
@@ -124,12 +125,18 @@ export class TxJobServices {
       
     }
     
+    let connectors = []
+    for (let entry of this.connectors.entries()) {      
+      connectors.push({service: entry[0], connector: entry[1]})
+      
+    }
     return {            
       stack: this.stack,
       trace: this.trace,
       block: this.block,
       current: '',          
-      jobs: jobs
+      jobs: jobs,
+      connectors: connectors
     }
   }
   
@@ -140,6 +147,10 @@ export class TxJobServices {
       
     from.jobs.forEach(job => {      
       this.jobs.set(job.service, job.components)
+    })
+
+    from.connectors.forEach(from => {      
+      this.connectors.set(from.service, from.connector)
     })
 
     return this;
@@ -154,6 +165,10 @@ export class TxJobServices {
     json.block = '';
 
     return json;
+  }
+
+  getConnectors() {
+    return this.connectors;
   }
 
   setError(): any {

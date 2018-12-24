@@ -10,7 +10,7 @@ export class R2Component {
   }
 
   async init() {
-    await this.routepoint.route().register('example-1.routepoint', 'R2Component.tasks');
+    await this.routepoint.route().listen('example-1.routepoint', 'R2Component.tasks');
 
     await this.routepoint.route().subscribe(
       async (data) => {

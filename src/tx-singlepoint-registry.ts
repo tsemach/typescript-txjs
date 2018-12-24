@@ -17,8 +17,8 @@ export class TxSinglePointRegistry extends TxRegistry<TxMountPoint, string | Sym
     return this._instance || (this._instance = new this());
   }
 
-  create(name: string | Symbol): TxMountPoint {
-    const sp = new TxSinglePoint(name);
+  create<T>(name: string | Symbol): TxMountPoint {
+    const sp = new TxSinglePoint<T>(name);
 
     if (typeof name === 'string') {
       if (name === undefined || name.length === 0) {
@@ -26,7 +26,7 @@ export class TxSinglePointRegistry extends TxRegistry<TxMountPoint, string | Sym
       }
 
       if (this.has(name)) {
-        throw Error('already got singlepoint under the name ' + name);
+        throw Error('already got singlepoint under the name ' + name.toString());
       }
 
       return <TxMountPoint>this.add(name, sp);
@@ -37,7 +37,7 @@ export class TxSinglePointRegistry extends TxRegistry<TxMountPoint, string | Sym
     }
 
     if (this.has(name)) {
-      throw Error('already got singlepoint under the name ' + name);
+      throw Error('already got singlepoint under the name ' + name.toString());
     }
 
     return <TxMountPoint>this.add(name, sp);

@@ -24,23 +24,23 @@ export class TxConnectorRabbitMQ implements TxConnector {
   constructor() {
 
   }
-  register(service: any, route: any) {
-    console.log(`TxConnectorRabbit: ${service}-${route}-${this.id}`);
+  listen(service: any, route: any) {
+    console.log(`[TxConnectorRabbit::listen] ${service}-${route}-${this.id}`);
   }
 
   subscribe(cb: (any) => void) {
     this.subscribeBC = cb;
-    console.log("subscribe: TxConnectorRabbit Method not implemented.");
+    console.log("[TxConnectorRabbit::subscribe] TxConnectorRabbit Method not implemented.");
   };
 
   next(service: string, route: string, data: any) {
     this.subscribeBC(data);
-    console.log("next: TxConnectorRabbit Method not implemented.");
+    console.log("[TxConnectorRabbit::next] TxConnectorRabbit Method not implemented.");
   }
 
   error(service: string, route: string, data: any) {
     this.subscribeBC(data);
-    console.log("next: TxConnectorRabbit Method not implemented.");
+    console.log("TxConnectorRabbit::error] TxConnectorRabbit Method not implemented.");
   }
 
   close() {
@@ -64,8 +64,8 @@ describe('Queue Point Class', () => {
     const CP1 = txContainer.get<TxQueuePoint>(TxTYPES.TxQueuePoint);
     const CP2 = txContainer.get<TxQueuePoint>(TxTYPES.TxQueuePoint);
 
-    CP1.queue().register('CP1', 'tasks:connect');
-    CP2.queue().register('CP2', 'tasks:connect');
+    CP1.queue().listen('CP1', 'tasks:connect');
+    CP2.queue().listen('CP2', 'tasks:connect');
 
     set.add((<TxConnectorRabbitMQ>CP1.queue()).id);
     set.add((<TxConnectorRabbitMQ>CP2.queue()).id);
@@ -92,8 +92,8 @@ describe('Queue Point Class', () => {
     const CP1 = txContainer.get<TxQueuePoint>(TxTYPES.TxQueuePoint);
     const CP2 = txContainer.get<TxQueuePoint>(TxTYPES.TxQueuePoint);
 
-    CP1.queue().register('CP1', 'tasks:connect');
-    CP2.queue().register('CP2', 'tasks:connect');
+    CP1.queue().listen('CP1', 'tasks:connect');
+    CP2.queue().listen('CP2', 'tasks:connect');
 
     let set = new Set<string>();
     set.add((<TxConnectorRabbitMQ>CP1.queue()).id);

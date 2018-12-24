@@ -6,7 +6,7 @@ const { fork } = require('child_process');
 import { TxMountPointRegistry } from './../../../src/tx-mountpoint-registry';
 
 import createLogger from 'logging';
-const logger = createLogger('service-a:client');
+const logger = createLogger('service-c:client');
 
 import { TxQueuePointRegistry, TxJobRegistry, TxTask } from '../../../src/';
 import { TxJobServicesComponent } from '../../../src/tx-job-services-component';
@@ -16,7 +16,7 @@ TxJobRegistry.instance.setServiceName('service-c');
 
 const data = {
   "head": {
-    "next": "service-a"
+    "next": "service-c"
   },
   "data": {
     "job": {
@@ -60,13 +60,13 @@ async function run() {
   await (new TxJobServicesComponent()).init();  
   let mp = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
   
-  const forked = fork('./dist/tests/S2S/service-a/main.js');
+  const forked = fork('./dist/tests/S2S/service-c/service-c-main.js');
 
   forked.on('message', (msg) => {
     logger.info('message from main', msg);
     if (msg === 'main:up') {
       logger.info('client: going to send task');
-      mp.tasks().next(new TxTask<TxJobServicesHeadTask>({next: 'service-a'}, data));
+      mp.tasks().next(new TxTask<TxJobServicesHeadTask>({next: 'service-c'}, data));
 
       return;
     }

@@ -20,12 +20,22 @@ export interface TxJobExecutionOptions {
     record: boolean;
     source: string;
     notify: {
-      name: string;
-      type: string;
-      from: string;
+      name: string;   // the name of the mountpoint needed to send reply
+      from: string;   // the service name where need to notify
     }
   }
 }
+
+let defaultExecutionOptions: TxJobExecutionOptions = {
+  "persist": {
+    "ison": false,
+    "destroy": false
+  },
+  execute: {
+    record: false
+  }
+} as TxJobExecutionOptions;
+export { defaultExecutionOptions };
 
 export class TxJobExecutionOptionsChecker {
   constructor() {
@@ -98,11 +108,7 @@ export class TxJobExecutionOptionsChecker {
     if ( ! options.execute.notify.hasOwnProperty('from') ) {
       return false;
     }
-
-    if ( ! options.execute.notify.hasOwnProperty('type') ) {
-      return false;
-    }
-
+    
     if ( ! options.execute.notify.hasOwnProperty('name') ) {
       return false;
     }

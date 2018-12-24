@@ -1,5 +1,4 @@
 
-//import logger = require('logging');
 import createLogger from 'logging';
 const logger = createLogger('Job-Registry-Test');
 
@@ -14,11 +13,13 @@ import { TxJob } from '../../src';
 import { Persist } from "../job/pesist-driver";
 import { C1Component } from "../job/C1.component";
 import {C3Component} from "../job/C3.component";
-import {TxMountPointRegistry} from '../../src/tx-mountpoint-registry';
+import {TxSinglePointRegistry} from '../../src/tx-singlepoint-registry';
 import {C2Component} from "../job/C2.component";
 import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 
-new TxJobServicesComponent().init();  
+new C1Component();
+new C2Component();
+new C3Component();
 
 describe('Job Registry Classes - TxJobRegistry', () => {
 
@@ -37,18 +38,15 @@ describe('Job Registry Classes - TxJobRegistry', () => {
   });
 
   it('tx-job-registry.spec: check TxJobRegistry - persistently', async () => {
-    new C1Component();
-    new C2Component();
-    new C3Component();
-
+    
     // set job registry with persist capabilities
     TxJobRegistry.instance.setPersistDriver(new Persist());
 
     let src = new TxJob('job-1');
 
-    src.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
-    src.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
-    src.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+    src.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C1'));
+    src.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C2'));
+    src.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C3'));
 
     assert(await TxJobRegistry.instance.persist(src));
 

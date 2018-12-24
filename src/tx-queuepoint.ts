@@ -3,7 +3,6 @@ import "reflect-metadata";
 
 import { TxConnector } from "./tx-connector"
 import { TxTYPES } from "./tx-injection-types";
-import { TxMountPoint } from "./tx-mountpoint";
 
 @injectable()
 export class TxQueuePoint {

@@ -2,12 +2,12 @@
 import { TxSubscribe } from './tx-subscribe';
 import { TxMountPoint } from "./tx-mountpoint";
 
-export class TxSingleSubject extends TxSubscribe {
+export class TxSingleSubject<T> extends TxSubscribe<T> {
   private methods = new Map<string, any>();
-    isSubscribe = false;
+  isSubscribe = false;
 
-  constructor() {
-    super();
+  constructor(from?: T) {
+    super(from);
   }
 
   method(name, target) {
@@ -36,12 +36,12 @@ export class TxSingleSubject extends TxSubscribe {
  *
  * A component receive task by the mount-point's tasks Subject and return reply by reply subject.
  */
-export class TxSinglePoint implements TxMountPoint {
+export class TxSinglePoint<T> implements TxMountPoint {
 
-  _tasks = new TxSingleSubject();
-  _undos = new TxSingleSubject();
-
-  constructor(private _name: string | Symbol) {    
+  _tasks = new TxSingleSubject<T>();
+  _undos = new TxSingleSubject<T>();
+  
+  constructor(private _name: string | Symbol) {
   }
 
   get name() {
@@ -57,7 +57,6 @@ export class TxSinglePoint implements TxMountPoint {
    */
   reply() {
     throw new Error("reply is not allow on TxSinglePoint");
-    //return this._tasks;
   }
 
   /**
@@ -73,5 +72,9 @@ export class TxSinglePoint implements TxMountPoint {
     return this._undos;
   }
 
+  setFrom(from: T) {
+    this._tasks.setFrom(from);
+    this._undos.setFrom(from);
+  }
 }
 

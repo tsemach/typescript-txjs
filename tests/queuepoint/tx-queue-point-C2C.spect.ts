@@ -5,12 +5,12 @@ const logger = createLogger('TxQueuePoint-Test');
 import 'mocha';
 import "reflect-metadata";
 
-import {Q1Component} from "../C2C/Q1.component";
-import {Q2Component} from "../C2C/Q2.component";
+import {Q1Component} from "./Q1.component";
+import {Q2Component} from "./Q2.component";
 
 describe('Queue Point Class', () => {
 
-  it('tx-quue-point-C2C.spec: check Q1Component <==> Q2Component C2C', async () => {
+  it('tx-quue-point-C2C.spec: check Q1Component <==> Q2Component C2C', async (done) => {
     logger.info('tx-quue-point-C2C.spec: check Q1Component <==> Q2Component C2C');
     let Q1 = new Q1Component();
     let Q2 = new Q2Component();
@@ -18,6 +18,10 @@ describe('Queue Point Class', () => {
     await Q1.init();
     await Q2.init();
     await Q2.send();
-  });
+
+    setTimeout(() => {
+      done();
+    }, 2000)    
+  }).timeout(3000);
 
 });

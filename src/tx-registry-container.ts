@@ -2,6 +2,13 @@
 import { Container } from "inversify";
 import { TxTYPES } from "./tx-injection-types";
 import { TxConnector } from "./tx-connector";
+import { some } from "bluebird";
+
+export enum TxRegistryContainerScopeEnum {
+  DEFAULT = 0,
+  SINGLETON = 1,
+  TRANSIENT = 2
+}
 
 /**
  * a wrapper class for inversify container to keep presistDriver bind.
@@ -27,10 +34,20 @@ export class TxRegistryContainer<T> {
     return this.txContainer.get<T>(this.bind);
   }
 
-  setDriver(type) {
+  setDriver(type, scope: TxRegistryContainerScopeEnum = TxRegistryContainerScopeEnum.SINGLETON) {
     if ( this.txContainer.isBound(TxTYPES.TxConnector)) {
       this.txContainer.unbind(TxTYPES.TxConnector);
     }
-    this.txContainer.bind<TxConnector>(TxTYPES.TxConnector).to(type).inSingletonScope();
+
+    switch(scope) {      
+      case TxRegistryContainerScopeEnum.SINGLETON:    
+        this.txContainer.bind<TxConnector>(TxTYPES.TxConnector).to(type).inSingletonScope();
+        return;
+      case TxRegistryContainerScopeEnum.TRANSIENT:
+        this.txContainer.bind<TxConnector>(TxTYPES.TxConnector).to(type).inTransientScope();
+        return;
+    }
+    this.txContainer.bind<TxConnector>(TxTYPES.TxConnector).to(type).inTransientScope();
   }
+
 }

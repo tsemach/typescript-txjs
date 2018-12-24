@@ -8,14 +8,6 @@ import { A3Component } from '../components/A3.component';
 import { A2Component } from '../components/A2.component';
 import { A1Component } from '../components/A1.component';
 
-// process.on('message', (msg) => {  
-//   logger.info('[service-a: message from parent:', msg);
-
-//   if (msg === 'service-a:exist') {
-//     process.exit(0);
-//   }
-// });
-
 TxJobRegistry.instance.setServiceName('service-a');
 
 new A1Component();
@@ -47,6 +39,10 @@ async function init() {
 async function run() {
   let job = new TxJob('job-1'); 
 
+  // let conn;
+  // conn = {mode: 'route', service: 'service-a', endpoint: 'localhost:3001', path: '/test1'}
+  // conn = {mode: 'queue', service: 'service-a'}
+
   job.on('service-a').add('GITHUB::GIST::A1');
   job.on('service-a').add('GITHUB::GIST::A2');
   job.on('service-a').add('GITHUB::GIST::A3');
@@ -74,7 +70,13 @@ async function run() {
     {something: 'more data here'}
     ),
     {
-      execute: {source: 'service'}
+      execute: {
+        source: 'service',
+        notify: {
+          name: 'SERVICE-C::JOB::COMPLETED',
+          from: 'service-c'
+        }
+      }
     } as TxJobExecutionOptions
   );        
   

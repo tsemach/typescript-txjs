@@ -13,7 +13,8 @@ import { TxSinglePointRegistry } from './tx-singlepoint-registry';
 import { TxJobRegistry } from './tx-job-resgitry';
 import { TxJobJSON } from "./tx-job-json";
 import { TxTask } from "./tx-task";
-import { TxJobExecutionOptions, TxJobExecutionOptionsChecker } from "./tx-job-execution-options";
+import { TxJobComponentOptions, defaultComponentOptions } from './tx-job-component-options';
+import { TxJobExecutionOptions, TxJobExecutionOptionsChecker, defaultExecutionOptions } from "./tx-job-execution-options";
 import { TxRecordPersistAdapter, TxRecordIndexSave } from "./tx-record-persist-adapter";
 import { TxJobExecutionId } from "./tx-job-execution-id";
 import { TxJobServices } from './tx-job-services';
@@ -26,22 +27,43 @@ export const enum TxDirection {
   backward,
 }
 
-let defaultOptions: TxJobExecutionOptions = {
-  "persist": {
-    "ison": false,
-    "destroy": false
-  },
-  execute: {
-    record: false
-  }
-} as TxJobExecutionOptions;
+// let defaultExecutionOptions: TxJobExecutionOptions = {
+//   "persist": {
+//     "ison": false,
+//     "destroy": false
+//   },
+//   execute: {
+//     record: false
+//   }
+// } as TxJobExecutionOptions;
 
-export class TxJob {
-  //isCompleted = new Subject();  // notify when the whole execution is completed.  
-  isCompleted = new TxSubscribe();  // notify when the whole execution is completed.
-  isStopped = new Subject();    // notify when execution reach to it's run-until component.
-  onComponent = new Subject();  // notify the world on any coming in subscribe callback (reply from component).
-  onError = new Subject();  // notify the world on any coming in subscribe callback (reply from component).
+// class CBWrapper {
+//   num = Math.random();
+//   name: string | Symbol;
+
+//   constructor(private job: TxJob, private mountpoint: TxMountPoint) {
+
+//     this.name = this.mountpoint.name;
+//     logger.info(`CBWrapper: constructor: name = ${this.name}`);  
+//   }
+
+//   async cb(task: TxTask<any>) {
+//      let dp = <TxDoublePoint>this.mountpoint;
+//      logger.info(`DEPRECATED: IN subscribe: IN data CALLBACK  NUM = ${this.num}`);  
+//      logger.info(`DEPRECATED: IN subscribe: IN data CALLBACK  dp.recver.name = ${dp.recver.name.toString()}`);  
+//      logger.info(`DEPRECATED: IN subscribe: IN data CALLBACK  txMountPoint = ${this.name.toString()}`);
+//      logger.info(`DEPRECATED: IN subscribe: IN data CALLBACK  txMountPoint = ${JSON.stringify(task.get())}`);
+     
+//      await this.job.subscribeCB(task, this.mountpoint);
+//   }
+
+// }
+
+export class TxJob {  
+  isCompleted = new TxSubscribe<TxJob>();   // notify when the whole execution is completed.
+  isStopped = new Subject();                // notify when execution reach to it's run-until component.
+  onComponent = new TxSubscribe<TxJob>();   // notify the world on any coming in subscribe callback (reply from component).
+  onError = new TxSubscribe<TxJob>();       // notify the world on any coming in subscribe callback (reply from component).
 
   uuid = uuid.new();
 
@@ -54,11 +76,12 @@ export class TxJob {
   single = false;
   revert = false;
   current = null;
-  options = defaultOptions;
+  options = defaultExecutionOptions;  
 
   pointnumber = 0;
   executionId: TxJobExecutionId = {uuid: '', sequence: 0};
   recorder: TxRecordPersistAdapter;
+  waiting = new Set<string>();
 
   services = new TxJobServices(this);
 
@@ -71,7 +94,9 @@ export class TxJob {
     this.recorder = TxJobRegistry.instance.getRecorderDriver();
   }
 
-  async subscribeCB(data: TxTask<any>, txMountPoint: TxMountPoint) {
+  async subscribeCB(data: TxTask<any>, txMountPoint: TxMountPoint) {    
+
+    //txMountPoint = this.current;
     logger.info(`[TxJob:subscribe] [${this.name}] got reply, data = ${JSON.stringify(data, undefined, 2)}`);
     logger.info(`[TxJob:subscribe] [${this.name}] before shift to next task, stack.len = ${this.stack.length}`);
 
@@ -79,10 +104,15 @@ export class TxJob {
       throw new Error(`[TxJob:subscribe] ERROR: job: ${this.name} is on error but got subscribe callback from a mountpoint`);
     }
 
+    logger.info(`[TxJob:subscribe] [${this.name}] going to delete ${txMountPoint.name.toString()} from waiting`);    
+    // remove this comment when finish waitfor bug
+    // this.waiting.delete(txMountPoint.name.toString());
+    this.waiting.clear();
+
     if (this.isRecord(this.options)) {
       await this.record({reply: data}, 'update');
     }
-    this.onComponent.next(new TxTask<{name: string}>({name: <string>txMountPoint.name}, {data: data}));
+    this.onComponent.next(new TxTask<{name: string}>({name: txMountPoint.name.toString()}, data));
 
     if (this.revert) {
       this.undoCB(data);
@@ -94,8 +124,8 @@ export class TxJob {
       this.getIsStopped().next(data);
     }
 
-    if (this.stack.length === 0) {
-      logger.info(`[TxJob:subscribe] [${this.name}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}`);
+    if (this.isFinish()) {
+      logger.info(`[TxJob:subscribe] [${this.name}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}, waiting.size = ${this.waiting.size}`);
       this.finish(data);
 
       return;
@@ -110,37 +140,55 @@ export class TxJob {
       return
     }
 
-    /**
-     * make the next move, get the next mountpoint from the stack,
-     * and send the data to it's tasks subject.
-     */
-    let next = this.shift();
-    logger.info(`[TxJob:subscribe] [${this.name}] going to run next task: ${next.name}`);
-
-    if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
-      await TxJobRegistry.instance.persist(this);
-    }
-
-    if (TxJobExecutionOptionsChecker.isUntil(this.options, next.name)) {
-      logger.info(`[TxJob:subscribe] [${this.name}] found execute.until, on ${next.name} mount point`);
-
-      if (TxJobExecutionOptionsChecker.isDestroy(this.options)) {
-        logger.info(`[TxJob:subscribe] [${this.name}] going to destroy job \'${this.getUuid()}\', on ${next.name} mount point`);
-
-        this.release();
+    let next: TxDoublePoint;
+    do {
+      // if stack.length == 0 then nothing to next but this.waitng.size > 0 then it mean
+      // that there are still component outside, need to wait for them.
+      if (this.waiting.size > 0 && this.stack.length === 0) {
+        logger.info(`[TxJob:subscribe] [${this.name}] nothing to next but still need to wait for components to completed, ${this.waiting.size}`);
+        
+        return;
       }
 
-      this.getIsStopped().next(data);
+      /**
+       * make the next move, get the next mountpoint from the stack,
+       * and send the data to it's tasks subject.
+       */
+      next = this.shift();
+      logger.info(`[TxJob:subscribe] [${this.name}] going to run next task: ${next.name}`);
 
-      return;
-    }
+      if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
+        await TxJobRegistry.instance.persist(this);
+      }
 
-    if (this.isRecord(this.options)) {
-      await this.record({tasks: data}, 'insert');
-    }
+      if (TxJobExecutionOptionsChecker.isUntil(this.options, next.name)) {
+        logger.info(`[TxJob:subscribe] [${this.name}] found execute.until, on ${next.name} mount point`);
 
-    data.setReply(txMountPoint.reply());
-    next.tasks().next(data);
+        if (TxJobExecutionOptionsChecker.isDestroy(this.options)) {
+          logger.info(`[TxJob:subscribe] [${this.name}] going to destroy job \'${this.getUuid()}\', on ${next.name} mount point`);
+
+          this.release();
+        }
+
+        this.getIsStopped().next(data);
+
+        return;
+      }
+
+      if (this.isRecord(this.options)) {
+        await this.record({tasks: data}, 'insert');
+      }    
+
+      this.waiting.add(next.name.toString());
+      data.setReply(txMountPoint.reply());
+
+      setTimeout( async () => {
+        next.tasks().next(data)
+      }, 0); 
+
+      logger.info(`[TxJob:subscribe] [${this.name}] end of subscribe, ${next.name}`);
+
+    } while ( ! next.isWait() )
   }
 
   async errorCB(data,  txMountPoint: TxMountPoint) {
@@ -182,11 +230,15 @@ export class TxJob {
     this.current.tasks().error(data);
   }
 
-  subscribe(txMountPoint: TxMountPoint) {
-    logger.info(`[TxJob:subscribe] [${this.name}] going to add '${txMountPoint.name}' mount point`);
+  subscribe(txMountPoint: TxMountPoint) {        
     const subscribed = txMountPoint.reply().subscribe(
-      async (data) => {
-        await this.subscribeCB(data, txMountPoint);
+      async (task, mountpoint) => {        
+        // DELETE this ------------------------------------------------------------------------------------------
+        logger.info(`DEPRECATED: IN subscribe: IN data CALLBACK  txMountPoint = ${mountpoint.name.toString()}`);
+        logger.info(`DEPRECATED: IN subscribe: IN data CALLBACK  txMountPoint = ${JSON.stringify(task.get())}`);
+        //-------------------------------------------------------------------------------------------------------
+
+        await this.subscribeCB(task, mountpoint);
       },
       async (error) => {
         await this.errorCB(error, txMountPoint);
@@ -213,22 +265,20 @@ export class TxJob {
    * 
    * @param sender - the mountpoint use to send tasks by me to others
    */
-  add(sender: TxMountPoint) {
+  add(sender: TxMountPoint, options: TxJobComponentOptions = defaultComponentOptions) {
 
-    // let doublepoint = new TxDoublePoint(sender.name, this.uuid + ':' + ++this.pointnumber);
-    // doublepoint.sender = <TxSinglePoint>sender;
-
-    let doublepoint = this.newDoublePoint(sender);
+    let doublepoint = this.newDoublePoint(sender, options);
+    
     this.subscribe(doublepoint);
     this.stack.push(doublepoint);
     this.block.push(doublepoint);
 
-    TxJobRegistry.instance.addComponent(this.name, doublepoint.sender.name);
+    TxJobRegistry.instance.addComponent(this.name, doublepoint.name);
   }
 
-  private newDoublePoint(sender: TxMountPoint) {
-    let doublepoint = new TxDoublePoint(sender.name, this.uuid + ':' + ++this.pointnumber);
-    doublepoint.sender = <TxSinglePoint>sender; 
+  private newDoublePoint(sender: TxMountPoint, options?: TxJobComponentOptions) {
+    let doublepoint = new TxDoublePoint(sender, this.uuid + ':' + ++this.pointnumber);
+    doublepoint.options = options;
 
     return doublepoint;
   }
@@ -237,7 +287,7 @@ export class TxJob {
     return _.find(this.block, (e) => { return e.name === name});
   }
 
-  async execute(data, options: TxJobExecutionOptions = defaultOptions) {
+  async execute(task, options: TxJobExecutionOptions = defaultExecutionOptions) {
     this.single = false;
     this.options = options;
 
@@ -254,29 +304,54 @@ export class TxJob {
     // if come back from serialization with error flag on than call to
     // current component on error channel.
     if (this.error) {
-      this.current.tasks().error(data);
+      task.setReply(this.current.reply());
+      this.current.tasks().error(task);
 
       return;
     }
 
     this.trace = [];
-    let runit = this.shift();
-    logger.info(`[TxJob:execute] going to run ${runit.name} mount point`);
+    let isOnePass = false;
 
-    if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
-      await TxJobRegistry.instance.persist(this);
-    }
+    do {      
+      if (this.stack.length === 0) {
+        logger.info(`[TxJob:execute] [${this.name}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}`);
 
-    if (this.isRecord(options)) {
-      this.genExecutionId();
-      await this.record({tasks: data}, 'insert');
-    }
+        return;
+      }
 
-    data.setReply(runit.reply());
-    runit.tasks().next(data);
-  }
+      this.current = this.shift();    
+      if (isOnePass && this.current.isWait()) {
+        break;
+      }
 
-  async continue(data, options: TxJobExecutionOptions = defaultOptions) {
+      logger.info(`[TxJob:execute] going to run ${this.current.name} mount point, wait: ${this.current.isWait()}`);
+
+      if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
+        await TxJobRegistry.instance.persist(this);
+      }
+
+      if (this.isRecord(options)) {
+        this.genExecutionId();
+        await this.record({tasks: task}, 'insert');
+      }
+
+      task.setReply(this.current.reply());
+      this.waiting.add(this.current.name.toString());
+
+      setTimeout( async () => {
+        this.current.tasks().next(task)
+      }, 0);
+      isOnePass = true;
+
+      logger.info(`[TxJob:execute] end calling to ${this.current.name} mount point, wait: ${this.current.isWait()}`);
+
+    } while( ! this.current.isWait() );
+  
+    logger.info(`[TxJob:execute] [${this.name}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}, waiting.size = ${this.waiting.size}`);
+  } 
+
+  async continue(data, options: TxJobExecutionOptions = defaultExecutionOptions) {
     this.single = false;
     this.options = options;
 
@@ -316,7 +391,7 @@ export class TxJob {
    * @param data the data to pass to components
    * @param options
    */
-  async step(data, options: TxJobExecutionOptions = defaultOptions) {
+  async step(data, options: TxJobExecutionOptions = defaultExecutionOptions) {
     this.single = true;
     this.options = options;
     if (this.stack.length === 0) {
@@ -392,7 +467,7 @@ export class TxJob {
    * @param data 
    * @param options 
    */
-  async errorAll(data, options: TxJobExecutionOptions = defaultOptions) {
+  async errorAll(data, options: TxJobExecutionOptions = defaultExecutionOptions) {
     let __name = TxJobRegistry.instance.getServiceName();
 
     logger.info(`[(${__name}):TxJob:errorAll] called, this.stack.length = ${this.stack.length}, options = ${JSON.stringify(options)}`);      
@@ -456,6 +531,7 @@ export class TxJob {
     this.current = null;
     this.single = false;
     this.error = false;
+    this.revert = false;
 
     this.executionId = {uuid: '', sequence: 0};
   }
@@ -468,9 +544,7 @@ export class TxJob {
 
   release() {
     TxJobRegistry.instance.del(this.getUuid());
-    this.subscribers.forEach(cb => {
-      cb.unsubscribe();
-    });
+    this.unsubscribes()
     this.services.release();
     this.executionId = {uuid: '', sequence: 0};
   }
@@ -483,26 +557,39 @@ export class TxJob {
     if (this.options.execute.notify.from !== TxJobRegistry.instance.getServiceName()) {
       return;
     }  
-
     let mp = TxMountPointRegistry.instance.get(this.options.execute.notify.name);
 
-    if (this.options.execute.notify.type === 'next') {        
-      mp.reply().next(data);
-    }
-
-    if (this.options.execute.notify.type === 'error') {
+    if (this.error) {        
       mp.reply().error(data);    
+
+      return
     }
+    
+    mp.reply().next(data);
   }
 
-  finish(data) {    
+  private finish(data, notification = true) {    
     this.revert = false;
     this.single = false;
     this.services.shift(data);        
-    this.notify(data);
-    this.isCompleted.next(data);
-  }
 
+    if (notification) {
+      this.notify(data);
+    }
+    this.isCompleted.next(data, this);
+  }
+  
+  private isFinish() {
+    if (this.stack.length > 0) {
+      return false;
+    }
+    if (this.waiting.size > 0) {
+      return false;
+    }
+
+    return true;
+  }
+  
   toJSON(): TxJobJSON {
     return {
       name: this.name,

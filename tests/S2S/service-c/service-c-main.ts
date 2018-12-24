@@ -19,7 +19,7 @@ async function init() {
 
   await new TxJobServicesComponent().init();  
 
-  let mp = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
+  let mp = TxMountPointRegistry.instance.create('SERVICE-C::JOB::COMPLETED');
   mp.reply().subscribe(
     (task) => {
       logger.info("service-c: got data from TxJobServicesComponent: " + JSON.stringify(task, undefined, 2));

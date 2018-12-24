@@ -1,13 +1,17 @@
 
-//export type TxCallback = (any: any) => void;
 import { TxCallback } from './tx-callback';
 
-export class TxSubscribe {
-  dataCB: TxCallback = null;
-  errorCB: TxCallback = null;
-  completeCB: TxCallback
+export class TxSubscribe<T> {
+  dataCB: TxCallback<T> = null;
+  errorCB: TxCallback<T> = null;
+  completeCB: TxCallback<T>;
+  from: T = null;
 
-  subscribe(dataCB: (any: any) => void, errorCB?: (any: any) => void, completeCB?: (any?: any) => void) {
+  constructor(from?: T) {
+    this.from = from ? from : null;    
+  }
+
+  subscribe(dataCB: TxCallback<T>, errorCB?: TxCallback<T>, completeCB?: (any?: any) => void) {  
     this.dataCB = dataCB;
     this.errorCB = errorCB;
     this.completeCB = completeCB;
@@ -15,20 +19,26 @@ export class TxSubscribe {
     return this;
   }
 
-  next(data) {
-    if (this.dataCB != null) {
-      this.dataCB(data);
+  next(data, from?: T) {
+    if (this.dataCB != null) {      
+      this.dataCB(data, from ? from : this.from);
     }
   }
 
-  error(error) {
+  error(error, from?: T) {
     if (this.errorCB != null) {    
-      this.errorCB(error);
+      this.errorCB(error, from ? from : this.from);
     }
   }
 
   unsubscribe() {
     this.dataCB = null;
     this.errorCB = null;
+    this.completeCB = null
+  }
+
+  setFrom(from: T) {
+    this.from = from;
   }
 }
+
