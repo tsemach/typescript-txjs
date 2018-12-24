@@ -5,7 +5,7 @@ const logger = createLogger('TxJobServices');
 
 import { TxJob } from "./tx-job";
 import { TxMountPointRegistry } from './tx-mountpoint-registry';
-import { TxJobServicesJSON, Connector } from "./tx-job-services-json";
+import { TxJobServicesJSON, TxJobServiceConnector } from "./tx-job-services-json";
 import { TxTask } from "./tx-task";
 import { TxJobServicesHeadTask } from "./tx-job-services-task";
 
@@ -23,8 +23,7 @@ export class TxJobServices {
   private trace = [];        // list of already run servies, fill during execution
   private block = [];        // list of all services needed to run in order, not change during execution  
   private current = '';      // the current service pass with 'on' method, this use jsut for add mountpoint
-
-  private connectors = new Map<string, Connector>(); // mapping service to it's connection paramerters
+  private connectors = new Map<string, TxJobServiceConnector>(); // mapping service to it's connection paramerters
 
   constructor(private job: TxJob) {
   } 

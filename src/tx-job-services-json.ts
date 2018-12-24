@@ -4,16 +4,16 @@ export interface Jobs {
   components: string[]
 }
 
-export interface Connector {
+export interface TxJobServiceConnector {
   mode: string;   // route | queue: type of the connector
   host: string;   // hostname | ip | queue of the remote service need to connect
   port: string;   // port number in case of express connector
   path: string;   // parh | route: path in case of express connector, route (topic) in case of queue
 }
 
-export interface Connectors {
+export interface TxJobServiceConnectors {
   service: string;
-  connector: Connector;
+  connector: TxJobServiceConnector;
 }
 
 export interface TxJobServicesJSON {
@@ -22,7 +22,7 @@ export interface TxJobServicesJSON {
   block:      string[];
   current:    string;
   jobs:       Jobs[];
-  connectors: Connectors[]
+  connectors: TxJobServiceConnectors[]
 }
 
 export const TxJobServicesEmptyJSON =  {

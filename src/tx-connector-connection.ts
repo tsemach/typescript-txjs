@@ -1,6 +1,6 @@
 import { TxCallback } from './tx-callback'
 
-export class TxConnectorExpressConnection {  
+export class TxConnectorConnection {  
   private _host: string = null
   private _port: string = null
   private _path: string = null

@@ -15,7 +15,7 @@ import * as cors from 'cors';
 import { TxCallback } from './tx-callback';
 import { TxConnector } from "./tx-connector"
 import { TxConnectorExpressService } from './tx-connector-express-service'
-import { TxConnectorExpressConnection } from './tx-connector-express-connection';
+import { TxConnectorConnection } from './tx-connector-connection';
 import { TxConnectorExpress } from './tx-connector-express';
 
 /**

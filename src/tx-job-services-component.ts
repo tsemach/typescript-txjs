@@ -45,9 +45,9 @@ export class TxJobServicesComponent {
         let __name = TxJobRegistry.instance.getServiceName();
         logger.info(`[(${__name}):${__method}:subscribe] got error - ${JSON.stringify(error, undefined, 2)}`);
 
-        // notify next service that need to run error handling sequence. 
-        await this.queuepoint.queue().error(error.head.next, TxNames.JOB_SERVICE, error); 
-     })    
+        // notify next service that need to run error handling sequence.
+        await this.queuepoint.queue().error(error.head.next, TxNames.JOB_SERVICE, error);
+     })
   }
 
   async initQueuePoint() {

@@ -8,7 +8,7 @@ import * as request from 'request-promise';
 
 import { TxCallback } from './tx-callback';
 import { TxConnector } from "./tx-connector"
-import { TxConnectorExpressConnection } from './tx-connector-express-connection';
+import { TxConnectorConnection } from './tx-connector-connection';
 import { TxConnectorExpressListener } from './tx-connector-express-listener';
 
 /**

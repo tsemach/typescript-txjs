@@ -56,29 +56,6 @@ const data = {
   }
 }
 
-async function run2() {
-  await (new TxJobServicesComponent()).init();  
-  let mp = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
-  
-  const forked = fork('./dist/tests/S2S/service-a/main.js');
-
-  forked.on('message', (msg) => {
-    logger.info('message from main', msg);
-    if (msg === 'main:up') {
-      logger.info('client: going to send task');
-      mp.tasks().next(new TxTask<TxJobServicesHeadTask>({next: 'service-a'}, data));
-
-      return;
-    }
-    if (msg === 'main:completed') {
-      logger.info("client: main is completed");
-
-      return;
-    }    
-  });
-  
-}
-
 async function run() {
   logger.info('[service-a:run] declare the job and run it');
 

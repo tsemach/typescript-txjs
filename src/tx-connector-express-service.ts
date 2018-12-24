@@ -1,5 +1,5 @@
 import createLogger from 'logging'; 
-const logger = createLogger('TxMonitorServerService');
+const logger = createLogger('TxConnectorExpressService');
 
 import * as express from 'express';
 import * as request from 'request-promise';
@@ -7,12 +7,12 @@ import * as request from 'request-promise';
 import { TxCallback } from './tx-callback';
 import { TxSubscribe } from './tx-subscribe';
 import { TxTask } from './tx-task';
-import { TxConnectorExpressConnection } from './tx-connector-express-connection';
+import { TxConnectorConnection } from './tx-connector-connection';
 import { TxConnectorExpressListener } from './tx-connector-express-listener';
 
 export class TxConnectorExpressService {
 
-  private connection = new TxConnectorExpressConnection();
+  private connection = new TxConnectorConnection();
   private callbacks = new TxSubscribe<this>();  
   private defined = false;
 

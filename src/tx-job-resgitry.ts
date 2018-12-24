@@ -3,7 +3,7 @@ import { TxRegistry } from './tx-registry';
 import { TxJob } from './tx-job';
 import { TxJobPersistAdapter } from "./tx-job-persist-adapter";
 import { TxRecordPersistAdapter } from "./tx-record-persist-adapter"
-import { TxConnectorExpressConnection } from './tx-connector-express-connection';
+import { TxConnectorConnection } from './tx-connector-connection';
 
 /**
  * TxJobRegistry - is class store TxJob by their ids.
@@ -16,7 +16,7 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
   private _isRecordMap = new Map<string, boolean>();
   private _jobComponents = new Map<string, Set<string>>();
   private _serviceName = '';
-  private _routeConnection = new TxConnectorExpressConnection()
+  private _routeConnection = new TxConnectorConnection()
   
   private constructor() {
     super();

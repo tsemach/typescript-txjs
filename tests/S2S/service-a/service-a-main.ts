@@ -39,6 +39,10 @@ async function init() {
 async function run() {
   let job = new TxJob('job-1'); 
 
+  // let conn;
+  // conn = {mode: 'route', service: 'service-a', endpoint: 'localhost:3001', path: '/test1'}
+  // conn = {mode: 'queue', service: 'service-a'}
+
   job.on('service-a').add('GITHUB::GIST::A1');
   job.on('service-a').add('GITHUB::GIST::A2');
   job.on('service-a').add('GITHUB::GIST::A3');

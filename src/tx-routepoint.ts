@@ -8,14 +8,14 @@ import { TxConnector } from "./tx-connector"
 import { TxTYPES } from "./tx-injection-types";
 import { TxConnectorExpressService } from './tx-connector-express-service';
 import { TxCallback } from "./tx-callback";
-import { TxConnectorExpressConnection } from "./tx-connector-express-connection";
+import { TxConnectorConnection } from "./tx-connector-connection";
 
 @injectable()
 export class TxRoutePoint {
   @inject(TxTYPES.TxConnector) private _route: TxConnector;
   @inject(TxTYPES.TxPointName) private _name: string | Symbol = '';
   private _service: TxConnectorExpressService = null;
-  private _connection = new TxConnectorExpressConnection();
+  private _connection = new TxConnectorConnection();
 
   id = uuid();
 
