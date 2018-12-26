@@ -2,7 +2,7 @@
 import { TxSubscribe } from './tx-subscribe';
 import { TxMountPoint } from "./tx-mountpoint";
 
-export class TxSingleSubject<T> extends TxSubscribe<T> {
+export class TxSingleSubscribe<T> extends TxSubscribe<T> {
   private methods = new Map<string, any>();
   isSubscribe = false;
 
@@ -38,8 +38,8 @@ export class TxSingleSubject<T> extends TxSubscribe<T> {
  */
 export class TxSinglePoint<T> implements TxMountPoint {
 
-  _tasks = new TxSingleSubject<T>();
-  _undos = new TxSingleSubject<T>();
+  _tasks = new TxSingleSubscribe<T>();
+  _undos = new TxSingleSubscribe<T>();
   
   constructor(private _name: string | Symbol) {
   }

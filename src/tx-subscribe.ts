@@ -6,9 +6,11 @@ export class TxSubscribe<T> {
   errorCB: TxCallback<T> = null;
   completeCB: TxCallback<T>;
   from: T = null;
+  limit = 0;
 
-  constructor(from?: T) {
+  constructor(from?: T, limit = 0) {
     this.from = from ? from : null;    
+    this.limit = limit;
   }
 
   subscribe(dataCB: TxCallback<T>, errorCB?: TxCallback<T>, completeCB?: (any?: any) => void) {  
