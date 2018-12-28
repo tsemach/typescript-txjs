@@ -2,7 +2,7 @@ import { TxTask } from './tx-task';
 import { Subject } from 'rxjs/Subject'
 import { TxMountPoint } from "./tx-mountpoint";
 
-class TxSubject extends Subject<TxTask<any>> {
+export class TxSubject extends Subject<TxTask<any>> {
   private methods = new Map<string, any>();
     isSubscribe = false;
 

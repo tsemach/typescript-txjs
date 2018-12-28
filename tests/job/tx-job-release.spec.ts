@@ -34,14 +34,14 @@ describe('Job Class', () => {
 
     let i = 0;
     job.block.forEach(b => {
-      logger.info('checking if ', job.block[i].name, ' dataCB is null: ', b.reply().dataCB)
-      expect(b.reply().dataCB).to.equal(null);
+      logger.info('checking if ', job.block[i].name, ' dataCB is empty: ', b.reply().dataCB)
+      expect(b.reply().dataCB.length).to.equal(0);
 
-      logger.info('checking if ', job.block[i].name, ' errorCB is null: ', b.reply().errorCB)
-      expect(b.reply().errorCB).to.equal(null);
+      logger.info('checking if ', job.block[i].name, ' errorCB is empty: ', b.reply().errorCB)
+      expect(b.reply().errorCB.length).to.equal(0);
 
-      logger.info('checking if ', job.block[i].name, ' completeCB is null: ', b.reply().completeCB)
-      expect(b.reply().completeCB).to.equal(null);
+      logger.info('checking if ', job.block[i].name, ' completeCB is empty: ', b.reply().completeCB)
+      expect(b.reply().completeCB.length).to.equal(0);
       
       i++;
     })

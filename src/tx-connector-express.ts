@@ -36,7 +36,7 @@ export class TxConnectorExpress implements TxConnector {
   }
 
   /**
-   * one listener is per port, on one port cloud be many paths.
+   * one listener is per port, on one port could have many paths.
    * each path is handle by TxConnectorExpressService
    * 
    * @param service host:port where the service is locate

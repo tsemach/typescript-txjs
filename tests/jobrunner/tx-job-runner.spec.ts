@@ -49,7 +49,7 @@ new T2Component();
           timeout: 0
         },
         {something: 'more data here'}),
-      isCompleted
+      isCompleted.subscribe
     );
 
   }).timeout(2000);

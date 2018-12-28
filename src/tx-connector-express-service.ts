@@ -77,7 +77,7 @@ export class TxConnectorExpressService {
   }
 
   close() {
-    this.callbacks.unsubscribe();
+    this.callbacks.unsubscribe(0);
   }
 
   getService() {
