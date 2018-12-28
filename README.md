@@ -33,6 +33,11 @@ To interact with a Component you are using several version a * **MountPoints** *
 * **`S2S`** - Cross Service Job, this enable to run a job spreading on several services.
 * **`Monitor`** - a full monitor solution.
 
+## What's new 0.2.3
+1. adding **`TxSubscribe`** - an implement of RxJS Subject API.
+2. adding **`TxSubject`** - a wrapper around RxJS Subject to support a type of RPC on a Componet. 
+3. adding **`TxConnectorExpress`** - Coomponent-2-Component communication using subscribe / next API.
+
 ## DOTO List
 1. Complete the work on S2S using node express (HTTP)
 2. Run Componets in paralle.
