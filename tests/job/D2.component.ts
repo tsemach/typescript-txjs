@@ -11,6 +11,7 @@ import { TxTask } from '../../src/tx-task';
   undos: 'undos'
 })
 export class D2Component {
+  [x: string]: any;
   constructor() {
     logger.info("[D2Component:constructor] ctor ..");      
   }
