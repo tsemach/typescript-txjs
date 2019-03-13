@@ -5,6 +5,7 @@ const logger = createLogger('MountPointRegistry');
 import { TxRegistry } from './tx-registry';
 import { TxMountPoint } from './tx-mountpoint';
 import { TxSinglePoint } from './tx-singlepoint';
+import { TxDoublePoint } from './tx-doublepoint';
 
 export class TxSinglePointRegistry extends TxRegistry<TxMountPoint, string | Symbol> {
   private static _instance: TxSinglePointRegistry;
@@ -41,6 +42,12 @@ export class TxSinglePointRegistry extends TxRegistry<TxMountPoint, string | Sym
     }
 
     return <TxMountPoint>this.add(name, sp);
+  }  
+
+  double(name: string | Symbol, suffix = '') {
+    logger.info(`[TxRegistry:get] getting object ${name.toString()}`);    
+
+    return new TxDoublePoint(this.get(name), suffix);
   }
     
 }

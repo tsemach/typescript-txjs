@@ -18,7 +18,7 @@ export class TxTask<T> {
     this.head = head;
   }
 
-  getdata() {
+  getData() {
     return this.data;
   }
 

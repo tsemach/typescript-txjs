@@ -1,6 +1,7 @@
 
 import { TxSubscribe } from './tx-subscribe';
 import { TxMountPoint } from "./tx-mountpoint";
+import { TxDoublePoint } from './tx-doublepoint';
 
 export class TxSingleSubscribe<T> extends TxSubscribe<T> {
   private methods = new Map<string, any>();
@@ -75,6 +76,10 @@ export class TxSinglePoint<T> implements TxMountPoint {
   setFrom(from: T) {
     this._tasks.setFrom(from);
     this._undos.setFrom(from);
+  }
+
+  double(suffix = '') {   
+    return new TxDoublePoint(this, suffix);
   }
 }
 
