@@ -355,8 +355,8 @@ export class TxJob {
     this.single = false;
     this.options = options;
 
-    if (this.stack.length === 0) {
-      logger.info(`[TxJob:continue] stack.length = 0`);
+    if (this.stack.length === 0 && ! this.current) {
+      logger.info(`[TxJob:continue] stack.length = 0 and no current job to run`);
 
       return;
     }
