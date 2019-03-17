@@ -11,7 +11,7 @@ import {TxJobJSON} from "../../src";
 export class Persist implements TxJobPersistAdapter {
   jobs = new Map<string, TxJobJSON>();
 
-  read(uuid: string): TxJobJSON {
+  read(uuid: string): Promise<TxJobJSON> {
     logger.info('[Persist:read] uuid = ' + uuid);
 
     return this.jobs.get(uuid);
