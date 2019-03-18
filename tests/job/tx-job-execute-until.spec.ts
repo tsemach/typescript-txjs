@@ -51,13 +51,13 @@ describe('Job Class', () => {
     job.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C3'));
 
     job.getIsStopped().subscribe(
-      (data) => {
+      async (data) => {
         logger.info('[job-execute-until-test] job.getIsStopped: run until - data:' + JSON.stringify(data, undefined, 2));
         expect(data['head']['method']).to.equal("from C1");
         expect(data['head']['status']).to.equal("ok");
         logger.info("UUIID " + JSON.stringify(persist.read(job.getUuid()), undefined, 2));
-        expect(persist.read(job.getUuid()).uuid).to.equal(job.getUuid());
-        expect(persist.read(job.getUuid()).current).to.equal('GITHUB::GIST::C2');
+        expect((await persist.read(job.getUuid())).uuid).to.equal(job.getUuid());
+        expect((await persist.read(job.getUuid())).current).to.equal('GITHUB::GIST::C2');
         
         done();
       });                
@@ -87,12 +87,12 @@ describe('Job Class', () => {
     job.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C3'));
 
     job.getIsStopped().subscribe(
-      (data) => {
+      async (data) => {
         logger.info('[job-execute-until-test] job.getIsStopped: run until - data:' + JSON.stringify(data, undefined, 2));
         expect(data['head']['method']).to.equal("from C1");
         expect(data['head']['status']).to.equal("ok");
-        expect(persist.read(job.getUuid()).uuid).to.equal(job.getUuid());
-        expect(persist.read(job.getUuid()).current).to.equal('GITHUB::GIST::C2');
+        expect((await persist.read(job.getUuid())).uuid).to.equal(job.getUuid());
+        expect((await persist.read(job.getUuid())).current).to.equal('GITHUB::GIST::C2');
         expect(TxJobRegistry.instance.has(job.getUuid())).to.equal(false);
 
         done();
@@ -148,12 +148,12 @@ describe('Job Class', () => {
     expect(from.sequence).to.equal(after['sequence']);
 
     job.getIsStopped().subscribe(
-      (data) => {
+      async (data) => {
         logger.info('[job-execute-until-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
         expect(data['head']['method']).to.equal("from C2");
         expect(data['head']['status']).to.equal("ok");
-        expect(persist.read(job.getUuid()).uuid).to.equal(job.getUuid());
-        expect(persist.read(job.getUuid()).current).to.equal('GITHUB::GIST::C3');
+        expect((await persist.read(job.getUuid())).uuid).to.equal(job.getUuid());
+        expect((await persist.read(job.getUuid())).current).to.equal('GITHUB::GIST::C3');
         expect(TxJobRegistry.instance.has(job.getUuid())).to.equal(true);
 
         done();
@@ -189,8 +189,8 @@ describe('Job Class', () => {
         logger.info('[job-execute-until-test] job.getIsStopped: run until - data:' + JSON.stringify(data, undefined, 2));
         expect(data['head']['method']).to.equal("from C1");
         expect(data['head']['status']).to.equal("ok");
-        expect(persist.read(job1.getUuid()).uuid).to.equal(job1.getUuid());
-        expect(persist.read(job1.getUuid()).current).to.equal('GITHUB::GIST::C2');
+        expect((await persist.read(job1.getUuid())).uuid).to.equal(job1.getUuid());
+        expect((await persist.read(job1.getUuid())).current).to.equal('GITHUB::GIST::C2');
         expect(TxJobRegistry.instance.has(job1.getUuid())).to.equal(false);
 
         let job2 = await TxJobRegistry.instance.rebuild(job1.getUuid());
