@@ -50,18 +50,18 @@ describe('Job Class', () => {
         logger.info('[job-execute-until-continue-test] job.getIsStopped: run until - data:' + JSON.stringify(data, undefined, 2));
         expect(data['head']['method']).to.equal("from C1");
         expect(data['head']['status']).to.equal("ok");
-        expect(persist.read(job1.getUuid()).uuid).to.equal(job1.getUuid());
-        expect(persist.read(job1.getUuid()).current).to.equal('GITHUB::GIST::C2');
+        expect((await persist.read(job1.getUuid())).uuid).to.equal(job1.getUuid());
+        expect((await persist.read(job1.getUuid())).current).to.equal('GITHUB::GIST::C2');
         expect(TxJobRegistry.instance.has(job1.getUuid())).to.equal(false);
 
         let job2 = await TxJobRegistry.instance.rebuild(job1.getUuid());
         job2.getIsCompleted().subscribe(
-          (data) => {
+          async (data) => {
             logger.info("[job-2] continue, data = " + JSON.stringify(data, undefined, 2));
             expect(data['head']['method']).to.equal("from C3");
             expect(data['head']['status']).to.equal("ok");
-            expect(persist.read(job2.getUuid()).uuid).to.equal(job1.getUuid());
-            expect(TxJobRegistry.instance.has(job2.getUuid())).to.equal(true);
+            expect((await persist.read(job2.getUuid())).uuid).to.equal(job1.getUuid());
+            expect((await TxJobRegistry.instance.has(job2.getUuid()))).to.equal(true);
 
             done();
           });

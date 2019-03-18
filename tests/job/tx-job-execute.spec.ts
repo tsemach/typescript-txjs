@@ -52,13 +52,13 @@ describe('Job Class Execute Test', () => {
     job.add(TxSinglePointRegistry.instance.get('GITHUB::S3'));
 
     job.getIsCompleted().subscribe(
-      (data) => {
+      async (data) => {
         console.log('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
         expect(data['head']['method']).to.equal("from S3");
         expect(data['head']['status']).to.equal("ok");
         expect(job.current.name).to.equal('GITHUB::S3');
-        expect(persist.read(job.getUuid()).uuid).to.equal(job.getUuid());
-        expect(persist.read(job.getUuid()).current).to.equal('GITHUB::S3');
+        expect((await persist.read(job.getUuid())).uuid).to.equal(job.getUuid());
+        expect((await persist.read(job.getUuid())).current).to.equal('GITHUB::S3');
 
         done();
       });                
