@@ -98,7 +98,7 @@ describe('Job Class', () => {
         done();
       });
 
-    setTimeout(() => {
+    setTimeout(async () => {
       job.step(new TxTask({
           method: 'step-1',
           status: ''
@@ -110,11 +110,11 @@ describe('Job Class', () => {
         } as TxJobExecutionOptions
       );
       expect(job.stack.length).to.equal(2);
-      expect(persist.read(job.getUuid()).uuid).to.equal(job.getUuid());
-      expect(persist.read(job.getUuid()).current).to.equal('GITHUB::S1');
+      expect((await persist.read(job.getUuid())).uuid).to.equal(job.getUuid());
+      expect((await persist.read(job.getUuid())).current).to.equal('GITHUB::S1');
     }, 0);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       job.step(new TxTask({
           method: 'step-2',
           status: ''
@@ -126,11 +126,11 @@ describe('Job Class', () => {
         } as TxJobExecutionOptions
       );
       expect(job.stack.length).to.equal(1);
-      expect(persist.read(job.getUuid()).uuid).to.equal(job.getUuid());
-      expect(persist.read(job.getUuid()).current).to.equal('GITHUB::S2');
+      expect((await persist.read(job.getUuid())).uuid).to.equal(job.getUuid());
+      expect((await persist.read(job.getUuid())).current).to.equal('GITHUB::S2');
     }, 200);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       job.step(new TxTask({
           method: 'step-3',
           status: ''
@@ -143,8 +143,8 @@ describe('Job Class', () => {
 
       );
       expect(job.stack.length).to.equal(0);
-      expect(persist.read(job.getUuid()).uuid).to.equal(job.getUuid());
-      expect(persist.read(job.getUuid()).current).to.equal('GITHUB::S3');
+      expect((await persist.read(job.getUuid())).uuid).to.equal(job.getUuid());
+      expect((await persist.read(job.getUuid())).current).to.equal('GITHUB::S3');
     }, 400);
   });
 
@@ -202,7 +202,7 @@ describe('Job Class', () => {
         }
       });
 
-    setTimeout(() => {
+    setTimeout(async () => {
       job.step(new TxTask({
           method: 'step-1',
           status: ''
@@ -214,11 +214,11 @@ describe('Job Class', () => {
         } as TxJobExecutionOptions
       );
       expect(job.stack.length).to.equal(2);
-      expect(persist.read(job.getUuid()).uuid).to.equal(job.getUuid());
-      expect(persist.read(job.getUuid()).current).to.equal('GITHUB::S1');
+      expect((await persist.read(job.getUuid())).uuid).to.equal(job.getUuid());
+      expect((await persist.read(job.getUuid())).current).to.equal('GITHUB::S1');
     }, 0);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       job.step(new TxTask({
           method: 'step-2',
           status: ''
@@ -230,11 +230,11 @@ describe('Job Class', () => {
         } as TxJobExecutionOptions
       );
       expect(job.stack.length).to.equal(1);
-      expect(persist.read(job.getUuid()).uuid).to.equal(job.getUuid());
-      expect(persist.read(job.getUuid()).current).to.equal('GITHUB::S2');
+      expect((await persist.read(job.getUuid())).uuid).to.equal(job.getUuid());
+      expect((await persist.read(job.getUuid())).current).to.equal('GITHUB::S2');
     }, 200);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       job.step(new TxTask({
           method: 'step-3',
           status: ''
@@ -247,8 +247,8 @@ describe('Job Class', () => {
 
       );
       expect(job.stack.length).to.equal(0);
-      expect(persist.read(job.getUuid()).uuid).to.equal(job.getUuid());
-      expect(persist.read(job.getUuid()).current).to.equal('GITHUB::S3');
+      expect((await persist.read(job.getUuid())).uuid).to.equal(job.getUuid());
+      expect((await persist.read(job.getUuid())).current).to.equal('GITHUB::S3');
     }, 400);
   });
 
