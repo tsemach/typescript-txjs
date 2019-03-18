@@ -58,11 +58,11 @@ describe('Job Class', () => {
         console.log('[tx-job-execute-error.spec:data] ERROR: job.getIsCompleted: should not come here when error is occur - data:' + JSON.stringify(data, undefined, 2));
         assert(false);
       },
-      (error) => {
+      async (error) => {
         console.log('[tx-job-execute-error.spec:error] job.getIsCompleted: complete running error all - data:' + JSON.stringify(error, undefined, 2));
 
-        expect(persist.read(job.getUuid()).uuid).to.equal(job.getUuid());
-        expect(persist.read(job.getUuid()).current).to.equal('GITHUB::GIST::E1');
+        expect((await persist.read(job.getUuid())).uuid).to.equal(job.getUuid());
+        expect((await persist.read(job.getUuid())).current).to.equal('GITHUB::GIST::E1');
         expect(job.error).to.equal(true);
         expect(count).to.equal(3);
       });
@@ -153,7 +153,7 @@ describe('Job Class', () => {
 
         expect(job.error).to.equal(true);
         expect(job.getCurrentName()).to.be.equal('GITHUB::GIST::E1');
-        expect(count).to.equal(3);
+        expect(count).to.equal(1);
       });
 
     job.getOnError().subscribe(

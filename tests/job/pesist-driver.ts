@@ -14,7 +14,7 @@ export class Persist implements TxJobPersistAdapter {
   read(uuid: string): Promise<TxJobJSON> {
     logger.info('[Persist:read] uuid = ' + uuid);
 
-    return this.jobs.get(uuid);
+    return Promise.resolve(this.jobs.get(uuid));
   }
 
   save(uuid: string, json: TxJobJSON, name?: string): boolean {

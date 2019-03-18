@@ -209,7 +209,7 @@ export class TxJob {
       this.error = true;
       this.services.setError();
     }
-    this.onError.next(new TxTask<{name: string}>({name: <string>txMountPoint.name}, data));
+    this.onError.next(new TxTask<{name: string}>({name: <string>this.current.name}, data));
 
     if (this.trace.length === 0) {
       logger.info(`[(${__name}):TxJob:errorCB] [${this.name}] complete running errors all mount points, trace.length = ${this.trace.length}, stack.length = ${this.stack.length}`);
