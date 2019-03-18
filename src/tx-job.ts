@@ -164,6 +164,10 @@ export class TxJob {
       if (TxJobExecutionOptionsChecker.isUntil(this.options, next.name)) {
         logger.info(`[TxJob:subscribe] [${this.name}] found execute.until, on ${next.name} mount point`);
 
+        if ( ! TxJobExecutionOptionsChecker.isPersist(this.options) ) {
+          await TxJobRegistry.instance.persist(this);
+        }
+
         if (TxJobExecutionOptionsChecker.isDestroy(this.options)) {
           logger.info(`[TxJob:subscribe] [${this.name}] going to destroy job \'${this.getUuid()}\', on ${next.name} mount point`);
 
@@ -232,12 +236,7 @@ export class TxJob {
 
   subscribe(txMountPoint: TxMountPoint) {        
     const subscribed = txMountPoint.reply().subscribe(
-      async (task, mountpoint) => {        
-        // DELETE this ------------------------------------------------------------------------------------------
-        logger.info(`DEPRECATED: IN subscribe: IN data CALLBACK  txMountPoint = ${mountpoint.name.toString()}`);
-        logger.info(`DEPRECATED: IN subscribe: IN data CALLBACK  txMountPoint = ${JSON.stringify(task.get())}`);
-        //-------------------------------------------------------------------------------------------------------
-
+      async (task: TxTask<any>, mountpoint: TxMountPoint) => {        
         await this.subscribeCB(task, mountpoint);
       },
       async (error) => {
