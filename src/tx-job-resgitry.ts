@@ -73,6 +73,9 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
 
   async rebuild(uuid: string) {
     let json = await this.getPersistDriver().read(uuid);
+    if ( ! json ) {
+      throw Error(`got null json from database by jobid ${uuid}`);
+    }
     return new TxJob(json.name).upJSON(json);
   }
 
