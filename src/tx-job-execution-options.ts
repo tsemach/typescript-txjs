@@ -1,3 +1,4 @@
+import { TxCallback } from './tx-callback'
 import {TxJobRegistry} from "./tx-job-resgitry";
 
 /**
@@ -15,6 +16,11 @@ export interface TxJobExecutionOptions {
     ison: boolean;
     destroy: boolean;
   };
+  cleaner: {
+    after: string;              // 04:30 after 4 hours and 30 minutes
+    callback: TxCallback<any>;  // call this callback when after pass (optional)
+    message: string;            // send to this singlepoint when after is pass (optional)
+  }
   execute: {
     until: string;
     record: boolean;
@@ -39,6 +45,16 @@ export { defaultExecutionOptions };
 
 export class TxJobExecutionOptionsChecker {
   constructor() {
+  }
+
+  static isCleaner(options: TxJobExecutionOptions) {
+    if (options.cleaner === undefined ) {
+      return false;
+    }
+    if (options.cleaner.after === undefined) {
+      return false;
+    }
+    return true;
   }
 
   static isPersist(options: TxJobExecutionOptions) {
