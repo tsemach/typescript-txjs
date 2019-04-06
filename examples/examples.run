@@ -1,0 +1,7 @@
+docker run -p 5432:5432 --name postgres -e POSTGRES_PASSWORD=postgres -d postgres:9.6.6-alpine
+docker exec postgres /usr/local/bin/createdb -U postgres examples
+
+node_modules/.bin/sequelize init
+node_modules/.bin/sequelize model:generate --name Session --attributes user:string,task:string,task_md5:uuid,event:string,event_md5:uuid
+node_modules/.bin/sequelize db:migrate
+node_modules/.bin/sequelize db:seed:all
