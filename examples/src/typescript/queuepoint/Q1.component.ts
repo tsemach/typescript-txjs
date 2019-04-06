@@ -8,7 +8,7 @@ export class Q1Component {
   }
 
   async init() {
-    await this.queuepoint.queue().register('example-1.queuepoint', 'Q1Component.tasks');
+    await this.queuepoint.queue().listen('example-1.queuepoint', 'Q1Component.tasks');
 
     await this.queuepoint.queue().subscribe(
       async (data) => {

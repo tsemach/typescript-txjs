@@ -1,16 +1,15 @@
-t logger = require('logger');
+
 import { TxJobPersistAdapter, TxJobJSON } from 'rx-txjs';
 
-import repository from './repository';
-
-const Jobs = repository.sequelize.import('../../models/jobs');
+const repository = require('../../../../models');
+const Jobs = repository.sequelize.import('../../../../models/jobs');
 
 class JobRepository implements TxJobPersistAdapter {
-        constructor() {
-          logger.debug('[JobRepository:cos\'t]');
-        }
+  constructor() {
+    console.log('[JobRepository:cos\'t]');
+  }
         
-        save(uuid: string, data: TxJobJSON, name?: string) {    
+  save(uuid: string, data: TxJobJSON, name?: string) {    
     return repository.sequelize.transaction((transaction: any) => {            
       return Jobs.upsert({
         jobId: uuid,
@@ -18,9 +17,9 @@ class JobRepository implements TxJobPersistAdapter {
         data: data,
       }, {transaction: transaction})
     });
-        }
+  }
 
-        read(uuid: string) {
+  read(uuid: string) {
     return new Promise<TxJobJSON>( (jsonResolve, jsonReject) => {
       Jobs.findOne({
         where: {
@@ -41,7 +40,7 @@ class JobRepository implements TxJobPersistAdapter {
     });      
   }
 
-        delete(jobId: string) {
+  delete(jobId: string) {
     return repository.sequelize.transaction((transaction: any) => {            
       return Jobs.destroy({
         where: {
