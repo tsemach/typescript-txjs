@@ -5,7 +5,7 @@
  * TxRoutePoint - use as binding to create the class TxRoutePoint.
  * TxConnector - use as binding between the interface TxConnector and the real implement connection class (queue, express etc).
  *
- * @type {{TxQueuePoint: symbol; TxRoutePoint: symbol; TxConnector: symbol}}
+ * @type {{TxQueuePoint: symbol; TxRoutePoint: symbol; TxConnector: symbol; TxServiceName: symbol; TxPointName: symbol}}
  */
 const TxTYPES = {
   TxQueuePoint: Symbol.for('TxQueuePoint'),

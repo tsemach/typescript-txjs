@@ -37,8 +37,8 @@ let config: any = {
 
 @injectable()
 export class TxConnectorRabbitMQ implements TxConnector {
-  dataCB: (any) => void;
-  errorCB: (any) => void
+  dataCB: (any: any) => void;
+  errorCB: (any: any) => void
 
   broker = new Broker(config);
   id = uuid();
@@ -62,17 +62,17 @@ export class TxConnectorRabbitMQ implements TxConnector {
     console.log(`TxConnectorRabbit:connect - exist from - [${service}]-[${route}]-[${this.id}]`);
   }
 
-  subscribe(dataCB: (any) => void, errorCB?: (any) => void) {
+  subscribe(dataCB: (any: any) => void, errorCB?: (any: any) => void) {
     this.dataCB = dataCB;
     this.errorCB = errorCB;
   };
 
-  async next(service, route, data: any) {
+  async next(service: string, route: string, data: any) {
     await this.broker.addExchange(service + '.exchange', 'topic', {publishTimeout: 1000, persistent: true, durable: false} as BrokerExchangeOptions);
     await this.broker.send(service + '.exchange', route, data);
   }
 
-  async error(service, route, data: any) {
+  async error(service: string, route: string, data: any) {
     await this.broker.addExchange(service + '.exchange', 'topic', {publishTimeout: 1000, persistent: true, durable: false} as BrokerExchangeOptions);
     await this.broker.send(service + '.exchange', route + '.error', data);
   }

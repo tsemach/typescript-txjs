@@ -43,7 +43,6 @@ export class TxConnectorExpress implements TxConnector {
    * @param path the path of the service
    */
   listen(service: string, path: string) {
-    console.log('LISTEN: GOING TO ADD PATH: ' + path);
     let listener = this.getListener(service);
 
     return listener.listen(service, path);
