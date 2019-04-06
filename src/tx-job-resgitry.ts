@@ -76,7 +76,11 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
     if ( ! json ) {
       throw Error(`got null json from database by jobid ${uuid}`);
     }
-    return new TxJob(json.name).upJSON(json);
+
+    const job = new TxJob(json.name).upJSON(json);
+    this.getPersistDriver().delete(uuid);
+
+    return job;
   }
 
   replace(oldUuid: string, newUuid: string, job: TxJob) {    

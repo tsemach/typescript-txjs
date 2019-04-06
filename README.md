@@ -4,6 +4,9 @@
 
 # Application Execution Model
 
+## Latest Update
+1. * Add delete to **TxJobPersistAdapter** to automatic delete the job after rebuild from persistance.
+
 ## Documentation
 ## Full document is now [here](https://rxjs.gitbook.io/rx-txjs/) 
 

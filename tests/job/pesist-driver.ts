@@ -26,4 +26,8 @@ export class Persist implements TxJobPersistAdapter {
 
     return true;
   }
+
+  delete(uuid: string) {
+    this.jobs.delete(uuid);
+  }
 }
