@@ -18,8 +18,13 @@ describe('Component Decorator Class', () => {
 
   it('tx-job-continue-spec: check job-decorator.spec: running decorator D1-D2 job chain', () => {
     
-    let D1 = new D1Component();
-    let D2 = new D2Component();    
+    try {
+      new D1Component();
+      new D2Component();    
+    }
+    catch (e) {
+      console.log("Components are already exist in the registry");
+    }
     
     let job = new TxJob('Job-1'); // or create througth the TxJobRegistry
 
@@ -33,7 +38,7 @@ describe('Component Decorator Class', () => {
 
     job.getIsCompleted().subscribe(
       (data) => {
-        logger.info('[job-decorator-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
+        logger.info('[job-decorator-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data.get(), undefined, 2));
         expect(waitfor['method']).to.equal(data['head']['method']);
         expect(waitfor['status']).to.equal(data['head']['status']);                
       });

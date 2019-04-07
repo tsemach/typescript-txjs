@@ -16,9 +16,14 @@ import { TxJobRegistry } from "../../src";
 import { TxJobExecutionOptions } from "../../src/tx-job-execution-options";
 
 describe('Job Class', () => {
+try {
   new S1Component();
   new S2Component();
   new S3Component();
+}
+catch (e) {
+  console.log("Components are already exist in the registry")
+}
   
   /**
    */

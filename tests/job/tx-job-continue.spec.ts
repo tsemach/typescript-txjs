@@ -1,14 +1,20 @@
+
 import createLogger from 'logging';
 const logger = createLogger('Job-Continue-Test');
 
 import 'mocha';
 import {assert, expect} from 'chai';
 
-import {TxTask, TxSinglePoint} from '../../src/';
+import {TxTask, TxSinglePoint } from '../../src/';
 import {TxJob} from '../../src';
 import { TxJobExecutionId } from '../../src/';
 import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
 import { TxJobServicesComponent } from '../../src/tx-job-services-component';
+import { TxQueuePointRegistry } from '../../src/tx-queuepoint-registry'
+import { TxRoutePointRegistry} from '../../src/tx-routepoint-registry'
+
+import { TxConnectorRabbitMQ } from '../connectors/connector-rabbitmq-empty';
+import { TxConnectorExpress } from './../connectors/connector-express-empty';
 
 import {S1Component} from './S1.component';
 import {S2Component} from './S2.component';
@@ -19,13 +25,20 @@ import {E3Component} from './E3.component';
 
 import * as short from 'short-uuid';
 
+TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
+TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
+
 new TxJobServicesComponent().init();  
 
 describe('Job Class - Continue', () => {
-
+  try {
     new S1Component();
     new S2Component();
     new S3Component();
+  }
+  catch (e) {
+    console.log("Components are already exist in the registry")
+  }
 
   /**
    */
@@ -84,9 +97,14 @@ describe('Job Class - Continue', () => {
   it('tx-job-continue-spec:error check continue error on E1-E2-E3 upJSON with continue', async () => {
     logger.info('tx-job-continue-spec:error check error on E1-E2-E3 upJSON with continue');
     
-    new E1Component();
-    new E2Component();
-    new E3Component();
+    try {
+      new E1Component();
+      new E2Component();
+      new E3Component();
+    }
+    catch (e) {
+      console.log("Components are aleady in the registry");
+    }
 
     let uuid = short().new();
     let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};

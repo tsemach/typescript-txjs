@@ -16,7 +16,6 @@ import "reflect-metadata";
 
 import { TxRoutePointRegistry } from '../../src/';
 import { TxConnector } from "../../src/";
-import { TxConnectorExpress } from "../../src/tx-connector-express";
 
 @injectable()
 export class TxConnectorNoDefaultExpress implements TxConnector {
@@ -48,6 +47,8 @@ export class TxConnectorNoDefaultExpress implements TxConnector {
   close() {
   }
 }
+  
+TxRoutePointRegistry.instance.setDriver(TxConnectorNoDefaultExpress);
 
 describe('Registry Classes - TxRoutePointRegitry', () => {
 
@@ -77,8 +78,6 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
 
   it('tx-routepoint.spec: check creation of TxRoutePoint with Express connector injection', () => {
     logger.info('tx-routepoint.spec: check creation of TxRoutePoint with Express connector injection');
-
-    TxRoutePointRegistry.instance.setDriver(TxConnectorNoDefaultExpress);
 
     const RP1 = TxRoutePointRegistry.instance.route('GITHUB::API::AUTH');
     const RP2 = TxRoutePointRegistry.instance.route('GITHUB::API::READ');

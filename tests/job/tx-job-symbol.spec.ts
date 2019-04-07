@@ -28,8 +28,8 @@ describe('Job Class', () => {
    */
 
   class Names {
-    static GITHUB_GIST_C1 = Symbol('GITHUB_GIST_C1');
-    static GITHUB_GIST_C2 = Symbol('GITHUB_GIST_C2');
+    static GITHUB_GIST_C1 = Symbol('JOB::SYMBOL::GITHUB_GIST_C1');
+    static GITHUB_GIST_C2 = Symbol('JOB::SYMBOL::GITHUB_GIST_C2');
   }
 
   class C1Component {

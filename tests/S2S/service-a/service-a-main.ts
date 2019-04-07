@@ -8,6 +8,15 @@ import { A3Component } from '../components/A3.component';
 import { A2Component } from '../components/A2.component';
 import { A1Component } from '../components/A1.component';
 
+import { TxQueuePointRegistry } from '../../../src/tx-queuepoint-registry'
+import { TxRoutePointRegistry} from '../../../src/tx-routepoint-registry'
+
+import { TxConnectorRabbitMQ } from '../../connectors/connector-rabbitmq-empty';
+import { TxConnectorExpress } from '../../connectors/connector-express-full';
+
+TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
+TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
+
 TxJobRegistry.instance.setServiceName('service-a');
 
 new A1Component();

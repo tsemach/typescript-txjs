@@ -6,7 +6,7 @@ import 'mocha';
 import { expect } from 'chai';
 import { assert } from 'chai';
 
-import { TxConnectorExpress } from '../../src/tx-connector-express';
+import { TxConnectorExpress } from '../connectors/connector-express-full';
 import { TxTask } from '../../src';
 
 describe('Check TxConnectorExpress Testing', () => {

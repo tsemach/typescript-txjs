@@ -7,7 +7,7 @@ import {expect} from 'chai';
 import { TxMountPointRegistry } from '../../src';
 import { TxJobExecutionOptions } from "../../src";
 import { TxRecordPersistMemory } from "../../src";
-import { TxRecordPersistMongoDB } from "../../src";
+//import { TxRecordPersistMongoDB } from "../../src";
 import { TxTask } from '../../src';
 import { TxJob } from '../../src';
 import { TxJobRegistry } from "../../src";

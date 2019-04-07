@@ -15,12 +15,25 @@ import { TxJobRegistry, TxTask, TxJobExecutionOptions, TxJobExecutionId } from '
 
 //TxJobRegistry.instance.setServiceName('service-c');
 //new TxJobServicesComponent().init();
+import { TxQueuePointRegistry } from '../../src/tx-queuepoint-registry'
+import { TxRoutePointRegistry} from '../../src/tx-routepoint-registry'
+
+import { TxConnectorRabbitMQ } from '../connectors/connector-rabbitmq-empty';
+import { TxConnectorExpress } from './../connectors/connector-express-empty';
+
+TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
+TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
 
 describe('S2S: Cross Service Jobs', () => {
 
-  new C1Component();
-  new C2Component();
-  new C3Component();
+  try {
+    new C1Component();
+    new C2Component();
+    new C3Component();
+  }
+  catch (e) {
+    console.log("Components are already exist in the registry")
+  }
 
   /**
    */
@@ -47,7 +60,7 @@ describe('S2S: Cross Service Jobs', () => {
 
     const isCompletedTxJobervicesS2SSpec1 = job.getIsCompleted().subscribe(
       (data) => {
-        console.log('[job-services-s2s-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
+        console.log('[job-services-s2s-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data.get(), undefined, 2));
         expect(data['head']['method']).to.equal("from C3");
         expect(data['head']['status']).to.equal("ok");
         expect(job.current.name).to.equal('GITHUB::GIST::C3');

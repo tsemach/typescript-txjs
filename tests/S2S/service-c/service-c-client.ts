@@ -7,7 +7,7 @@ import { TxMountPointRegistry } from './../../../src/tx-mountpoint-registry';
 import createLogger from 'logging';
 const logger = createLogger('service-c:client');
 
-import { TxQueuePointRegistry, TxJobRegistry, TxTask } from '../../../src/';
+import { TxJobRegistry, TxTask } from '../../../src/';
 import { TxJobServicesComponent } from '../../../src/tx-job-services-component';
 import { TxJobServicesHeadTask } from '../../../src/tx-job-services-task';
 

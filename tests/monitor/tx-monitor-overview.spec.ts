@@ -15,6 +15,11 @@ import { TxTask } from '../../src';
 import { TxMountPointRegistry } from '../../src';
 import { TxJobRegistry } from './../../src/tx-job-resgitry';
 import { TxJobServicesComponent } from '../../src/tx-job-services-component';
+import { TxQueuePointRegistry } from '../../src/tx-queuepoint-registry'
+import { TxRoutePointRegistry} from '../../src/tx-routepoint-registry'
+
+import { TxConnectorRabbitMQ } from '../connectors/connector-rabbitmq-empty';
+import { TxConnectorExpress } from './../connectors/connector-express-empty';
 
 import TxMonitor from '../../src/tx-monitor';
 import '../../src/tx-monitor-server.component';
@@ -22,6 +27,9 @@ import '../../src/tx-monitor-server.component';
 import './monitor-client.component';
 import './C1.component';
 import './C2.component';
+
+TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
+TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
 
 new TxJobServicesComponent().init();  
 

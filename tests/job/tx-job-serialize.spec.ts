@@ -13,6 +13,15 @@ import {TxJobExecutionId} from "../../src";
 import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
 import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 
+import { TxQueuePointRegistry } from '../../src/tx-queuepoint-registry'
+import { TxRoutePointRegistry} from '../../src/tx-routepoint-registry'
+
+import { TxConnectorRabbitMQ } from '../connectors/connector-rabbitmq-empty';
+import { TxConnectorExpress } from './../connectors/connector-express-empty';
+
+TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
+TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
+
 new TxJobServicesComponent().init();  
 
 class Names {
@@ -63,9 +72,14 @@ class C3Component {
   }
 }
 
+try {
 new C1Component();
 new C2Component();
 new C3Component();
+}
+catch (e) {
+  console.log('Components are already in the registry')
+}
 
 describe('Job Class - Serialize', () => {
 

@@ -5,16 +5,22 @@ const logger = createLogger('Component-Container-Test');
 import 'mocha';
 import { expect } from 'chai';
 
-import { TxQueueContainer, TxRouteContainer  } from "../../src/tx-component-container";
+import { TxComponentContainer } from "../../src/tx-component-container";
 import { Q1Component } from "./Q1Component";
 import { Q2Component } from "./Q2Component";
 import { R1Component } from "./R1Component";
 import { R2Component } from "./R2Component";
-import { TxConnectorRabbitMQ } from "../../src/tx-connector-rabbitmq";
-import { TxConnectorExpress } from "../../src/tx-connector-express";
+import { TxConnectorRabbitMQ } from "../connectors/connector-rabbitmq-empty";
+import { TxConnectorExpress } from "../connectors/connector-express-empty";
 
 import { Q3Component, QMember } from "./Q3Component";
 import { R3Component, RMember } from "./R3Component";
+import { TxQueuePoint } from '../../src/tx-queuepoint';
+import { TxRoutePoint } from '../../src/tx-routepoint';
+import { TxTYPES } from '../../src/tx-injection-types';
+
+const TxQueueContainer = new TxComponentContainer<TxQueuePoint>(TxQueuePoint, TxTYPES.TxQueuePoint, TxConnectorRabbitMQ);
+const TxRouteContainer = new TxComponentContainer<TxRoutePoint>(TxRoutePoint, TxTYPES.TxRoutePoint, TxConnectorExpress);
 
 describe('Component Container Class', () => {
 

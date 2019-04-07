@@ -31,6 +31,15 @@ TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
 TxMountPointRegistry.instance.create('GITHUB::GIST::C2');
 TxMountPointRegistry.instance.create('GITHUB::GIST::C3');
 
+import { TxQueuePointRegistry } from '../../src/tx-queuepoint-registry'
+import { TxRoutePointRegistry} from '../../src/tx-routepoint-registry'
+
+import { TxConnectorRabbitMQ } from '../connectors/connector-rabbitmq-empty';
+import { TxConnectorExpress } from './../connectors/connector-express-empty';
+
+TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
+TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
+
 new TxJobServicesComponent().init();  
 
 describe('S2S: Job With Service', () => {
@@ -73,9 +82,14 @@ describe('S2S: Job With Service', () => {
   it('tx-job-services-serialize.spec.ts: check running C1-C2-C3 S2S service after serialization', (done) => {
     logger.info('tx-job-services-serialize.spec.ts: check running C1-C2-C3 S2S service after serialization');
 
-    new C1Component();
-    new C2Component();
-    new C3Component();
+    try {
+      new C1Component();
+      new C2Component();
+      new C3Component();
+    }
+    catch (e) {
+      console.log('Components are already in the regitry');
+    }
     
     TxJobRegistry.instance.setServiceName('service-a');
     let job = new TxJob('job-1'); 

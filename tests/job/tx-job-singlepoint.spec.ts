@@ -19,9 +19,14 @@ import { deepEqual } from 'assert';
 
 describe('Job Class: Test with TxSinglePoint', () => {
 
-  new S1Component();
-  new S2Component();
-  new S3Component();
+  try {
+    new S1Component();
+    new S2Component();
+    new S3Component();
+  }
+  catch (e) {
+    console.log("Components are already exist in the registry")
+  }
 
   /**
    */

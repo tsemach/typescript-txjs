@@ -17,8 +17,7 @@ import "reflect-metadata";
 import { TxMountPointRegistry } from '../../src/';
 import { TxQueuePointRegistry } from '../../src/';
 import { TxConnector } from "../../src/";
-import { TxConnectorRabbitMQ } from "../../src/tx-connector-rabbitmq";
-import { TxConnectorExpress } from "../../src/tx-connector-express";
+import { TxConnectorRabbitMQ } from "../connectors/connector-rabbitmq-empty"
 
 @injectable()
 export class TxConnectorNoDefaultRabbitMQ implements TxConnector {
@@ -84,6 +83,9 @@ export class TxConnectorNoDefaultExpress implements TxConnector {
   }
 }
 
+TxQueuePointRegistry.instance.setDriver(TxConnectorNoDefaultRabbitMQ);
+TxQueuePointRegistry.instance.setDriver(TxConnectorNoDefaultRabbitMQ);
+
 describe('Registry Classes - TxMountPointRegitry', () => {
   
   before(function() {
@@ -138,8 +140,6 @@ describe('Registry Classes - TxMountPointRegitry', () => {
   it('tx-queuetpoint-registry.spec: check creation of TxQueuePoint with RabbitMQ connector injection', () => {
     logger.info('tx-queuetpoint-registry.spec: check creation of TxQueuePoint with RabbitMQ connector injection');
 
-    TxQueuePointRegistry.instance.setDriver(TxConnectorNoDefaultRabbitMQ);
-
     const QP1 = TxQueuePointRegistry.instance.queue('GITHUB::API::AUTH');
     const QP2 = TxQueuePointRegistry.instance.queue('GITHUB::API::READ');
 
@@ -163,8 +163,6 @@ describe('Registry Classes - TxMountPointRegitry', () => {
 
   it('tx-queuetpoint-registry.spec: check calling to subscribe on TxQueuePoint with RabbitMQ', (done) => {
     logger.info('tx-queuetpoint-registry.spec: check calling to subscribe on TxQueuePoint with RabbitMQ');
-
-    TxQueuePointRegistry.instance.setDriver(TxConnectorNoDefaultRabbitMQ);
 
     const QP1 = TxQueuePointRegistry.instance.queue('GITHUB::API::AUTH');
     const QP2 = TxQueuePointRegistry.instance.queue('GITHUB::API::READ');

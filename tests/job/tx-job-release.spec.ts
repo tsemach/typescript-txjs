@@ -18,9 +18,14 @@ describe('Job Class', () => {
   /**
    */
   it('tx-job-spec: check job release', () => {
-    new C1Component();
-    new C2Component();
-    new C3Component();
+    try {
+      new C1Component();
+      new C2Component();
+      new C3Component();
+    }
+    catch (e) {
+      console.log("Components are already exist in the registry")
+    }
 
     let job = new TxJob('job-1');
 

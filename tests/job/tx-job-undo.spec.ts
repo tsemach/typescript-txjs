@@ -20,9 +20,14 @@ describe('Job Class', () => {
   it('tx-job-step.ts - check job-undo.spec: S1-S2-S3 undo', () => {
     logger.info('tx-job-step.ts - check job-undo.spec: S1-S2-S3 undo');
 
-    new S1Component();
-    new S2Component();
-    new S3Component();
+    try {
+      new S1Component();
+      new S2Component();
+      new S3Component();
+    }
+    catch (e) {
+      console.log('Components are already exist in the registry');
+    }
 
     let job = new TxJob('Job-1');
 

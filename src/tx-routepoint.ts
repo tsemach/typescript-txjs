@@ -6,7 +6,7 @@ import * as uuid from 'uuid/v4';
 import { TxConnector } from "./tx-connector"
 
 import { TxTYPES } from "./tx-injection-types";
-import { TxConnectorExpressService } from './tx-connector-express-service';
+//import { TxConnectorExpressService } from './tx-connector-express-service';
 import { TxCallback } from "./tx-callback";
 import { TxConnectorConnection } from "./tx-connector-connection";
 
@@ -14,9 +14,9 @@ import { TxConnectorConnection } from "./tx-connector-connection";
 export class TxRoutePoint {
   @inject(TxTYPES.TxConnector) private _route: TxConnector;
   @inject(TxTYPES.TxPointName) private _name: string | Symbol = '';
-  private _service: TxConnectorExpressService = null;
+  private _service: TxConnector = null;
   private _connection = new TxConnectorConnection();
-
+  
   id = uuid();
 
   constructor() {
@@ -40,7 +40,7 @@ export class TxRoutePoint {
   }
 
   async next(service: string, route: string, data: any) {
-    await this._route.next(service, route, data);
+    await this._service.next(service, route, data);
   }
 
   close() {

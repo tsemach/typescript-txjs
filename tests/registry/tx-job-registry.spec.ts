@@ -15,11 +15,15 @@ import { C1Component } from "../job/C1.component";
 import {C3Component} from "../job/C3.component";
 import {TxSinglePointRegistry} from '../../src/tx-singlepoint-registry';
 import {C2Component} from "../job/C2.component";
-import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 
-new C1Component();
-new C2Component();
-new C3Component();
+try {
+  new C1Component();
+  new C2Component();
+  new C3Component();
+}
+catch (e) {
+  console.log("Components are already exist in the registry")
+}
 
 describe('Job Registry Classes - TxJobRegistry', () => {
 
