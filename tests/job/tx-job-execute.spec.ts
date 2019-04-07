@@ -19,12 +19,26 @@ import * as short from 'short-uuid';
 import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
 import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 
+import { TxQueuePointRegistry } from '../../src/tx-queuepoint-registry'
+import { TxRoutePointRegistry} from '../../src/tx-routepoint-registry'
+
+import { TxConnectorRabbitMQ } from '../connectors/connector-rabbitmq-empty';
+import { TxConnectorExpress } from './../connectors/connector-express-empty';
+
+TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
+TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
+
 new TxJobServicesComponent().init();  
 
 describe('Job Class Execute Test', () => {
-  new S1Component();
-  new S2Component();
-  new S3Component();
+  try {
+    new S1Component();
+    new S2Component();
+    new S3Component();
+  }
+  catch (e) {
+    console.log('Components is already exist')
+  }
     
   let a = 0;
   before(() => {

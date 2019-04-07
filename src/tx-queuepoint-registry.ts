@@ -6,7 +6,7 @@ const logger = createLogger('MountPointRegistry');
 import { TxRegistry } from './tx-registry';
 import { TxQueuePoint } from "./tx-queuepoint";
 import { TxTYPES } from "./tx-injection-types";
-import { TxConnectorRabbitMQ } from "./tx-connector-rabbitmq";
+//import { TxConnectorRabbitMQ } from "./tx-connector-rabbitmq";
 import { TxRegistryContainer } from "./tx-registry-container";
 
 export class TxQueuePointRegistry extends TxRegistry<TxQueuePoint, string | Symbol> {
@@ -18,7 +18,7 @@ export class TxQueuePointRegistry extends TxRegistry<TxQueuePoint, string | Symb
     super();
 
     // set default driver for rabbitMQ and express.
-    this.queueContainer.setDriver(TxConnectorRabbitMQ);
+    //this.queueContainer.setDriver(TxConnectorRabbitMQ);
   }
 
   public static get instance() {

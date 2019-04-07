@@ -19,9 +19,14 @@ import { Persist } from "./pesist-driver";
 
 import * as short from 'short-uuid';
 
-new E1Component();
-new E2Component();
-new E3Component();
+try {
+  new E1Component();
+  new E2Component();
+  new E3Component();
+}
+catch (e) {
+  console.log("Componets are already exist in the registry")
+}
 
 describe('Job Class', () => {
   let persist = new Persist();

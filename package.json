@@ -6,7 +6,7 @@
   "types": "dist/src/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "tsc; mocha dist/tests/**/*.spec.js",
+    "test": "tsc; nyc mocha dist/tests/**/*.spec.js",    
     "ts-test": "mocha -r ts-node/register src/**/test.ts"
   },
   "repository": {
@@ -23,6 +23,20 @@
     "url": "https://github.com/tsemach/typescript-txjs/issues"
   },
   "homepage": "https://github.com/tsemach/typescript-txjs#readme",
+  "nyc": {
+    "require": [
+      "ts-node/register"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "reporter": [
+      "lcov",
+      "text-summary"
+    ],
+    "sourceMap": true,
+    "instrument": true
+  },
   "dependencies": {
     "@types/assert": "0.0.31",
     "@types/body-parser": "^1.17.0",
@@ -42,6 +56,7 @@
     "lodash": "^4.17.11",
     "logging": "^3.2.0",
     "mongodb": "^3.1.6",
+    "nyc": "^13.3.0",
     "reflect-metadata": "^0.1.12",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",

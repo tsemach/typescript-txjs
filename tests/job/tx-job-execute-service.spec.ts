@@ -12,6 +12,15 @@ import { TxJob } from '../../src/tx-job';
 import {TxJobExecutionId, TxJobRegistry} from "../../src";
 import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 
+import { TxQueuePointRegistry } from '../../src/tx-queuepoint-registry'
+import { TxRoutePointRegistry} from '../../src/tx-routepoint-registry'
+
+import { TxConnectorRabbitMQ } from '../connectors/connector-rabbitmq-empty';
+import { TxConnectorExpress } from './../connectors/connector-express-empty';
+
+TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
+TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
+
 import { C1Component } from './C1.component';
 import { C2Component } from './C2.component';
 import { C3Component } from './C3.component';
@@ -32,9 +41,14 @@ describe('S2S: Job With Service', () => {
   // TxMountPointRegistry.instance.create('GITHUB::GIST::C2');
   // TxMountPointRegistry.instance.create('GITHUB::GIST::C3');
 
-  new C1Component();
-  new C2Component();
-  new C3Component();
+  try {
+    new C1Component();
+    new C2Component();
+    new C3Component();
+  }
+  catch (e) {
+    console.log('Components are laready exist in the regitry')
+  }
 
   const JobServices = {
     "stack": [ "service-a", "service-b", "service-c" ],

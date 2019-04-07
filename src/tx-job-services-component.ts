@@ -59,8 +59,12 @@ export class TxJobServicesComponent {
 
     await this.queuepoint.queue().listen(TxJobRegistry.instance.getServiceName(), TxNames.JOB_SERVICE);
     await this.queuepoint.queue().subscribe(
-      async (request) => {        
-        let service = JSON.parse(request);
+      async (request) => {
+        let service = request;
+        
+        if (typeof request === 'string') {
+          service = JSON.parse(request);
+        }
 
         logger.info(`[(${__name}):${__method}:subscribe] got request from service object: ${JSON.stringify(service, undefined, 2)}`);
         logger.info(`[(${__name}):${__method}:subscribe] got request from service object: ${JSON.stringify(service['head'])}`);

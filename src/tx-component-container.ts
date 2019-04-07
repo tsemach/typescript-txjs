@@ -6,8 +6,8 @@ import {TxTYPES} from "./tx-injection-types";
 import {TxConnector} from "./tx-connector";
 import {TxQueuePoint} from "./tx-queuepoint";
 import {TxRoutePoint} from "./tx-routepoint";
-import {TxConnectorRabbitMQ} from "./tx-connector-rabbitmq";
-import {TxConnectorExpress} from "./tx-connector-express";
+//import {TxConnectorRabbitMQ} from "./tx-connector-rabbitmq";
+//import {TxConnectorExpress} from "./tx-connector-express";
 
 export class TxComponentContainer<T> {
   // a container for TxConnector injection
@@ -75,7 +75,7 @@ export class TxComponentContainer<T> {
   }
 }
 
-let TxQueueContainer = new TxComponentContainer<TxQueuePoint>(TxQueuePoint, TxTYPES.TxQueuePoint, TxConnectorRabbitMQ);
-let TxRouteContainer = new TxComponentContainer<TxRoutePoint>(TxRoutePoint, TxTYPES.TxRoutePoint, TxConnectorExpress);
+//let TxQueueContainer = new TxComponentContainer<TxQueuePoint>(TxQueuePoint, TxTYPES.TxQueuePoint, TxConnectorRabbitMQ);
+//let TxRouteContainer = new TxComponentContainer<TxRoutePoint>(TxRoutePoint, TxTYPES.TxRoutePoint, TxConnectorExpress);
 
-export { TxQueueContainer, TxRouteContainer }
+//export { TxQueueContainer, TxRouteContainer }

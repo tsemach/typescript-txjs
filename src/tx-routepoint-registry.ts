@@ -1,11 +1,11 @@
-//import logger = require('logging');
+
 import createLogger from 'logging';
 const logger = createLogger('MountPointRegistry');
 
 import { TxRegistry } from './tx-registry';
 import { TxRoutePoint } from "./tx-routepoint";
 import { TxTYPES } from "./tx-injection-types";
-import { TxConnectorExpress } from "./tx-connector-express";
+//import { TxConnectorExpress } from "./tx-connector-express";
 import { TxRegistryContainer, TxRegistryContainerScopeEnum } from "./tx-registry-container";
 
 export class TxRoutePointRegistry extends TxRegistry<TxRoutePoint, string | Symbol> {
@@ -17,7 +17,7 @@ export class TxRoutePointRegistry extends TxRegistry<TxRoutePoint, string | Symb
     super();
 
     // set default driver for rabbitMQ and express.
-    this.routeContainer.setDriver(TxConnectorExpress);
+    //this.routeContainer.setDriver(TxConnectorExpress);
   }
 
   public static get instance() {

@@ -12,7 +12,7 @@ import { TxSinglePointRegistry } from '../../src/tx-singlepoint-registry';
 describe('Double Point Class', () => {
 
   class D1Component {
-    singlepoint: TxMountPoint = TxSinglePointRegistry.instance.create('GITHUB::GIST::C1');    
+    singlepoint: TxMountPoint = TxSinglePointRegistry.instance.create('DOUBLEPOINT::D1');    
 
     constructor() {
       this.singlepoint.tasks().subscribe(
@@ -30,7 +30,7 @@ describe('Double Point Class', () => {
     
     new D1Component();
     
-    let doublepoint = TxSinglePointRegistry.instance.double('GITHUB::GIST::C1')
+    let doublepoint = TxSinglePointRegistry.instance.double('DOUBLEPOINT::D1')
 
     doublepoint.reply().subscribe(
       (data) => {

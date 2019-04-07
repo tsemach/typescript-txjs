@@ -1,11 +1,11 @@
 
-import { Q1Component } from "./Q1.component";
+// import { Q1Component } from "./Q1.component";
 
-let Q1 = new Q1Component();
+// let Q1 = new Q1Component();
 
-async function run() {
-  await Q1.init();
-}
+// async function run() {
+//   await Q1.init();
+// }
 
-run();
+// run();
 

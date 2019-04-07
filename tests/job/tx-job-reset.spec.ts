@@ -16,9 +16,14 @@ describe('Job Class', () => {
 
   it('check job-reset.spec: running C1-C2-C3 job chain', async (done) => {
     
-    new C1Component();
-    new C2Component();
-    new C3Component();
+   try {
+      new C1Component();
+      new C2Component();
+      new C3Component();
+    }
+    catch (e) {
+      console.log("Components are already exist in the registry")
+    }
     
     let job = new TxJob('Job-1'); // or create througth the TxJobRegistry
 

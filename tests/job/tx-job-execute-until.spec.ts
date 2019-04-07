@@ -18,9 +18,14 @@ import { Persist } from "./pesist-driver";
 import * as short from 'short-uuid';
 import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
 
-new C1Component();
-new C2Component();
-new C3Component();
+try {
+  new C1Component();
+  new C2Component();
+  new C3Component();
+}
+catch (e) {
+  console.log("Components are already exist in the registry")
+}
     
 describe('Job Class', () => {
   // let persist = new Persist();

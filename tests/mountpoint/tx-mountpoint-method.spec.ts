@@ -17,7 +17,7 @@ describe('Mount Point Class', () => {
     logger.info('tx-mountpoint-method.spec: check mountpoint methods callback');
 
     class C1Component {      
-      private mountpoint = TxMountPointRegistry.instance.create('GITHUB::GISTP::C1');    
+      private mountpoint = TxMountPointRegistry.instance.create('MOUNTPOINT::METHOD::SPEC::C1');    
 
       constructor() {
         logger.info("C1Component:con't is called, no need to subscribe, the method will take care of it");            
@@ -43,10 +43,10 @@ describe('Mount Point Class', () => {
     logger.info('[tx-mountpoint-method.spec]: check mountpoint methods callback');
 
     let C1 = new C1Component();
-    let mountpoint = TxMountPointRegistry.instance.get('GITHUB::GISTP::C1');
+    let mountpoint = TxMountPointRegistry.instance.get('MOUNTPOINT::METHOD::SPEC::C1');
     
     logger.info('[tx-mountpoint-method.spec]: mountpoint name is - \'' + mountpoint.name + '\'');
-    expect(mountpoint.name).to.equal('GITHUB::GISTP::C1');
+    expect(mountpoint.name).to.equal('MOUNTPOINT::METHOD::SPEC::C1');
 
     let task = new TxTask({method: 'run'}, {from: 'https://api.github.com'});
     mountpoint.tasks().next(task);
@@ -58,8 +58,8 @@ describe('Mount Point Class', () => {
 
     let numberOfCalles = 0;
 
-    class C1Component {      
-      private mountpoint = TxMountPointRegistry.instance.create('GITHUB::GISTP::C1');    
+    class C2Component {      
+      private mountpoint = TxMountPointRegistry.instance.create('MOUNTPOINT::METHOD::SPEC::C2');    
 
       constructor() {
         logger.info("C1Component:con't is called, no need to subscribe, the method will take care of it");            
@@ -91,11 +91,11 @@ describe('Mount Point Class', () => {
 
     logger.info('[tx-mountpoint-method.spec]: check mountpoint methods callback');
 
-    let C1 = new C1Component();
-    let mountpoint = TxMountPointRegistry.instance.get('GITHUB::GISTP::C1');
+    let C1 = new C2Component();
+    let mountpoint = TxMountPointRegistry.instance.get('MOUNTPOINT::METHOD::SPEC::C2');
     
     logger.info('[tx-mountpoint-method.spec]: mountpoint name is - \'' + mountpoint.name + '\'');
-    expect(mountpoint.name).to.equal('GITHUB::GISTP::C1');
+    expect(mountpoint.name).to.equal('MOUNTPOINT::METHOD::SPEC::C2');
 
     let task;
 

@@ -9,41 +9,14 @@ import { assert } from 'chai';
 import { R1Component } from './R1Component';
 
 import { TxRoutePointRegistry } from './../../src/tx-routepoint-registry';
-import { TxConnectorExpress } from '../../src/tx-connector-express';
+import { TxConnectorExpress } from '../connectors/connector-express-full';
 import { TxTask } from '../../src';
 
 TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
 new R1Component();
 
 describe('TxRoutePoint Testing', () => {
-
-  // it('tx-routepoint.spec: simple routepoint test', async (done) => {
-  //   logger.info('tx-routepoint.spec: simple routepoint test');  
-  //   TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
-
-  //   let rp = TxRoutePointRegistry.instance.create('GITHUB::R1')    
   
-  //   let expected = {
-  //     head: {
-  //       from: "test"
-  //     },
-  //     data: "this is the data"
-  //   }
-
-  //   let service = rp.listen('localhost:3000', '/test');
-
-  //   service.subscribe(
-  //     (task) => {
-  //       logger.info('[rp:subscribe] got data from express connector: task = ' + JSON.stringify(task.get(), undefined, 2))
-  //       assert.deepEqual(expected, task.get());
-
-  //       rp.close();
-  //       done();
-  //     });    
-                
-  //   rp.next('localhost:3000', 'test', new TxTask<any>({from: 'test'}, 'this is the data'))
-  // });  
-
   it('tx-routepoint.spec: round trip host -> R1 (remote) -> host test', async (done) => {
     logger.info('tx-routepoint.spec: round trip host -> R1 (remote) -> host test');  
 

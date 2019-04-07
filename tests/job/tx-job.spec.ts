@@ -1,4 +1,6 @@
 import createLogger from 'logging';
+const logger = createLogger('Job-Test');
+
 import 'mocha';
 import {expect} from 'chai';
 
@@ -14,7 +16,14 @@ import {S2Component} from './S2.component';
 import {S3Component} from './S3.component';
 import * as short from 'short-uuid';
 
-const logger = createLogger('Job-Test');
+import { TxQueuePointRegistry } from '../../src/tx-queuepoint-registry'
+import { TxRoutePointRegistry} from '../../src/tx-routepoint-registry'
+
+import { TxConnectorRabbitMQ } from '../connectors/connector-rabbitmq-empty';
+import { TxConnectorExpress } from './../connectors/connector-express-empty';
+
+TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
+TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
 
 new TxJobServicesComponent().init();  
 
@@ -26,9 +35,14 @@ describe('Job Class', () => {
   it('tx-job.spec.ts: check running S1-S2-S3 job chain', () => {
     logger.info('tx-job.spec.ts: check running S1-S2-S3 job chain')
 
-    new S1Component();
-    new S2Component();
-    new S3Component();
+    try {
+      new S1Component();
+      new S2Component();
+      new S3Component();
+    }
+    catch (e) {
+      console.log('Components are already exist in the registry');
+    }
     
     let job = new TxJob('Job-1'); // or create througth the TxJobRegistry
 

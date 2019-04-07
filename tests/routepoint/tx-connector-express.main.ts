@@ -2,7 +2,7 @@ import createLogger from 'logging';
 const logger = createLogger('ConnectorExpressTest');
 
 import { TxTask } from './../../src/tx-task';
-import { TxConnectorExpress } from "../../src/tx-connector-express";
+import { TxConnectorExpress } from "../connectors/connector-express-full";
 
 async function main() {
   let express = new TxConnectorExpress();

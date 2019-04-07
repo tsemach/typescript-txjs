@@ -35,10 +35,15 @@ describe('Job Class', () => {
     let persist = new Persist();
     TxJobRegistry.instance.setPersistDriver(persist);
 
-    new C1Component();
-    new C2Component();
-    new C3Component();
-
+    try {
+      new C1Component();
+      new C2Component();
+      new C3Component();
+    }
+    catch (e) {
+      console.log("Components are already exist in the registry")
+    }
+    
     let job1 = new TxJob('job-1'); // or create through the TxJobRegistry
 
     job1.add(TxSinglePointRegistry.instance.get('GITHUB::GIST::C1'));
