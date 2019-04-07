@@ -5,7 +5,19 @@
 # Application Execution Model
 
 ## Latest Update
-1. * Add delete to **TxJobPersistAdapter** to automatic delete the job after rebuild from persistance.
+1. * Remove Application specific code. rx-txjs is a library enable your classes to communicate one with another with
+another **but** without a regular API call. This communicate can be done locally within the process very similar to rxjs 
+public / subscribe or between process / services / containers by some method of communication like express (http), 
+system queue (Kafka, RanbbitMQ, Bull) or any other method. rx-txjs id agnostic to what method you prefer to use as long as you
+"present and object that honor **`TxConnector`** interface". once you present that object to rx-txjs by for example
+````typescript
+TxQueuePointRegistry.instance.setDriver(my-object-that-handle-queue-communication);
+TxRoutePointRegistry.instance.setDriver(my-object-that-handle-express);
+````   
+rx-txjs will able to communicate directly between components with in different processes and run a Job cross services.
+see the doc for more info. 
+
+2. * Add delete to **TxJobPersistAdapter** to automatic delete the job after rebuild from persistance.
 
 ## Documentation
 ## Full document is now [here](https://rxjs.gitbook.io/rx-txjs/) 
