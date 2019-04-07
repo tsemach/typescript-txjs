@@ -15,7 +15,9 @@ TxQueuePointRegistry.instance.setDriver(my-object-that-handle-queue-communicatio
 TxRoutePointRegistry.instance.setDriver(my-object-that-handle-express);
 ````   
 rx-txjs will able to communicate directly between components with in different processes and run a Job cross services.
-see the doc for more info. 
+see the doc for more info.
+
+This change to move a bunch of predefine adapters to a new package **`rx-txjs-adapters`** anable you to use express for example out of the box.
 
 2. * Add delete to **TxJobPersistAdapter** to automatic delete the job after rebuild from persistance.
 
