@@ -19,7 +19,6 @@ import { TxRecordPersistAdapter, TxRecordIndexSave } from "./tx-record-persist-a
 import { TxJobExecutionId } from "./tx-job-execution-id";
 import { TxJobServices } from './tx-job-services';
 import { TxSubscribe } from './tx-subscribe';
-import { TxSinglePoint } from './tx-singlepoint';
 import { TxDoublePoint } from './tx-doublepoint';
 
 export const enum TxDirection {
@@ -186,9 +185,10 @@ export class TxJob {
       this.waiting.add(next.name.toString());
       data.setReply(txMountPoint.reply());
 
-      setTimeout( async () => {
-        next.tasks().next(data)
-      }, 0); 
+      setTimeout(async () => {
+        //next.tasks().next(data);
+        this.publish(data, next);
+      }, 0);
 
       logger.info(`[TxJob:subscribe] [${this.name}] end of subscribe, ${next.name}`);
 
@@ -500,6 +500,17 @@ export class TxJob {
     this.current.tasks().error(data);
   }
 
+  private async publish(task: TxTask<any>, next: TxMountPoint) {
+    if (TxJobExecutionOptionsChecker.isDisribute(this.options)) {
+      await TxJobRegistry.instance.getDistribute().send(this.toJSON(), 'job', task, this.options)
+
+      this.release();
+      return;
+    }
+
+    next.tasks().next(task);
+  }
+
   /**
    * S2S: in case of S2S take all the mountpoint defined in this.services
    * and use them for the executions.
@@ -567,15 +578,16 @@ export class TxJob {
     mp.reply().next(data);
   }
 
-  private finish(data, notification = true) {    
+  private finish(task: TxTask<any>, notification = true) {    
     this.revert = false;
     this.single = false;
-    this.services.shift(data);        
+    this.services.shift(task);        
 
     if (notification) {
-      this.notify(data);
+      this.notify(task);
     }
-    this.isCompleted.next(data, this);
+    this.isCompleted.next(task, this);
+    TxJobRegistry.instance.emit('job: ' + this.getUuid(), {job: this, data: task})
   }
   
   private isFinish() {

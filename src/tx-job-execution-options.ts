@@ -22,18 +22,20 @@ export interface TxJobExecutionOptions {
     notify: {
       name: string;   // the name of the mountpoint needed to send reply
       from: string;   // the service name where need to notify
-    }
+    },
   }
+  publish: 'local' | 'distribute'
 }
 
-let defaultExecutionOptions: TxJobExecutionOptions = {
+const defaultExecutionOptions: TxJobExecutionOptions = {
   "persist": {
     "ison": false,
     "destroy": false
   },
   execute: {
     record: false
-  }
+  },  
+  publish: 'local'
 } as TxJobExecutionOptions;
 export { defaultExecutionOptions };
 
@@ -114,6 +116,19 @@ export class TxJobExecutionOptionsChecker {
     }
 
     return true;
+  }
+
+  static isDisribute(options: TxJobExecutionOptions) {
+    if (options.publish === undefined) {
+      return false;
+    }
+    if (options.publish === 'local') {
+      return false;
+    }
+    if (options.publish === 'distribute') {
+      return true;
+    }
+    throw Error(`unknown publish option: ${options.publish}`);
   }
 
 }

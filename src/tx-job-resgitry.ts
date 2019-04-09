@@ -1,9 +1,16 @@
+
 import logger = require('logging');
 import { TxRegistry } from './tx-registry';
 import { TxJob } from './tx-job';
+import { TxTask } from './tx-task';
+import { TxDistributeComponent } from './tx-distribute-component';
+import { TxDistribute } from './tx-disribute';
 import { TxJobPersistAdapter } from "./tx-job-persist-adapter";
 import { TxRecordPersistAdapter } from "./tx-record-persist-adapter"
 import { TxConnectorConnection } from './tx-connector-connection';
+import TxNames from './tx-names';
+import { EventEmitter } from 'events';
+import { TxJobEventType } from './tx-Job-event-type';
 
 /**
  * TxJobRegistry - is class store TxJob by their ids.
@@ -17,6 +24,8 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
   private _jobComponents = new Map<string, Set<string>>();
   private _serviceName = '';
   private _routeConnection = new TxConnectorConnection()
+  private _distributer: TxDistribute = null;
+  private _eventemitter = new EventEmitter()
   
   private constructor() {
     super();
@@ -47,7 +56,15 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
     let components = this._jobComponents.get(job);
     components.add(mountpoint.toString());
   }
-  
+
+  once(event: string, cb: (data: TxJobEventType) => void) {
+    this._eventemitter.once(event, cb)
+  }  
+
+  emit(event: string, data: TxJobEventType) {
+    this._eventemitter.emit('job: ' + data.job.getUuid(), data)
+  }
+
   getJobs() {
       return this._jobComponents;    
   }
@@ -123,4 +140,19 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
   getRouteConnection() {
     return this._routeConnection;
   }  
+
+  setDitribute(_distributer: TxDistribute = null) {
+    this._distributer = _distributer;
+
+    try {
+      new TxDistributeComponent();
+    }
+    catch (e) {
+      logger.warn(`component ${TxNames.RX_TXJS_DISTRIBUTE_COMPONENT} is already exist in the registry`)
+    }
+  }
+
+  getDistribute() {
+    return this._distributer;
+  }
 }
