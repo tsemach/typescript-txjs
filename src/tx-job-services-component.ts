@@ -5,7 +5,7 @@ import { TxQueuePointRegistry } from './tx-queuepoint-registry';
 import { TxMountPointRegistry } from './tx-mountpoint-registry';
 import { TxRoutePointRegistry } from './tx-routepoint-registry';
 import { TxJobRegistry } from './tx-job-resgitry';
-import TxNames from './tx-names';
+import { TxNames } from './tx-names';
 import { TxJob } from './tx-job';
 import { TxTask } from './tx-task';
 

@@ -4,11 +4,11 @@ import { TxRegistry } from './tx-registry';
 import { TxJob } from './tx-job';
 import { TxTask } from './tx-task';
 import { TxDistributeComponent } from './tx-distribute-component';
-import { TxDistribute } from './tx-disribute';
+import { TxDistribute } from './tx-distribute';
 import { TxJobPersistAdapter } from "./tx-job-persist-adapter";
 import { TxRecordPersistAdapter } from "./tx-record-persist-adapter"
 import { TxConnectorConnection } from './tx-connector-connection';
-import TxNames from './tx-names';
+import { TxNames } from './tx-names';
 import { EventEmitter } from 'events';
 import { TxJobEventType } from './tx-Job-event-type';
 
@@ -141,7 +141,7 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
     return this._routeConnection;
   }  
 
-  setDitribute(_distributer: TxDistribute = null) {
+  setDistribute(_distributer: TxDistribute = null) {
     this._distributer = _distributer;
 
     try {

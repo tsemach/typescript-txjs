@@ -1,8 +1,11 @@
+
 import createLogger from 'logging';
 const logger = createLogger('Job-Execute-Test');
 
 import 'mocha';
 import {expect} from 'chai';
+import { assert } from 'chai';
+import * as sinon from 'sinon';
 
 import { TxSinglePointRegistry } from '../../src/tx-singlepoint-registry';
 import { TxMountPointRegistry } from './../../src/tx-mountpoint-registry';
@@ -10,27 +13,42 @@ import { TxJobExecutionOptions } from "../../src/tx-job-execution-options";
 import { TxTask } from '../../src/tx-task';
 import { TxJob } from '../../src/tx-job';
 import { TxJobRegistry } from "../../src";
-import { TxDistributeBull } from './../../src/tx-disribute-bull';
+import { TxDistributeComponentHead } from './../../src/tx-distribute-component-head';
+import { TxDistribute, TxDistributeSourceType, TxDistributeType } from './../../src/tx-distribute';
 
 import { S1Component } from './components/S1.component';
 import { S2Component } from './components/S2.component';
 import { S3Component } from './components/S3.component';
 
-import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
-import { TxJobServicesComponent } from '../../src/tx-job-services-component';
-
-import { TxQueuePointRegistry } from '../../src/tx-queuepoint-registry'
-import { TxRoutePointRegistry} from '../../src/tx-routepoint-registry'
-
-import { TxConnectorRabbitMQ } from '../connectors/connector-rabbitmq-empty';
-import { TxConnectorExpress } from './../connectors/connector-express-empty';
-import TxNames from '../../src/tx-names';
+import { TxNames } from '../../src/tx-names';
 import { TxJobEventType } from '../../src/tx-Job-event-type';
 
-TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
-TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
+const sandbox = sinon.createSandbox();
 
-new TxJobServicesComponent().init();  
+class TxDistributeBull implements TxDistribute {
+  
+  private readonly name = 'distributer'  
+  connection = '';
+
+  constructor(connection: any) {
+    logger.info(`going to connect to '${connection}`)    
+    this.connection = connection;
+  }
+
+  send(from: TxDistributeSourceType, type: TxDistributeType, task: TxTask<any>, options: TxJobExecutionOptions): Promise<any> {     
+    return Promise.resolve(this.bypass({from, type, task: task.get(), options}));    
+  }
+
+  bypass(data: {from: TxDistributeSourceType, type: TxDistributeType, task: any, options: TxJobExecutionOptions}) {    
+    logger.info(`[TxDistributeBull::byoass] job process callback  from '${JSON.stringify(data, undefined, 2)}`)
+    TxMountPointRegistry
+      .instance
+      .get(TxNames.RX_TXJS_DISTRIBUTE_COMPONENT)
+      .tasks()
+      .next(new TxTask<TxDistributeComponentHead>({method: 'run', type: data.type}, data))
+    return true;      
+  }
+}
 
 describe('Job Class Execute Test', () => {
   try {
@@ -41,10 +59,36 @@ describe('Job Class Execute Test', () => {
   catch (e) {
     console.log('Components is already exist')
   }  
-  TxJobRegistry.instance.setDitribute(new TxDistributeBull('redis://localhost:6379'));
+
+  TxJobRegistry.instance.setDistribute(new TxDistributeBull('redis://localhost:6379'));
 
   /**
-   */
+   */     
+  let spy: any;
+  let expect_call_arg_0: any;
+  let expect_call_arg_1: any;
+
+  before('tx-job-distribute.spec: (before) check running S1-S2-S3 through distribute', () =>{
+
+    expect_call_arg_0 = { 
+      head: { method: 'from S1', status: 'ok' },
+      data: { something: 'more data here' } 
+    };
+  
+    expect_call_arg_1 = { 
+      head: { method: 'from S2', status: 'ok' },
+      data: { something: 'more data here' } 
+    };
+
+    const distributer = new TxDistributeBull('redis://localhost:6379');
+    spy = sinon.spy(distributer, 'bypass');
+
+    TxJobRegistry.instance.setDistribute(distributer);
+  });
+
+  after('', () => {
+    spy.restore();
+  });
 
   it('tx-job-distribute.spec: check running S1-S2-S3 through distribute', (done) => {
     logger.info('tx-job-distribute.spec: check running S1-S2-S3 through distribute');    
@@ -57,10 +101,19 @@ describe('Job Class Execute Test', () => {
 
     TxJobRegistry.instance.once('job: ' + job.getUuid(), (data: TxJobEventType) => {      
       console.log('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
-      
+
+      const distributer = TxJobRegistry.instance.getDistribute() as TxDistributeBull;
+         
       expect(data.data['head']['method']).to.equal("from S3");
       expect(data.data['head']['status']).to.equal("ok");
-      expect(data.job.current.name).to.equal('GITHUB::S3');
+      expect(data.job.current.name).to.equal('GITHUB::S3');      
+      expect(distributer.connection).to.equal('redis://localhost:6379');
+
+      expect(spy.callCount).to.equal(2);
+      expect(spy.getCall(0).args[0].type).to.equal('job');
+
+      assert.deepEqual(spy.getCall(0).args[0].task, expect_call_arg_0);
+      assert.deepEqual(spy.getCall(1).args[0].task, expect_call_arg_1);
 
       done();
     });
@@ -75,57 +128,6 @@ describe('Job Class Execute Test', () => {
         publish: 'distribute'
       } as TxJobExecutionOptions
     );        
-  })
-
-  // it('tx-job-continue-spec: check S1-S2-S3 upJSON with execute', (done) => {
-  //   logger.info('running: tx-job-execute.spec: check S1-S2-S3 upJSON with execute');
-
-  //   let uuid = short().new();
-  //   let executionId: TxJobExecutionId = {uuid: short().new(), sequence: 1};
-
-  //   let job = new TxJob('Job-1');
-  //   let from = {
-  //     name: "GitHub",
-  //     uuid: uuid,
-  //     block: "GITHUB::S1,GITHUB::S2,GITHUB::S3",
-  //     stack: "GITHUB::S1,GITHUB::S2,GITHUB::S3",
-  //     trace: "",
-  //     single: false,
-  //     revert: false,
-  //     error: false,
-  //     current: "",
-  //     executeUuid: executionId.uuid,
-  //     sequence: executionId.sequence,
-  //     services: TxJobServicesEmptyJSON
-  //   };
-  //   let after = job.upJSON(from).toJSON();
-
-  //   expect(from.name).to.equal(after['name']);
-  //   expect(from.uuid).to.equal(after['uuid']);
-  //   expect(from.stack).to.equal(after['stack']);
-  //   expect(from.trace).to.equal(after['trace']);
-  //   expect(from.single).to.equal(after['single']);
-  //   expect(from.block).to.equal(after['block']);
-  //   expect(from.current).to.equal(after['current']);
-  //   expect(from.executeUuid).to.equal(after['executeUuid']);
-  //   expect(from.sequence).to.equal(after['sequence']);
-
-  //   job.getIsCompleted().subscribe(
-  //     (data) => {
-  //       logger.info('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));        
-  //       expect(data['head']['method']).to.equal("from S3");
-  //       expect(data['head']['status']).to.equal("ok");
-
-  //       done();
-  //     });                
-
-  //   job.execute(new TxTask({
-  //       method: 'create',
-  //       status: ''
-  //     },
-  //     {something: 'more data here'})
-  //   );
-    
-  // });
+  })  
 
 });
