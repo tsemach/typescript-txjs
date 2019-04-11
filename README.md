@@ -19,7 +19,7 @@ see the doc for more info.
 
 This change to move a bunch of predefine adapters to a new package **`rx-txjs-adapters`** anable you to use express for example out of the box.
 
-2. * Add delete to **TxJobPersistAdapter** to automatic delete the job after rebuild from persistance.
+1. * Add distribute component execution. rx-txjs will run your components (your business logic) as a job one after the other. This feature enable you to run those components distrute using other instance of your service / container. See below for more info.
 
 ## Documentation
 ## Full document is now [here](https://rxjs.gitbook.io/rx-txjs/) 
@@ -49,6 +49,7 @@ To interact with a Component you are using several version a * **MountPoints** *
 * **`C2C`** - Class-2-Class communication enable to communication directory between to Components over some communication channel. this could be over HTTP (node express) or some kind of queue system (like Kafka, RabbitMQ).
 * **`S2S`** - Cross Service Job, this enable to run a job spreading on several services.
 * **`Monitor`** - a full monitor solution.
+* **`Distribution`** - run a job's components in different service / container instance.
 
 ## What's new 0.2.3
 1. adding **`TxSubscribe`** - an implement of RxJS Subject API.
@@ -122,4 +123,121 @@ Define a Job as follow:
 ````
 This will run the components in the order they defined. This is a very simple verision of the exection options.
 **`job.execute`** include many more options like persist, recording, run-until and so on.
+
+### Distribure Job
+
+First define your components, for example S1Component, S2Component and S3Component like this
+````typescript
+export class S1Component {
+  singlepoint = TxSinglePointRegistry.instance.create('GITHUB::S1');
+
+  constructor() {
+    this.singlepoint.tasks().subscribe(
+      (task: TxTask<any>) => {
+        logger.info('[S1Component:tasks] got task = ' + JSON.stringify(task.get(), undefined, 2));                  
+
+        // just send the reply to whom is 'setting' on this reply subject
+        task.reply().next(new TxTask({method: 'from S1', status: 'ok'}, task['data']))
+      }
+    );    
+  }
+
+}  
+````
+
+Now you need to preset to rx-txjs an object which implement **`TxDistribute`** interface.
+
+This object has to do two things:
+1. implement send method of **`TxDistribute`** which send data to queue, express or other method of distribution.
+2. On receiving and the data to TxDistributeComponent.
+
+You can use the builtin **`TxDistributeBull`** from *rx-txjs-adapters* package which will do all the work using bull library.
+
+````typescript
+// import TxDistributeBull from rx-txjs-adapters package
+import { TxDistributeBull } from 'rx-txjs-adapters';
+
+// set the distributer so the job will know to where the send the data 
+TxJobRegistry.instance.setDistribute(new TxDistributeBull('redis://localhost:6379'));
+````
+
+Now you can define the job and run it in distributed manner.
+
+````typescript
+// create the job and add it's components
+let job = new TxJob('job-1'); 
+
+job.add(TxSinglePointRegistry.instance.get('GITHUB::S1'));
+job.add(TxSinglePointRegistry.instance.get('GITHUB::S2'));
+job.add(TxSinglePointRegistry.instance.get('GITHUB::S3'));
+````
+
+````typescript
+// define and callback when job is completed
+TxJobRegistry.instance.once('job: ' + job.getUuid(), (data: TxJobEventType) => {      
+  console.log('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
+});
+
+// now execute the job with *publish* flag turn on. 
+job.execute(new TxTask({
+    method: 'create',
+    status: ''
+  },
+  {something: 'more data here'}
+  ),
+  {
+    publish: 'distribute'
+  } as TxJobExecutionOptions
+);        
+````
+
+* Here the complete example
+
+````typescript
+import createLogger from 'logging';
+const logger = createLogger('Job-Execute-Test');
+
+import { 
+  TxSinglePointRegistry,
+  TxJobExecutionOptions,
+  TxTask,
+  TxJob,
+  TxJobRegistry,  
+  TxJobEventType,
+} from 'rx-txjs';
+
+import { TxDistributeBull } from 'rx-txjs-adapters';
+import { S1Component } from '../components/S1.component';
+import { S2Component } from '../components/S2.component';
+import { S3Component } from '../components/S3.component';
+
+new S1Component();
+new S2Component();
+new S3Component();
+
+TxJobRegistry.instance.setDistribute(new TxDistributeBull('redis://localhost:6379'));
+
+logger.info('tx-job-distribute.spec: check running S1-S2-S3 through distribute');    
+
+let job = new TxJob('job-1');  
+
+job.add(TxSinglePointRegistry.instance.get('GITHUB::S1'));
+job.add(TxSinglePointRegistry.instance.get('GITHUB::S2'));
+job.add(TxSinglePointRegistry.instance.get('GITHUB::S3'));
+
+TxJobRegistry.instance.once('job: ' + job.getUuid(), (data: TxJobEventType) => {      
+  console.log('[job-execute-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));
+});
+
+job.execute(new TxTask({
+    method: 'create',
+    status: ''
+  },
+  {something: 'more data here'}
+  ),
+  {
+    publish: 'distribute'
+  } as TxJobExecutionOptions
+);        
+````
 

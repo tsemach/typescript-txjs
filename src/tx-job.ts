@@ -350,7 +350,7 @@ export class TxJob {
     logger.info(`[TxJob:execute] [${this.name}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}, waiting.size = ${this.waiting.size}`);
   } 
 
-  async continue(data, options: TxJobExecutionOptions = defaultExecutionOptions) {
+  async continue(data: TxTask<any>, options: TxJobExecutionOptions = defaultExecutionOptions) {
     this.single = false;
     this.options = options;
 
@@ -380,7 +380,7 @@ export class TxJob {
       this.current.tasks().error(data);
 
       return;
-    }    
+    }        
     this.current.tasks().next(data);
   }
 
@@ -390,7 +390,7 @@ export class TxJob {
    * @param data the data to pass to components
    * @param options
    */
-  async step(data, options: TxJobExecutionOptions = defaultExecutionOptions) {
+  async step(data: TxTask<any>, options: TxJobExecutionOptions = defaultExecutionOptions) {
     this.single = true;
     this.options = options;
     if (this.stack.length === 0) {
@@ -502,6 +502,7 @@ export class TxJob {
 
   private async publish(task: TxTask<any>, next: TxMountPoint) {
     if (TxJobExecutionOptionsChecker.isDisribute(this.options)) {
+      logger.info('going to publish jobId:', this.getUuid())
       await TxJobRegistry.instance.getDistribute().send(this.toJSON(), 'job', task, this.options)
 
       this.release();
