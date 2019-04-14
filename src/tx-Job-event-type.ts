@@ -3,5 +3,5 @@ import { TxJob } from './tx-job';
 
 export interface TxJobEventType {  
   job: TxJob;
-  data: TxTask<any>;
+  task: TxTask<any>;
 }

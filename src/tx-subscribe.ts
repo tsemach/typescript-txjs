@@ -11,7 +11,6 @@ export class TxUnSubscribe<T> {
   }
 
   unsubscribe() {
-    console.log("TxUnSubscribe::unsubscribe: enter to, index = " + this.index)
     this.from.unsubscribe(this.index);
   }
 

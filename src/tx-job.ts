@@ -195,10 +195,10 @@ export class TxJob {
     } while ( ! next.isWait() )
   }
 
-  async errorCB(data,  txMountPoint: TxMountPoint) {
+  async errorCB(task: TxTask<any>,  txMountPoint: TxMountPoint) {
     let __name = TxJobRegistry.instance.getServiceName();
 
-    logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] got error, data = ${JSON.stringify(data, undefined, 2)}`);
+    logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] got error, data = ${JSON.stringify(task, undefined, 2)}`);
     logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] before shift to next error, trace.len = ${this.trace.length}`);
 
     // set error mode to true and rise onError event.
@@ -209,14 +209,15 @@ export class TxJob {
       this.error = true;
       this.services.setError();
     }
-    this.onError.next(new TxTask<{name: string}>({name: <string>this.current.name}, data));
+    this.onError.next(new TxTask<{name: string}>({name: <string>this.current.name}, task));
 
     if (this.trace.length === 0) {
       logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] complete running errors all mount points, trace.length = ${this.trace.length}, stack.length = ${this.stack.length}`);
             
-      this.services.error(data);
-      this.isCompleted.error(data);
-      this.notify(data);
+      this.services.error(task);
+      this.isCompleted.error(task);
+      this.notify(task);
+      TxJobRegistry.instance.emit('job:error: ' + this.getUuid(), {job: this, task})
 
       return;
     }
@@ -230,9 +231,9 @@ export class TxJob {
       await TxJobRegistry.instance.persist(this);
     }
 
-    data.setReply(txMountPoint.reply());
+    task.setReply(txMountPoint.reply());
     //this.current.tasks().error(data);
-    this.publishError(data, this.current);
+    this.publishError(task, this.current);
   }
 
   subscribe(txMountPoint: TxMountPoint) {        
@@ -573,7 +574,7 @@ export class TxJob {
     this.executionId = {uuid: '', sequence: 0};
   }
 
-  notify(data) {
+  notify(data: TxTask<any>) {
     if ( ! TxJobExecutionOptionsChecker.isNotify(this.options) ) {
       return;
     }
@@ -584,7 +585,7 @@ export class TxJob {
     let mp = TxMountPointRegistry.instance.get(this.options.execute.notify.name);
 
     if (this.error) {        
-      mp.reply().error(data);    
+      mp.reply().error(data);
 
       return
     }
@@ -601,7 +602,7 @@ export class TxJob {
       this.notify(task);
     }
     this.isCompleted.next(task, this);
-    TxJobRegistry.instance.emit('job: ' + this.getUuid(), {job: this, data: task})
+    TxJobRegistry.instance.emit('job: ' + this.getUuid(), {job: this, task})
   }
   
   private isFinish() {

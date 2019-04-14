@@ -23,7 +23,6 @@ export class TxDistributeComponent {
     if (task.head.type === 'job') {
       const job = (new TxJob('temp')).upJSON(task.data.from)
 
-      console.log('BEFORE CONTINUE')
       job.continue(new TxTask<any>(task.data.task.head, task.data.task.data), task.data.options);
     }
   }

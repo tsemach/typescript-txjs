@@ -62,7 +62,7 @@ export class TxJobRegistry extends TxRegistry<TxJob, string> {
   }  
 
   emit(event: string, data: TxJobEventType) {
-    this._eventemitter.emit('job: ' + data.job.getUuid(), data)
+    this._eventemitter.emit(event, data)
   }
 
   getJobs() {

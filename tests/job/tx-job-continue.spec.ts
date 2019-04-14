@@ -19,9 +19,9 @@ import { TxConnectorExpress } from './../connectors/connector-express-empty';
 import {S1Component} from './S1.component';
 import {S2Component} from './S2.component';
 import {S3Component} from './S3.component';
-import {E1Component} from './E1.component';
-import {E2Component} from './E2.component';
-import {E3Component} from './E3.component';
+import {E1Component} from './components/E1.component';
+import {E2Component} from './components/E2.component';
+import {E3Component} from './components/E3.component';
 
 import * as short from 'short-uuid';
 
