@@ -96,14 +96,14 @@ export class TxJob {
   async subscribeCB(data: TxTask<any>, txMountPoint: TxMountPoint) {    
 
     //txMountPoint = this.current;
-    logger.info(`[TxJob:subscribe] [${this.name}] got reply, data = ${JSON.stringify(data, undefined, 2)}`);
-    logger.info(`[TxJob:subscribe] [${this.name}] before shift to next task, stack.len = ${this.stack.length}`);
+    logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] got reply, data = ${JSON.stringify(data, undefined, 2)}`);
+    logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] before shift to next task, stack.len = ${this.stack.length}`);
 
     if (this.error) {
       throw new Error(`[TxJob:subscribe] ERROR: job: ${this.name} is on error but got subscribe callback from a mountpoint`);
     }
 
-    logger.info(`[TxJob:subscribe] [${this.name}] going to delete ${txMountPoint.name.toString()} from waiting`);    
+    logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] going to delete ${txMountPoint.name.toString()} from waiting`);    
     // remove this comment when finish waitfor bug
     // this.waiting.delete(txMountPoint.name.toString());
     this.waiting.clear();
@@ -124,7 +124,7 @@ export class TxJob {
     }
 
     if (this.isFinish()) {
-      logger.info(`[TxJob:subscribe] [${this.name}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}, waiting.size = ${this.waiting.size}`);
+      logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] complete running all jobs mount points, stack.length = ${this.stack.length}, trace.length = ${this.trace.length}, waiting.size = ${this.waiting.size}`);
       this.finish(data);
 
       return;
@@ -132,7 +132,7 @@ export class TxJob {
 
     if (this.single) {
       if (TxJobExecutionOptionsChecker.isDestroy(this.options)) {
-        logger.info(`[TxJob:subscribe] [${this.name}] single step - going to destroy job \'${this.getUuid()}\', on ${this.current.name} mount point`);
+        logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] single step - going to destroy job \'${this.getUuid()}\', on ${this.current.name} mount point`);
 
         this.release();
       }
@@ -144,7 +144,7 @@ export class TxJob {
       // if stack.length == 0 then nothing to next but this.waitng.size > 0 then it mean
       // that there are still component outside, need to wait for them.
       if (this.waiting.size > 0 && this.stack.length === 0) {
-        logger.info(`[TxJob:subscribe] [${this.name}] nothing to next but still need to wait for components to completed, ${this.waiting.size}`);
+        logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] nothing to next but still need to wait for components to completed, ${this.waiting.size}`);
         
         return;
       }
@@ -154,21 +154,21 @@ export class TxJob {
        * and send the data to it's tasks subject.
        */
       next = this.shift();
-      logger.info(`[TxJob:subscribe] [${this.name}] going to run next task: ${next.name}`);
+      logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] going to run next task: ${next.name}`);
 
       if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
         await TxJobRegistry.instance.persist(this);
       }
 
       if (TxJobExecutionOptionsChecker.isUntil(this.options, next.name)) {
-        logger.info(`[TxJob:subscribe] [${this.name}] found execute.until, on ${next.name} mount point`);
+        logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] found execute.until, on ${next.name} mount point`);
 
         if ( ! TxJobExecutionOptionsChecker.isPersist(this.options) ) {
           await TxJobRegistry.instance.persist(this);
         }
 
         if (TxJobExecutionOptionsChecker.isDestroy(this.options)) {
-          logger.info(`[TxJob:subscribe] [${this.name}] going to destroy job \'${this.getUuid()}\', on ${next.name} mount point`);
+          logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] going to destroy job \'${this.getUuid()}\', on ${next.name} mount point`);
 
           this.release();
         }
@@ -190,7 +190,7 @@ export class TxJob {
         this.publish(data, next);
       }, 0);
 
-      logger.info(`[TxJob:subscribe] [${this.name}] end of subscribe, ${next.name}`);
+      logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] end of subscribe, ${next.name}`);
 
     } while ( ! next.isWait() )
   }
@@ -198,12 +198,12 @@ export class TxJob {
   async errorCB(data,  txMountPoint: TxMountPoint) {
     let __name = TxJobRegistry.instance.getServiceName();
 
-    logger.info(`[(${__name}):TxJob:errorCB] [${this.name}] got error, data = ${JSON.stringify(data, undefined, 2)}`);
-    logger.info(`[(${__name}):TxJob:errorCB] [${this.name}] before shift to next error, trace.len = ${this.trace.length}`);
+    logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] got error, data = ${JSON.stringify(data, undefined, 2)}`);
+    logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] before shift to next error, trace.len = ${this.trace.length}`);
 
     // set error mode to true and rise onError event.
     if (this.error == false) {
-      logger.info(`[(${__name}):TxJob:errorCB] [${this.name}] first time enter to error handler, remove current occluding the error`);
+      logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] first time enter to error handler, remove current occluding the error`);
 
       this.trace.pop();
       this.error = true;
@@ -212,7 +212,7 @@ export class TxJob {
     this.onError.next(new TxTask<{name: string}>({name: <string>this.current.name}, data));
 
     if (this.trace.length === 0) {
-      logger.info(`[(${__name}):TxJob:errorCB] [${this.name}] complete running errors all mount points, trace.length = ${this.trace.length}, stack.length = ${this.stack.length}`);
+      logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] complete running errors all mount points, trace.length = ${this.trace.length}, stack.length = ${this.stack.length}`);
             
       this.services.error(data);
       this.isCompleted.error(data);
@@ -222,7 +222,7 @@ export class TxJob {
     }
 
     this.current = this.trace.pop();
-    logger.info(`[(${__name}):TxJob:errorCB] [${this.name}] after pop this.currnet = ${this.current.name}`);
+    logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] after pop this.currnet = ${this.current.name}`);
 
     this.stack.push(this.current);
 
@@ -231,7 +231,8 @@ export class TxJob {
     }
 
     data.setReply(txMountPoint.reply());
-    this.current.tasks().error(data);
+    //this.current.tasks().error(data);
+    this.publishError(data, this.current);
   }
 
   subscribe(txMountPoint: TxMountPoint) {        
@@ -243,7 +244,7 @@ export class TxJob {
         await this.errorCB(error, txMountPoint);
       },
       () => {
-        logger.info(`[TxJob:subscribe] [${this.name}] complete is called`)
+        logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] complete is called`)
       }
     );
    this.subscribers.push(subscribed);
@@ -510,6 +511,18 @@ export class TxJob {
     }
 
     next.tasks().next(task);
+  }
+
+  private async publishError(task: TxTask<any>, next: TxMountPoint) {
+    if (TxJobExecutionOptionsChecker.isDisribute(this.options)) {
+      logger.info('going to publishError jobId:', this.getUuid())
+      await TxJobRegistry.instance.getDistribute().send(this.toJSON(), 'job', task, this.options)
+
+      this.release();
+      return;
+    }
+    next.tasks().error(task);
+    //next.tasks().next(task);
   }
 
   /**

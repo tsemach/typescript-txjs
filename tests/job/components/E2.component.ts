@@ -2,8 +2,8 @@
 import createLogger from 'logging'; 
 const logger = createLogger('E2Component');
 
-import { TxSinglePointRegistry } from '../../src';
-import { TxTask } from '../../src';
+import { TxSinglePointRegistry } from '../../../src';
+import { TxTask } from '../../../src';
 
 export class E2Component {
   private mountpoint = TxSinglePointRegistry.instance.create('GITHUB::GIST::E2');

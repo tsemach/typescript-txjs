@@ -12,9 +12,9 @@ import { TxJob } from '../../src';
 import { TxJobExecutionId, TxJobRegistry } from "../../src";
 import { TxJobServicesEmptyJSON } from '../../src/tx-job-services-json';
 
-import { E1Component } from './E1.component';
-import { E2Component } from './E2.component';
-import { E3Component } from './E3.component';
+import { E1Component } from './components/E1.component';
+import { E2Component } from './components/E2.component';
+import { E3Component } from './components/E3.component';
 import { Persist } from "./pesist-driver";
 
 import * as short from 'short-uuid';

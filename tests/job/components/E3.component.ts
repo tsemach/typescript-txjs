@@ -1,8 +1,8 @@
 import createLogger from 'logging'; 
 const logger = createLogger('E3');
 
-import { TxSinglePointRegistry } from '../../src';
-import { TxTask } from '../../src';
+import { TxSinglePointRegistry } from '../../../src';
+import { TxTask } from '../../../src';
 
 export class E3Component {
   private mountpoint = TxSinglePointRegistry.instance.create('GITHUB::GIST::E3');
