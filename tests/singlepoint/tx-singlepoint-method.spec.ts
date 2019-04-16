@@ -22,21 +22,21 @@ describe('Mount Point Class', () => {
         this.singlepoint.tasks().method('more', this);
       }
       
-      doit(task) {
+      doit(task: TxTask<any>) {
         logger.info("[C1Component:run] is called .. task = ", task);
         expect(task.data.from).to.equal('https://api.github.com/doit');
 
         done();
       }
 
-      more(task) {
+      more(task: TxTask<any>) {
         logger.info("[C1Component:more] is called .. task = ", task);
         expect(task.data.from).to.equal('https://api.github.com/more');
 
         assert.isNotOk('ERROR: only run method should be called');
       }
 
-      none(task) {
+      none(task: TxTask<any>) {
         logger.info("[C1Component:none] is called .. task = ", task);
         expect(task.data.from).to.equal('https://api.github.com/more');
 
@@ -74,7 +74,7 @@ describe('Mount Point Class', () => {
         this.singlepoint.tasks().method('more', this);
       }
       
-      run(task) {
+      run(task: TxTask<any>) {
         logger.info("[C1Component:run] is called .. task = ", task);
         expect(task.data.from).to.equal('https://api.github.com');
 
@@ -84,7 +84,7 @@ describe('Mount Point Class', () => {
         }
       }
 
-      more(task) {
+      more(task: TxTask<any>) {
         logger.info("[C1Component:more] is called .. task = ", task);
         expect(task.data.from).to.equal('https://api.github.com');
 

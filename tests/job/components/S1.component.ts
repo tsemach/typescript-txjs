@@ -12,14 +12,14 @@ export class S1Component {
 
   constructor() {
     this.singlepoint.tasks().subscribe(
-      (task) => {
+      (task: TxTask<any>) => {
         logger.info('[S1Component:tasks] got task = ' + JSON.stringify(task.get(), undefined, 2));          
         this.method = task['method'];
 
         // just send the reply to whom is 'setting' on this reply subject        
         task.reply().next(new TxTask({method: 'from S1', status: 'ok'}, task['data']))
       },
-      (error) => {
+      (error: TxTask<any>) => {
         logger.info('[S1Component:error] got error = ' + JSON.stringify(error, undefined, 2));
         this.method = error['method'];
 
@@ -29,7 +29,7 @@ export class S1Component {
     );
 
     this.singlepoint.undos().subscribe(
-      (task) => {
+      (task: TxTask<any>) => {
           logger.info('[S1Component:undo] undo got task = ' + JSON.stringify(task.get(), undefined, 2));
           this.method = task['method'];
 
