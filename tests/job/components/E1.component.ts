@@ -16,6 +16,12 @@ export class E1Component {
         logger.info('[E1Component:tasks] got task = ' + JSON.stringify(task.get(), undefined, 2));          
         this.method = task['method'];
 
+        if (task.getHead().status === 'forward') {
+          task.reply().error(new TxTask({method: 'from E1', status: 'ERROR'}, task['data']))
+
+          return;
+        }
+
         // just send the reply to whom is 'setting' on this reply subject
         task.reply().next(new TxTask({method: 'from E1', status: 'ok'}, task['data']))
       },

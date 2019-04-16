@@ -132,7 +132,7 @@ describe('Job Class Execute Test', () => {
 
       expect(d_spy.callCount).to.equal(4);
       expect(d_spy.getCall(0).args[0].type).to.equal('job');
-      
+
       assert.deepEqual(d_spy.getCall(0).args[0].task, expect_call_arg_0);
       assert.deepEqual(d_spy.getCall(1).args[0].task, expect_call_arg_1);
       assert.deepEqual(d_spy.getCall(2).args[0].task, expect_call_arg_2);
@@ -150,7 +150,7 @@ describe('Job Class Execute Test', () => {
       {
         publish: 'distribute'
       } as TxJobExecutionOptions
-    );        
+    );
   })  
 
 });

@@ -20,45 +20,14 @@ import { TxJobExecutionId } from "./tx-job-execution-id";
 import { TxJobServices } from './tx-job-services';
 import { TxSubscribe } from './tx-subscribe';
 import { TxDoublePoint } from './tx-doublepoint';
+import { TxDirection } from './tx-direction';
 
-export const enum TxDirection {
-  forward = 1,
-  backward,
-}
-
-// let defaultExecutionOptions: TxJobExecutionOptions = {
-//   "persist": {
-//     "ison": false,
-//     "destroy": false
-//   },
-//   execute: {
-//     record: false
-//   }
-// } as TxJobExecutionOptions;
-
-// class CBWrapper {
-//   num = Math.random();
-//   name: string | Symbol;
-
-//   constructor(private job: TxJob, private mountpoint: TxMountPoint) {
-
-//     this.name = this.mountpoint.name;
-//     logger.info(`CBWrapper: constructor: name = ${this.name}`);  
-//   }
-
-//   async cb(task: TxTask<any>) {
-//      let dp = <TxDoublePoint>this.mountpoint;
-//      logger.info(`DEPRECATED: IN subscribe: IN data CALLBACK  NUM = ${this.num}`);  
-//      logger.info(`DEPRECATED: IN subscribe: IN data CALLBACK  dp.recver.name = ${dp.recver.name.toString()}`);  
-//      logger.info(`DEPRECATED: IN subscribe: IN data CALLBACK  txMountPoint = ${this.name.toString()}`);
-//      logger.info(`DEPRECATED: IN subscribe: IN data CALLBACK  txMountPoint = ${JSON.stringify(task.get())}`);
-     
-//      await this.job.subscribeCB(task, this.mountpoint);
-//   }
-
+// export const enum TxDirection {
+//   forward = 1,
+//   backward,
 // }
 
-export class TxJob {  
+export class TxJob {
   isCompleted = new TxSubscribe<TxJob>();   // notify when the whole execution is completed.
   isStopped = new Subject();                // notify when execution reach to it's run-until component.
   onComponent = new TxSubscribe<TxJob>();   // notify the world on any coming in subscribe callback (reply from component).
@@ -203,7 +172,7 @@ export class TxJob {
 
     // set error mode to true and rise onError event.
     if (this.error == false) {
-      logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] first time enter to error handler, remove current occluding the error`);
+      logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] first time enter to error handler, remove current occuring the error`);
 
       this.trace.pop();
       this.error = true;
@@ -211,7 +180,14 @@ export class TxJob {
     }
     this.onError.next(new TxTask<{name: string}>({name: <string>this.current.name}, task));
 
-    if (this.trace.length === 0) {
+    let isend = false;
+
+    switch (TxJobExecutionOptionsChecker.getErrorDirection(this.options)) {
+      case TxDirection.forward:  isend = this.stack.length === 0; break;
+      case TxDirection.backward: isend = this.trace.length === 0; break;
+    }
+
+    if (isend) {
       logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] complete running errors all mount points, trace.length = ${this.trace.length}, stack.length = ${this.stack.length}`);
             
       this.services.error(task);
@@ -222,10 +198,10 @@ export class TxJob {
       return;
     }
 
-    this.current = this.trace.pop();
-    logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] after pop this.currnet = ${this.current.name}`);
+    //this.current = this.trace.pop();
+    this.current = this.shiftError();
 
-    this.stack.push(this.current);
+    logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] after pop this.currnet = ${this.current.name}`);
 
     if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
       await TxJobRegistry.instance.persist(this);
@@ -288,7 +264,7 @@ export class TxJob {
     return _.find(this.block, (e) => { return e.name === name});
   }
 
-  async execute(task, options: TxJobExecutionOptions = defaultExecutionOptions) {
+  async execute(task: TxTask<any>, options: TxJobExecutionOptions = defaultExecutionOptions) {
     this.single = false;
     this.options = options;
 
@@ -415,7 +391,7 @@ export class TxJob {
     this.current.tasks().next(data);
   }
 
-  async undoCB(data) {
+  async undoCB(data: TxTask<any>) {
     logger.info(`[TxJob:undoCB] got reply from '${this.current.name}' method, data = ${JSON.stringify(data, undefined, 2)}`);
     logger.info(`[TxJob:undoCB] before shift to next task, stack.len = ${this.stack.length}`);
       
@@ -440,7 +416,7 @@ export class TxJob {
     this.finish(data);
   }
 
-  async undo(data, direction: TxDirection = TxDirection.backward) {
+  async undo(data: TxTask<any>, direction: TxDirection = TxDirection.backward) {
     logger.info('[TxJob:undo]: direction = ' + direction);
 
     this.revert = true;
@@ -537,10 +513,29 @@ export class TxJob {
     names.forEach(name => this.add(TxSinglePointRegistry.instance.get(name)));
   }
 
-  shift() {
+  private shift() {
     this.current = this.stack.shift();
     this.trace.push(this.current);
     this.executionId.sequence++;
+
+    return this.current;
+  }
+
+  private shiftError() {
+    switch (TxJobExecutionOptionsChecker.getErrorDirection(this.options)) {
+      case TxDirection.forward:  {        
+        this.current = this.stack.shift();        
+        this.executionId.sequence++;
+      }
+      break;
+      case TxDirection.backward: {
+        this.current = this.trace.pop();
+        this.executionId.sequence++;
+      }
+      break;
+      default: 
+        throw Error('direction must be TxDirection.forward | TxDirection.backward')
+    }
 
     return this.current;
   }

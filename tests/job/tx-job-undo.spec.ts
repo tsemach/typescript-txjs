@@ -4,9 +4,9 @@ const logger = createLogger('Job-Undo-Test');
 import 'mocha';
 import {expect} from 'chai';
 
-import {TxSinglePointRegistry} from '../../src/tx-singlepoint-registry';
-import {TxTask} from '../../src/tx-task';
-import {TxJob, TxDirection} from '../../src/tx-job';
+import { TxSinglePointRegistry } from '../../src/tx-singlepoint-registry';
+import { TxTask } from '../../src/tx-task';
+import { TxJob } from '../../src/tx-job';
 
 import {S1Component} from './S1.component';
 import {S2Component} from './S2.component';

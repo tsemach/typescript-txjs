@@ -1,4 +1,4 @@
-import {TxJobRegistry} from "./tx-job-resgitry";
+import { TxDirection } from './tx-direction';
 
 /**
  * TxJobExecutionOptions - an object which effect the job execution.
@@ -9,6 +9,8 @@ import {TxJobRegistry} from "./tx-job-resgitry";
  * execute:
  *  until - run until reaching this mountpoint.
  *  source - from where to take the mountpoints needed to be run.
+ * error:
+ *  direction: TxDirection - what to direction move on compnents, forward | backword
  */
 export interface TxJobExecutionOptions {
   persist: {
@@ -22,9 +24,12 @@ export interface TxJobExecutionOptions {
     notify: {
       name: string;   // the name of the mountpoint needed to send reply
       from: string;   // the service name where need to notify
-    },
-  }
-  publish: 'local' | 'distribute'
+    }
+  };
+  error: {
+    direction: TxDirection;
+  };
+  publish: 'local' | 'distribute';
 }
 
 const defaultExecutionOptions: TxJobExecutionOptions = {
@@ -34,7 +39,10 @@ const defaultExecutionOptions: TxJobExecutionOptions = {
   },
   execute: {
     record: false
-  },  
+  },
+  error: {
+    direction: TxDirection.backward
+  },
   publish: 'local'
 } as TxJobExecutionOptions;
 export { defaultExecutionOptions };
@@ -131,4 +139,14 @@ export class TxJobExecutionOptionsChecker {
     throw Error(`unknown publish option: ${options.publish}`);
   }
 
+  static getErrorDirection(options: TxJobExecutionOptions) {
+    if (options.error === undefined) {
+      return TxDirection.backward;
+    }
+    if (options.error.direction === undefined) {
+      return TxDirection.backward;
+    }
+
+    return options.error.direction;
+  }
 }

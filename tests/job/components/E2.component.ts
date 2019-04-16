@@ -18,7 +18,7 @@ export class E2Component {
         // just send the reply to whom is 'setting' on this reply subject
         task.reply().next(new TxTask({method: 'from E2', status: 'ok'}, task['data']))                
       },
-      (error) => {
+      (error: TxTask<any>) => {
         logger.info('[E2Component:error] got error = ' + JSON.stringify(error.get(), undefined, 2));        
    
         // just send the reply to whom is 'setting' on this reply subject

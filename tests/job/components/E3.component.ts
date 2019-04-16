@@ -10,14 +10,14 @@ export class E3Component {
 
   constructor() {
     this.mountpoint.tasks().subscribe(
-      (task) => {
+      (task: TxTask<any>) => {
         logger.info('[E3Component:tasks] got task = ' + JSON.stringify(task.get(), undefined, 2));    
         this.method = task['method'];
 
         // E3Component got error, send reply on error channel to the caller.
         task.reply().error(new TxTask({method: 'from E3', status: 'ERROR'}, task['data']))
       },
-      (error) => {
+      (error: TxTask<any>) => {
         logger.info('[E3Component:error] got error = ' + JSON.stringify(error.get(), undefined, 2));
         this.method = error['method'];
 
