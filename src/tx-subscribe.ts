@@ -59,7 +59,7 @@ export class TxSubscribe<T> {
 
   error(error, from?: T) {
     if (this.errorCB != null) {    
-      for (let i = 0; i < this.dataCB.length; i++) {
+      for (let i = 0; i < this.errorCB.length; i++) {
         this.errorCB[i](error, from ? from : this.from);
       }
     }

@@ -114,4 +114,60 @@ describe('Mount Point Class', () => {
 
   });
 
+  it('tx-mountpoint-method.spec.ts: check multiple calls to mountpoint methods callback using array', (done) => {
+    logger.info('tx-mountpoint-method.spec.ts: check multiple calls to mountpoint methods callback using array')
+
+    after('tx-mountpoint-method.spec.ts: - before -check multiple calls to mountpoint methods callback using array', () => {
+      TxSinglePointRegistry.instance.del('GITHUB::GISTP::S3');    
+    });
+
+    let numberOfCalles = 0;
+
+    class S3Component {      
+      private singlepoint = TxSinglePointRegistry.instance.create('GITHUB::GISTP::S3');    
+
+      constructor() {
+        logger.info("C1Component:con't is called, no need to subscribe, the method will take care of it");            
+        this.singlepoint.tasks().method(['run', 'more'], this);        
+      }
+      
+      run(task: TxTask<any>) {
+        logger.info("[C1Component:run] is called .. task = ", task);
+        expect(task.data.from).to.equal('https://api.github.com');
+
+        numberOfCalles++
+        if (numberOfCalles == 2)  {
+          done();
+        }
+      }
+
+      more(task: TxTask<any>) {
+        logger.info("[C1Component:more] is called .. task = ", task);
+        expect(task.data.from).to.equal('https://api.github.com');
+
+        numberOfCalles++
+        if (numberOfCalles == 2)  {
+          done();
+        }
+
+      }
+    }    
+
+    logger.info('[tx-mountpoint-method.spec]: check mountpoint methods callback');
+
+    let C1 = new S3Component();
+    let singlepoint = TxSinglePointRegistry.instance.get('GITHUB::GISTP::S3');
+    
+    logger.info('[tx-mountpoint-method.spec]: mountpoint name is - \'' + singlepoint.name + '\'');
+    expect(singlepoint.name).to.equal('GITHUB::GISTP::S3');
+
+    let task;
+
+    task = new TxTask({method: 'run'}, {from: 'https://api.github.com'});
+    singlepoint.tasks().next(task);
+
+    task = new TxTask({method: 'more'}, {from: 'https://api.github.com'});
+    singlepoint.tasks().next(task);
+  });
+
 });

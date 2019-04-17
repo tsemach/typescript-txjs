@@ -10,7 +10,7 @@ import { TxTask } from '../../src/tx-task';
 
 describe('Mount Point Class', () => {
 
-  it('tx-mountpoint-method.spec: check mountpoint methods callback', (done) => {
+  it('tx-mountpoint-method.spec: check mountpoint methods callback', () => {
     logger.info('tx-mountpoint-method.spec: check mountpoint methods callback');
 
     class S1Component {
@@ -18,7 +18,7 @@ describe('Mount Point Class', () => {
 
       constructor() {
         logger.info("S1Component:con't is called, no need to subscribe, the method will take care of it");            
-        this.singlepoint.tasks().method(['doit', 'error'], this);
+        this.singlepoint.tasks().method(['doit'], this);
         this.singlepoint.tasks().method('more', this);
       }
       
@@ -35,7 +35,6 @@ describe('Mount Point Class', () => {
         logger.info("[S1Component:run] is called .. task = ", task);
         expect(task.data.from).to.equal('https://api.github.com/doit');
 
-        done();
       }
 
       more(task: TxTask<any>) {
@@ -66,7 +65,7 @@ describe('Mount Point Class', () => {
     singlepoint.tasks().next(task);
 
     task = new TxTask({method: 'more'}, {from: 'https://api.github.com/doit'});
-    singlepoint.tasks().error(task);   
+   // singlepoint.tasks().error(task);   
   });
 
 });

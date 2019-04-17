@@ -42,8 +42,7 @@ export class TxSingleSubscribe<T> extends TxSubscribe<T> {
       this.methods.set(name, target);      
     }
     if (this.isNamesArray(name)) {
-      this.methods.set(name[0], target);      
-      this.methods.set(name[1], target);      
+      (<string[]>name).forEach(n => this.methods.set(n, target));
     }
     
     if ( ! this.isSubscribe ) {
@@ -56,21 +55,21 @@ export class TxSingleSubscribe<T> extends TxSubscribe<T> {
         object[task.head.method](task);
       }
 
-      const errorCB = (task: TxTask<any>) => { 
-        if ( ! this.methods.has(task.head.method) ) {
-          throw new Error(`method ${task.head.method} can't find in target object`);
-        }
+      // const errorCB = (task: TxTask<any>) => { 
+      //   if ( ! this.methods.has(task.head.method) ) {
+      //     throw new Error(`method ${task.head.method} can't find in target object`);
+      //   }
 
-        let object = this.methods.get(task.head.method);
-        object[task.head.method](task);
-      }
-      this.subscribe(dataCB, errorCB);
+      //   let object = this.methods.get(task.head.method);
+      //   object[task.head.method](task);
+      // }
+      this.subscribe(dataCB);
     }
     this.isSubscribe = true;
   }
 
   private isNamesArray(names: any): boolean {
-    return Array.isArray(names) && names.length >= 2 && names.every(item => typeof item === "string");
+    return Array.isArray(names) && names.length > 0 && names.every(item => typeof item === "string");
   }
 }
 

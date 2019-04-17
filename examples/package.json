@@ -15,7 +15,7 @@
     "path": "^0.12.7",
     "pg": "^7.9.0",
     "pg-hstore": "^2.3.2",
-    "rx-txjs": "^0.2.16",
+    "rx-txjs": "^0.2.18",
     "rx-txjs-adapters": "0.0.3",
     "sequelize": "^5.2.12",
     "sequelize-cli": "^5.4.0",
