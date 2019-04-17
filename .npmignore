@@ -12,3 +12,5 @@ typings
 create-list.sh
 project.list
 dist/tests/
+.nyc_output/
+coverage/
