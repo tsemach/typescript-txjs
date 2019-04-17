@@ -18,13 +18,13 @@ describe('Mount Point Class', () => {
 
       constructor() {
         logger.info("S1Component:con't is called, no need to subscribe, the method will take care of it");            
-        this.singlepoint.tasks().method(['doit'], this);
-        this.singlepoint.tasks().method('more', this);
+        this.singlepoint.tasks().method(['doit', 'more'], this, this.error);
+        //this.singlepoint.tasks().method('more', this);
       }
       
       doit(task: TxTask<any>) {
         console.log('DDDDDDDDDDDDDDDD I SCALLED DOIT')
-        logger.info("[S1Component:run] is called .. task = ", task);
+        logger.info("[S1Component:doit] is called .. task = ", task);
         expect(task.data.from).to.equal('https://api.github.com/doit');
 
         //done();
@@ -32,7 +32,7 @@ describe('Mount Point Class', () => {
 
       error(task: TxTask<any>) {
         console.log('EEEEEEEEEEEEEEEEEEE IS CALLED ')
-        logger.info("[S1Component:run] is called .. task = ", task);
+        logger.info("[S1Component:error] is called .. task = ", task);
         expect(task.data.from).to.equal('https://api.github.com/doit');
 
       }
@@ -41,7 +41,7 @@ describe('Mount Point Class', () => {
         logger.info("[S1Component:more] is called .. task = ", task);
         expect(task.data.from).to.equal('https://api.github.com/more');
 
-        assert.isNotOk('ERROR: only run method should be called');
+        //assert.isNotOk('ERROR: only run method should be called');
       }
 
       none(task: TxTask<any>) {
@@ -60,12 +60,16 @@ describe('Mount Point Class', () => {
     logger.info('[tx-mountpoint-method.spec]: mountpoint name is - \'' + singlepoint.name + '\'');
     expect(singlepoint.name).to.equal('GITHUB::GISTP::S1');
     
-    let task;
+    let task: TxTask<any>;
+
     task = new TxTask({method: 'doit'}, {from: 'https://api.github.com/doit'});
     singlepoint.tasks().next(task);
 
+    task = new TxTask({method: 'more'}, {from: 'https://api.github.com/more'});
+    singlepoint.tasks().next(task);
+    
     task = new TxTask({method: 'more'}, {from: 'https://api.github.com/doit'});
-   // singlepoint.tasks().error(task);   
+    singlepoint.tasks().error(task);   
   });
 
 });

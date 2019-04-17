@@ -3,6 +3,7 @@ import { TxTask } from './tx-task';
 import { TxSubscribe } from './tx-subscribe';
 import { TxMountPoint } from "./tx-mountpoint";
 import { TxDoublePoint } from './tx-doublepoint';
+import { TxCallback } from './tx-callback';
 
 export class TxSingleSubscribe<T> extends TxSubscribe<T> {
   private methods = new Map<string, any>();
@@ -24,7 +25,7 @@ export class TxSingleSubscribe<T> extends TxSubscribe<T> {
         let object = this.methods.get(task.head.method);
         object[task.head.method](task);
       }
-
+      
       this.subscribe(dataCB);
     }
     this.isSubscribe = true;
@@ -37,7 +38,7 @@ export class TxSingleSubscribe<T> extends TxSubscribe<T> {
    *    task.head.method[0] => point to dataCB.
    *    task.head.method[1] => point to errorCB.
    */
-  method(name: string | string[], target: any) {
+  method(name: string | string[], target: any, errorCB?: TxCallback<T>) {
     if (typeof name === 'string') {
       this.methods.set(name, target);      
     }
@@ -54,16 +55,8 @@ export class TxSingleSubscribe<T> extends TxSubscribe<T> {
         let object = this.methods.get(task.head.method);
         object[task.head.method](task);
       }
-
-      // const errorCB = (task: TxTask<any>) => { 
-      //   if ( ! this.methods.has(task.head.method) ) {
-      //     throw new Error(`method ${task.head.method} can't find in target object`);
-      //   }
-
-      //   let object = this.methods.get(task.head.method);
-      //   object[task.head.method](task);
-      // }
-      this.subscribe(dataCB);
+            
+      this.subscribe(dataCB, errorCB);
     }
     this.isSubscribe = true;
   }
