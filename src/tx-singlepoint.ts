@@ -26,7 +26,7 @@ export class TxSingleSubscribe<T> extends TxSubscribe<T> {
         object[task.head.method](task);
       }
       
-      this.subscribe(dataCB);
+      return this.subscribe(dataCB);
     }
     this.isSubscribe = true;
   }
@@ -55,10 +55,14 @@ export class TxSingleSubscribe<T> extends TxSubscribe<T> {
         let object = this.methods.get(task.head.method);
         object[task.head.method](task);
       }
-            
-      this.subscribe(dataCB, errorCB);
+
+      return this.subscribe(dataCB, errorCB);
     }
     this.isSubscribe = true;
+  }
+
+  setCallbacks(dataCB: TxCallback<T>, errorCB?: TxCallback<T>) {
+    return this.subscribe(dataCB, errorCB);  
   }
 
   private isNamesArray(names: any): boolean {

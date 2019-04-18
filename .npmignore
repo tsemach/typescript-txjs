@@ -14,3 +14,4 @@ project.list
 dist/tests/
 .nyc_output/
 coverage/
+typescript.run
