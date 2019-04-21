@@ -14,7 +14,7 @@ export class TxTask<T> {
     return this.head;
   }
 
-  setHead(head) {
+  setHead(head: any) {
     this.head = head;
   }
 
@@ -22,7 +22,7 @@ export class TxTask<T> {
     return this.data;
   }
 
-  setData(data) {
+  setData(data: any) {
     this.data = data;
   }
   

@@ -49,7 +49,7 @@ export class TxSubscribe<T> {
     return new TxUnSubscribe<T>(this, this.dataCB.length-1);
   }
 
-  next(data, from?: T) {
+  next(data: any, from?: T) {
     if (this.dataCB != null) {
       for (let i = 0; i < this.dataCB.length; i++) {
         this.dataCB[i](data, from ? from : this.from);
@@ -57,7 +57,7 @@ export class TxSubscribe<T> {
     }
   }
 
-  error(error, from?: T) {
+  error(error: any, from?: T) {
     if (this.errorCB != null) {    
       for (let i = 0; i < this.errorCB.length; i++) {
         this.errorCB[i](error, from ? from : this.from);
