@@ -1,5 +1,7 @@
 
 import { TxCallback } from './tx-callback';
+import { TxTask } from './tx-task';
+import { TxSubscribeOptions, defaultSubscribeOptions } from './tx-subscribe-options';
 
 export class TxUnSubscribe<T> {
   from: TxSubscribe<T>;
@@ -49,21 +51,21 @@ export class TxSubscribe<T> {
     return new TxUnSubscribe<T>(this, this.dataCB.length-1);
   }
 
-  next(data: any, from?: T) {
+  next(data: TxTask<any>, options: TxSubscribeOptions = defaultSubscribeOptions) {
     if (this.dataCB != null) {
       for (let i = 0; i < this.dataCB.length; i++) {
-        this.dataCB[i](data, from ? from : this.from);
+        this.dataCB[i](data, this.from, options);
       }
     }
   }
 
-  error(error: any, from?: T) {
+  error(error: TxTask<any>, options: TxSubscribeOptions = defaultSubscribeOptions) {
     if (this.errorCB != null) {    
       for (let i = 0; i < this.errorCB.length; i++) {
-        this.errorCB[i](error, from ? from : this.from);
+        this.errorCB[i](error, this.from, options);
       }
     }
-  }
+  }  
 
   unsubscribe(index: number = -1) {
     if (index === -1) {

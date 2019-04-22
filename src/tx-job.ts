@@ -6,13 +6,14 @@ import * as longUuid from 'uuid/v4';
 import * as short from 'short-uuid';
 const uuid = short();
 
+import { TxTask } from "./tx-task";
 import { Subject } from 'rxjs';
 import { TxMountPoint } from './tx-mountpoint';
 import { TxMountPointRegistry } from './tx-mountpoint-registry';
 import { TxSinglePointRegistry } from './tx-singlepoint-registry';
 import { TxJobRegistry } from './tx-job-resgitry';
 import { TxJobJSON } from "./tx-job-json";
-import { TxTask } from "./tx-task";
+import { TxSubscribeOptions } from './tx-subscribe-options';
 import { TxJobComponentOptions, defaultComponentOptions } from './tx-job-component-options';
 import { TxJobExecutionOptions, TxJobExecutionOptionsChecker, defaultExecutionOptions } from "./tx-job-execution-options";
 import { TxRecordPersistAdapter, TxRecordIndexSave } from "./tx-record-persist-adapter";
@@ -53,7 +54,7 @@ export class TxJob {
 
   services = new TxJobServices(this);
 
-  constructor(private name) {
+  constructor(private name: string) {
     if (name === '' || typeof name !== 'string') {
       throw Error('job name cah\'t be empty, add real name');
     }
@@ -62,8 +63,7 @@ export class TxJob {
     this.recorder = TxJobRegistry.instance.getRecorderDriver();
   }
 
-  async subscribeCB(data: TxTask<any>, txMountPoint: TxMountPoint) {    
-
+  async subscribeCB(data: TxTask<any>, txMountPoint: TxMountPoint, options: TxSubscribeOptions) {    
     //txMountPoint = this.current;
     logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] got reply, data = ${JSON.stringify(data, undefined, 2)}`);
     logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] before shift to next task, stack.len = ${this.stack.length}`);
@@ -123,6 +123,7 @@ export class TxJob {
        * and send the data to it's tasks subject.
        */
       next = this.shift();
+      console.log('FFFFFFFFFFFFFFFFFFFFFFf: in  subscribeCB AFTER SHISRT  ', next.name);
       logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] going to run next task: ${next.name}`);
 
       if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
@@ -152,10 +153,10 @@ export class TxJob {
       }    
 
       this.waiting.add(next.name.toString());
-      data.setReply(txMountPoint.reply());
+      //data.setReply(txMountPoint.reply());
+      data.setReply(next.reply());
 
       setTimeout(async () => {
-        //next.tasks().next(data);
         this.publish(data, next);
       }, 0);
 
@@ -164,7 +165,7 @@ export class TxJob {
     } while ( ! next.isWait() )
   }
 
-  async errorCB(task: TxTask<any>,  txMountPoint: TxMountPoint) {
+  async errorCB(task: TxTask<any>,  txMountPoint: TxMountPoint, options: TxSubscribeOptions) {
     let __name = TxJobRegistry.instance.getServiceName();
 
     logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] got error, data = ${JSON.stringify(task, undefined, 2)}`);
@@ -198,7 +199,6 @@ export class TxJob {
       return;
     }
 
-    //this.current = this.trace.pop();
     this.current = this.shiftError();
 
     logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] after pop this.currnet = ${this.current.name}`);
@@ -207,18 +207,18 @@ export class TxJob {
       await TxJobRegistry.instance.persist(this);
     }
 
-    task.setReply(txMountPoint.reply());
-    //this.current.tasks().error(data);
+    //task.setReply(txMountPoint.reply());
+    task.setReply(this.current.reply());
     this.publishError(task, this.current);
   }
 
-  subscribe(txMountPoint: TxMountPoint) {        
+  subscribe(txMountPoint: TxMountPoint) { 
     const subscribed = txMountPoint.reply().subscribe(
-      async (task: TxTask<any>, mountpoint: TxMountPoint) => {        
-        await this.subscribeCB(task, mountpoint);
+      async (task: TxTask<any>, mountpoint: TxMountPoint, options: TxSubscribeOptions) => {        
+        await this.subscribeCB(task, mountpoint, options);
       },
-      async (error) => {
-        await this.errorCB(error, txMountPoint);
+      async (error: TxTask<any>, options: TxSubscribeOptions) => {
+        await this.errorCB(error, txMountPoint, options);
       },
       () => {
         logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] complete is called`)
@@ -499,7 +499,6 @@ export class TxJob {
       return;
     }
     next.tasks().error(task);
-    //next.tasks().next(task);
   }
 
   /**
@@ -596,7 +595,7 @@ export class TxJob {
     if (notification) {
       this.notify(task);
     }
-    this.isCompleted.next(task, this);
+    this.isCompleted.next(task);
     TxJobRegistry.instance.emit('job: ' + this.getUuid(), {job: this, task})
   }
   

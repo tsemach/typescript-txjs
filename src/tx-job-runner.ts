@@ -17,7 +17,7 @@ class TxJobRunner {
       (task, from) => {
         logger.info('job - [' + from.getName() + '] completed');
 
-        isCompleted.next(task, from);
+        isCompleted.next(task);
     })    
 
     job.execute(task, options);

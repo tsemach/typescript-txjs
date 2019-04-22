@@ -53,7 +53,7 @@ describe('Job Class', () => {
     job.getIsCompleted().subscribe(
       (data) => {
         logger.info('[job-test:execute] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(data, undefined, 2));        
-        expect(data['head']['method']).to.equal("from C3");
+        expect(data['head']['method']).to.equal("from S3");
         expect(data['head']['status']).to.equal("ok");        
       });                
           

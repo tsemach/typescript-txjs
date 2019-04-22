@@ -3,6 +3,7 @@ const logger = createLogger('E1');
 
 import { TxSinglePointRegistry } from 'rx-txjs';
 import { TxTask } from 'rx-txjs';
+import { timingSafeEqual } from 'crypto';
 
 export default class E1Component {
   private mountpoint = TxSinglePointRegistry.instance.create('GITHUB::GIST::E1');

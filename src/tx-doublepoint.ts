@@ -8,7 +8,7 @@ import { TxJob } from './tx-job';
 
 export class TxDoublePoint implements TxMountPoint {
   
-  private _name;
+  private _name: string | Symbol;
   private _job: TxJob = null;
 
   sender: TxSinglePoint<TxMountPoint>; // mount point use to send from me to others
@@ -16,7 +16,7 @@ export class TxDoublePoint implements TxMountPoint {
 
   _options = defaultComponentOptions;
 
-  constructor(private _sender, _suffix = '') {
+  constructor(_sender: TxMountPoint, _suffix = '') {
     this._name = _sender.name;
 
     let fullname = _sender.name;
@@ -24,7 +24,7 @@ export class TxDoublePoint implements TxMountPoint {
       fullname = _sender.name + ':' + _suffix
     }
 
-    this.sender = _sender
+    this.sender = <TxSinglePoint<TxMountPoint>>_sender
     this.recver = new TxSinglePoint<TxMountPoint>(fullname);
     this.recver.setFrom(this)
   }
