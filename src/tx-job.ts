@@ -32,7 +32,7 @@ import { TxSinglePoint } from './tx-singlepoint';
 // }
 
 export class TxJob {
-  private _isCompleted = new TxSubscribe<TxJob>();   // notify when the whole execution is completed.
+  private _isCompleted = new TxSubscribe<TxJob>(this);   // notify when the whole execution is completed.
   isStopped = new Subject();                // notify when execution reach to it's run-until component.
   onComponent = new TxSubscribe<TxJob>();   // notify the world on any coming in subscribe callback (reply from component).
   onError = new TxSubscribe<TxJob>();       // notify the world on any coming in subscribe callback (reply from component).

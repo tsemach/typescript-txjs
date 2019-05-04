@@ -139,7 +139,7 @@ describe('Job Class Execute Test', () => {
     
     TxMultiPointRegistry.instance.create('GITHUB::S3-OR-S4')
       .mountpoint('GITHUB::S3::Goto')
-      .mountpoint('GITHUB::S4::Goto');    
+      .mountpoint('GITHUB::S4::Goto');
 
     let job = new TxJob('job-1'); // or create through the TxJobRegistry
 

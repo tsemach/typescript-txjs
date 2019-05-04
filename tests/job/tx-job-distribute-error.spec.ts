@@ -1,6 +1,6 @@
 
 import createLogger from 'logging';
-const logger = createLogger('Job-Execute-Test');
+const logger = createLogger('Job-Distribute-Error-Spec');
 
 import 'mocha';
 import {expect} from 'chai';
@@ -40,7 +40,7 @@ class TxDistributeBull implements TxDistribute {
   }
 
   bypass(data: {from: TxDistributeSourceType, type: TxDistributeType, task: any, options: TxJobExecutionOptions}) {    
-    logger.info(`[TxDistributeBull::byoass] job process callback  from '${JSON.stringify(data, undefined, 2)}`)
+    logger.info(`[TxDistributeBull::bypass] job process callback  from '${JSON.stringify(data, undefined, 2)}`)
     TxMountPointRxJSRegistry
       .instance
       .get(TxNames.RX_TXJS_DISTRIBUTE_COMPONENT)
@@ -100,8 +100,8 @@ describe('Job Class Execute Test', () => {
   });
 
   after('', () => {
-    d_spy.restore();
-    j_spy.restore();
+    // d_spy.restore();
+    // j_spy.restore();
   });
 
   it('tx-job-distribute.spec: check running E1-E2-E3 through distribute', (done) => {
@@ -133,8 +133,8 @@ describe('Job Class Execute Test', () => {
       expect(d_spy.callCount).to.equal(4);
       expect(d_spy.getCall(0).args[0].type).to.equal('job');
 
-      assert.deepEqual(d_spy.getCall(0).args[0].task, expect_call_arg_0);
-      assert.deepEqual(d_spy.getCall(1).args[0].task, expect_call_arg_1);
+      assert.deepEqual(d_spy.getCall(0).args[0].task, expect_call_arg_0);d_spy
+      assert.deepEqual(d_spy.getCall(1).args[0].task, expect_call_arg_1);d_spy
       assert.deepEqual(d_spy.getCall(2).args[0].task, expect_call_arg_2);
       assert.deepEqual(d_spy.getCall(3).args[0].task, expect_call_arg_3);
 

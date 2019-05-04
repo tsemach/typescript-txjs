@@ -30,7 +30,9 @@ new T2Component();
 
     job.add(TxSinglePointRegistry.instance.get('JOB::T1'));
               
-    let isCompleted = (new TxSubscribe<TxJob>()).subscribe(
+    const isCompleted = new TxSubscribe<TxJob>(job);
+    
+    isCompleted.subscribe(
       (data, job) => {
         logger.info('tx-job-runner.spec: job = ' + job.getName())
         logger.info('tx-job-runner.spec: task = ' + JSON.stringify(data, undefined, 2));
@@ -49,7 +51,7 @@ new T2Component();
           timeout: 0
         },
         {something: 'more data here'}),
-      isCompleted.subscribe
+      isCompleted
     );
 
   }).timeout(2000);
@@ -59,8 +61,8 @@ new T2Component();
 
     let job1 = new TxJob('Job-1');
     let job2 = new TxJob('Job-2');
-    let subject1 = new TxSubscribe<TxJob>();
-    let subject2 = new TxSubscribe<TxJob>();
+    let subject1 = new TxSubscribe<TxJob>(job1);
+    let subject2 = new TxSubscribe<TxJob>(job2);
     let finish1 = false;
     let finish2 = false;
 
