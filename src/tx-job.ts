@@ -26,11 +26,6 @@ import { TxMultiPoint } from './tx-multipoint';
 import { TxMountPointRegistry } from './tx-mountpoint-registry';
 import { TxSinglePoint } from './tx-singlepoint';
 
-// export const enum TxDirection {
-//   forward = 1,
-//   backward,
-// }
-
 export class TxJob {
   private _isCompleted = new TxSubscribe<TxJob>(this);   // notify when the whole execution is completed.
   isStopped = new Subject();                // notify when execution reach to it's run-until component.

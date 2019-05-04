@@ -2,33 +2,79 @@
 [![NPM](https://nodei.co/npm/rx-txjs.png)](https://nodei.co/npm/rx-txjs/)
 [![dependencies Status](https://david-dm.org/tsemach/typescript-txjs/status.svg)](https://david-dm.org/tsemach/typescript-txjs)
 
-# Application Execution Model
-
-## Latest Update
-1. * Remove Application specific code. rx-txjs is a library enable your classes to communicate one with another with
-another **but** without a regular API call. This communicate can be done locally within the process very similar to rxjs 
-public / subscribe or between process / services / containers by some method of communication like express (http), 
-system queue (Kafka, RanbbitMQ, Bull) or any other method. rx-txjs id agnostic to what method you prefer to use as long as you
-"present and object that honor **`TxConnector`** interface". once you present that object to rx-txjs by for example
-````typescript
-TxQueuePointRegistry.instance.setDriver(my-object-that-handle-queue-communication);
-TxRoutePointRegistry.instance.setDriver(my-object-that-handle-express);
-````   
-rx-txjs will able to communicate directly between components with in different processes and run a Job cross services.
-see the doc for more info.
-
-This change to move a bunch of predefine adapters to a new package **`rx-txjs-adapters`** anable you to use express for example out of the box.
-
-1. * Add distribute component execution. rx-txjs will run your components (your business logic) as a job one after the other. This feature enable you to run those components distrute using other instance of your service / container. See below for more info.
 
 ## Documentation
-## Full document is now [here](https://rxjs.gitbook.io/rx-txjs/) 
+### more info can be found [here](https://rxjs.gitbook.io/rx-txjs/) 
 
-##Introduction
-This package implement an execution model based on decoupling objects (a *Components*) in a Nodejs environment. 
+## Introduction
+Rx-txjs implement an execution model based on decoupling objects (a *Components*) under Nodejs environment. 
 
-A Components are regular class (better it to be TypeScript class) which implement a small piece of business unit. But the unique is that there is NO API running it implementation. 
->**The way to interact with a Component is by sending it a message**
+You implement your business logic using a components. A components are regular classes register themself to rx-txjs using *mountpoint*. A mountpoint is rx-txjs classes able to interact with your class by a publish / subscribe model.
+
+>Note: activating a component is done by publish a "message". Rx-txjs use mountpoint/s to publish a message to a component.
+
+A job is use to run a sequence of components to acomplish a complex business log.
+
+## Rx-TXJS Hello World 
+
+define a component return 'Hello'
+````typescript
+import { TxMountPointRxJSRegistry, TxTask } from 'rx-txjs';
+
+// define Hello component
+class World {
+  mountpoint = TxMountPointRxJSRegistry.instance.create('WORLD');
+
+  constructor() {
+    this.mountpoint.tasks().subscribe(
+      (task) => {
+        // reply back to caller 
+        this.mountpoint.reply().next(new TxTask({}, task.data + ' World'));
+      }
+    )  
+  }
+}
+````
+
+Create an instance of World so it able to register it under TxMountPointRxJSRegistry.
+Then send a message to it.
+````typescript
+new World();
+
+// get a mountpoint of Hello component so you can interact with it
+const mountpoint = TxMountPointRxJSRegistry.instance.get('WORD');
+
+// subscribe to messages coming from Hello component
+mountpoint.reply().subscribe(
+  (data) => {
+    console.log(data.getData());  // <-- Hello World
+});
+
+// send a message to Word component
+mountpoint.tasks().next(new TxTask({}, 'Hello'));
+````
+## A Short Version of World Component
+````typescript
+import { TxMountPointRxJSRegistry, TxTask } from 'rx-txjs';
+
+// define World component
+class World {
+  mountpoint = TxMountPointRxJSRegistry.instance.create('WORLD');
+
+  constructor() {
+    // create a subscription and call to this.run method
+    this.mountpoint.tasks().method('run', this);
+  }
+
+  run(task: TxTask<any>) {        
+    // reply back to caller 
+    this.mountpoint.reply().next(new TxTask({}, task.data + ' World')); 
+  }
+}
+
+// call it where {method: 'run'} is in the heas of TxTask
+mountpoint.tasks().next(new TxTask({method: 'run'}, 'Hello'));
+````
 
 To interact with a Component you are using several version a * **MountPoints** * objects.
 
@@ -50,17 +96,6 @@ To interact with a Component you are using several version a * **MountPoints** *
 * **`S2S`** - Cross Service Job, this enable to run a job spreading on several services.
 * **`Monitor`** - a full monitor solution.
 * **`Distribution`** - run a job's components in different service / container instance.
-
-## What's new 0.2.3
-1. adding **`TxSubscribe`** - an implement of RxJS Subject API.
-2. adding **`TxSubject`** - a wrapper around RxJS Subject to support a type of RPC on a Componet. 
-3. adding **`TxConnectorExpress`** - Coomponent-2-Component communication using subscribe / next API.
-
-## DOTO List
-1. Complete the work on S2S using node express (HTTP)
-2. Run Componets in paralle.
-3. Adding retry when execute a component (during job exection)
-4. High availablity - on component level. 
    
 ## Quick Start
 ### Using a Component
