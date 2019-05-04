@@ -4,7 +4,7 @@ import createLogger from 'logging';
 const logger = createLogger('TxJobServices');
 
 import { TxJob } from "./tx-job";
-import { TxMountPointRegistry } from './tx-mountpoint-registry';
+import { TxMountPointRxJSRegistry } from './tx-mountpointrxjs-registry';
 import { TxJobServicesJSON, TxJobServiceConnector } from "./tx-job-services-json";
 import { TxTask } from "./tx-task";
 import { TxJobServicesHeadTask } from "./tx-job-services-task";
@@ -78,7 +78,7 @@ export class TxJobServices {
     this.job.unsubscribes();    
 
     // S2S: use this mountpoint to continue the jop on the next service
-    let mountpoint = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
+    let mountpoint = TxMountPointRxJSRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
     mountpoint.tasks().next(new TxTask<TxJobServicesHeadTask>({next: current}, data));``
   }
 
@@ -105,7 +105,7 @@ export class TxJobServices {
     this.job.unsubscribes();    
 
     // S2S: use this mountpoint to continue the jop on the next service
-    let mountpoint = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
+    let mountpoint = TxMountPointRxJSRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
     mountpoint.tasks().error(new TxTask<TxJobServicesHeadTask>({next: this.current}, data));
   }
 

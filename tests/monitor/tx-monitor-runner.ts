@@ -6,13 +6,13 @@ import request = require('request');
 import waitOn = require('wait-on');
 
 import { TxTask } from '../../src';
-import { TxMountPointRegistry } from '../../src';
+import { TxMountPointRxJSRegistry } from '../../src/tx-mountpointrxjs-registry';
 import '../../src/tx-monitor-server.component';
 
 async function run() {  
   logger.info('[run] example of using internal built in monitor server');
 
-  let mp = TxMountPointRegistry.instance.get('RX-TXJS::MONITOR::SERVER');
+  let mp = TxMountPointRxJSRegistry.instance.get('RX-TXJS::MONITOR::SERVER');
 
   mp.reply().subscribe(async (task) => {
     logger.info('got status from monitor: ', task);

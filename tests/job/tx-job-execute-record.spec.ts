@@ -4,7 +4,6 @@ const logger = createLogger('Job-Execute-Record-Test');
 import 'mocha';
 import {expect} from 'chai';
 
-import { TxMountPointRegistry } from '../../src';
 import { TxJobExecutionOptions } from "../../src";
 import { TxRecordPersistMemory } from "../../src";
 //import { TxRecordPersistMongoDB } from "../../src";

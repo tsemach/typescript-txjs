@@ -1,7 +1,7 @@
 import createLogger from 'logging';
 const logger = createLogger('service-c:main');
 
-import { TxMountPointRegistry, TxJobRegistry } from '../../../src/';
+import { TxMountPointRxJSRegistry, TxJobRegistry } from '../../../src/';
 import { TxJobServicesComponent } from '../../../src/tx-job-services-component';
 
 import { C3Component } from '../components/C3.component';
@@ -28,7 +28,7 @@ async function init() {
 
   await new TxJobServicesComponent().init();  
 
-  let mp = TxMountPointRegistry.instance.create('SERVICE-C::JOB::COMPLETED');
+  let mp = TxMountPointRxJSRegistry.instance.create('SERVICE-C::JOB::COMPLETED');
   mp.reply().subscribe(
     (task) => {
       logger.info("service-c: got data from TxJobServicesComponent: " + JSON.stringify(task, undefined, 2));

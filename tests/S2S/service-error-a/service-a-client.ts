@@ -3,7 +3,7 @@
 
 const { fork } = require('child_process');
 
-import { TxMountPointRegistry } from './../../../src/tx-mountpoint-registry';
+import { TxMountPointRxJSRegistry } from './../../../src/tx-mountpointrxjs-registry';
 
 import createLogger from 'logging';
 const logger = createLogger('service-a');
@@ -58,7 +58,7 @@ const data = {
 
 async function run2() {
   await (new TxJobServicesComponent()).init();  
-  let mp = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
+  let mp = TxMountPointRxJSRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
   
   const forked = fork('./dist/tests/S2S/service-a/main.js');
 

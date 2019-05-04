@@ -79,6 +79,7 @@ export class TxSingleSubscribe<T> extends TxSubscribe<T> {
  * A component receive task by the mount-point's tasks Subject and return reply by reply subject.
  */
 export class TxSinglePoint<T> implements TxMountPoint {
+   type = 'TxSinglePoint';
 
   _tasks = new TxSingleSubscribe<T>();
   _undos = new TxSingleSubscribe<T>();

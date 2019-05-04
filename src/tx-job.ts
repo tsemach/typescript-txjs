@@ -9,11 +9,11 @@ const uuid = short();
 import { TxTask } from "./tx-task";
 import { Subject } from 'rxjs';
 import { TxMountPoint } from './tx-mountpoint';
-import { TxMountPointRegistry } from './tx-mountpoint-registry';
+import { TxMountPointRxJSRegistry } from './tx-mountpointrxjs-registry';
 import { TxSinglePointRegistry } from './tx-singlepoint-registry';
 import { TxJobRegistry } from './tx-job-resgitry';
 import { TxJobJSON } from "./tx-job-json";
-import { TxSubscribeOptions } from './tx-subscribe-options';
+import { TxSubscribeOptions, defaultSubscribeOptions } from './tx-subscribe-options';
 import { TxJobComponentOptions, defaultComponentOptions } from './tx-job-component-options';
 import { TxJobExecutionOptions, TxJobExecutionOptionsChecker, defaultExecutionOptions } from "./tx-job-execution-options";
 import { TxRecordPersistAdapter, TxRecordIndexSave } from "./tx-record-persist-adapter";
@@ -22,6 +22,9 @@ import { TxJobServices } from './tx-job-services';
 import { TxSubscribe } from './tx-subscribe';
 import { TxDoublePoint } from './tx-doublepoint';
 import { TxDirection } from './tx-direction';
+import { TxMultiPoint } from './tx-multipoint';
+import { TxMountPointRegistry } from './tx-mountpoint-registry';
+import { TxSinglePoint } from './tx-singlepoint';
 
 // export const enum TxDirection {
 //   forward = 1,
@@ -29,7 +32,7 @@ import { TxDirection } from './tx-direction';
 // }
 
 export class TxJob {
-  isCompleted = new TxSubscribe<TxJob>();   // notify when the whole execution is completed.
+  private _isCompleted = new TxSubscribe<TxJob>();   // notify when the whole execution is completed.
   isStopped = new Subject();                // notify when execution reach to it's run-until component.
   onComponent = new TxSubscribe<TxJob>();   // notify the world on any coming in subscribe callback (reply from component).
   onError = new TxSubscribe<TxJob>();       // notify the world on any coming in subscribe callback (reply from component).
@@ -64,7 +67,6 @@ export class TxJob {
   }
 
   async subscribeCB(data: TxTask<any>, txMountPoint: TxMountPoint, options: TxSubscribeOptions) {    
-    //txMountPoint = this.current;
     logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] got reply, data = ${JSON.stringify(data, undefined, 2)}`);
     logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] before shift to next task, stack.len = ${this.stack.length}`);
 
@@ -121,9 +123,8 @@ export class TxJob {
       /**
        * make the next move, get the next mountpoint from the stack,
        * and send the data to it's tasks subject.
-       */
-      next = this.shift();
-      console.log('FFFFFFFFFFFFFFFFFFFFFFf: in  subscribeCB AFTER SHISRT  ', next.name);
+       */            
+      next = this.shift(options);      
       logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] going to run next task: ${next.name}`);
 
       if (TxJobExecutionOptionsChecker.isPersist(this.options)) {
@@ -153,7 +154,6 @@ export class TxJob {
       }    
 
       this.waiting.add(next.name.toString());
-      //data.setReply(txMountPoint.reply());
       data.setReply(next.reply());
 
       setTimeout(async () => {
@@ -180,26 +180,31 @@ export class TxJob {
       this.services.setError();
     }
     this.onError.next(new TxTask<{name: string}>({name: <string>this.current.name}, task));
+    
+    // let isend = false;
 
-    let isend = false;
+    // switch (TxJobExecutionOptionsChecker.getErrorDirection(this.options)) {
+    //   case TxDirection.forward:  isend = this.stack.length === 0; break;
+    //   case TxDirection.backward: isend = this.trace.length === 0; break;
+    // }
 
-    switch (TxJobExecutionOptionsChecker.getErrorDirection(this.options)) {
-      case TxDirection.forward:  isend = this.stack.length === 0; break;
-      case TxDirection.backward: isend = this.trace.length === 0; break;
-    }
-
-    if (isend) {
-      logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] complete running errors all mount points, trace.length = ${this.trace.length}, stack.length = ${this.stack.length}`);
+    // if (isend) {
+    //   logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] complete running errors all mount points, trace.length = ${this.trace.length}, stack.length = ${this.stack.length}`);
             
-      this.services.error(task);
-      this.isCompleted.error(task);
-      this.notify(task);
-      TxJobRegistry.instance.emit('job:error: ' + this.getUuid(), {job: this, task})
+    //   this.services.error(task);
+    //   this.isCompleted.error(task);
+    //   this.notify(task);
+    //   TxJobRegistry.instance.emit('job:error: ' + this.getUuid(), {job: this, task})
+
+    //   return;
+    // }    
+    if (this.isErrorFinish()) {
+      this.doErrorFinish(task);
 
       return;
     }
 
-    this.current = this.shiftError();
+    this.current = this.shiftError(options);
 
     logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] after pop this.currnet = ${this.current.name}`);
 
@@ -217,8 +222,8 @@ export class TxJob {
       async (task: TxTask<any>, mountpoint: TxMountPoint, options: TxSubscribeOptions) => {        
         await this.subscribeCB(task, mountpoint, options);
       },
-      async (error: TxTask<any>, options: TxSubscribeOptions) => {
-        await this.errorCB(error, txMountPoint, options);
+      async (error: TxTask<any>, mountpoint: TxMountPoint, options: TxSubscribeOptions) => {
+        await this.errorCB(error, mountpoint, options);
       },
       () => {
         logger.info(`[TxJob:subscribe] [${this.name}/${this.getUuid()}] complete is called`)
@@ -243,8 +248,18 @@ export class TxJob {
    * @param sender - the mountpoint use to send tasks by me to others
    */
   add(sender: TxMountPoint, options: TxJobComponentOptions = defaultComponentOptions) {
+    const doublepoint = this.newDoublePoint(sender, options);
 
-    let doublepoint = this.newDoublePoint(sender, options);
+    if (this.isMultiPoint(sender)) {            
+      const multipoint = <TxMultiPoint>sender;
+
+      multipoint.names.forEach(name => {        
+        const dp = this.newDoublePoint(TxMountPointRegistry.instance.get(name), options);
+
+        this.subscribe(dp);
+        multipoint.add(dp);        
+      });
+    }
     
     this.subscribe(doublepoint);
     this.stack.push(doublepoint);
@@ -297,7 +312,7 @@ export class TxJob {
         return;
       }
 
-      this.current = this.shift();    
+      this.current = this.shift();
       if (isOnePass && this.current.isWait()) {
         break;
       }
@@ -512,28 +527,67 @@ export class TxJob {
     names.forEach(name => this.add(TxSinglePointRegistry.instance.get(name)));
   }
 
-  private shift() {
+  private isMultiPoint(mp: TxMountPoint): mp is TxMultiPoint {
+    return mp instanceof TxMultiPoint;
+  }
+
+  private shift(options: TxSubscribeOptions = defaultSubscribeOptions) {
     this.current = this.stack.shift();
     this.trace.push(this.current);
+
+    /**
+     * goto: 
+     * if current isMultiPoint then get the actual doublepoint from it by options.goto
+     */
+    if (this.isMultiPoint(<TxDoublePoint>this.current.sender)) {
+      const multipoint = <TxMultiPoint>this.current.sender;
+      logger.info(`[TxJob::shift] [${this.name}/${this.uuid}] found multipoint: ${multipoint.name}`);
+
+      if ( ! multipoint.has(options.goto) ) {
+        throw new Error(`unable to find mountpoint '${options.goto}' in multipoint ${multipoint.name} to goto`);
+      }
+
+      this.current = multipoint.get(options.goto);
+    }    
+
     this.executionId.sequence++;
 
     return this.current;
   }
 
-  private shiftError() {
+  private shiftError(options: TxSubscribeOptions = defaultSubscribeOptions) {
     switch (TxJobExecutionOptionsChecker.getErrorDirection(this.options)) {
-      case TxDirection.forward:  {        
+      case TxDirection.forward:  {
         this.current = this.stack.shift();        
+        this.current = this.shiftErrorGetCurrent(this.current, options);
+
         this.executionId.sequence++;
       }
       break;
       case TxDirection.backward: {
         this.current = this.trace.pop();
+        this.current = this.shiftErrorGetCurrent(this.current, options);
+  
         this.executionId.sequence++;
       }
       break;
       default: 
         throw Error('direction must be TxDirection.forward | TxDirection.backward')
+    }
+
+    return this.current;
+  }
+
+  private shiftErrorGetCurrent(current: TxDoublePoint, options: TxSubscribeOptions = defaultSubscribeOptions) {      
+    if (this.isMultiPoint(current.sender)) {      
+      const multipoint: TxMultiPoint = current.sender;
+
+      if ( ! multipoint.has(options.goto) ) {
+        throw new Error(`unable to find mountpoint '${options.goto}' in multipoint ${multipoint.name} to goto`);
+      }
+      this.current = multipoint.get(options.goto);          
+
+      return this.current;
     }
 
     return this.current;
@@ -576,7 +630,7 @@ export class TxJob {
     if (this.options.execute.notify.from !== TxJobRegistry.instance.getServiceName()) {
       return;
     }  
-    let mp = TxMountPointRegistry.instance.get(this.options.execute.notify.name);
+    let mp = TxMountPointRxJSRegistry.instance.get(this.options.execute.notify.name);
 
     if (this.error) {        
       mp.reply().error(data);
@@ -610,6 +664,28 @@ export class TxJob {
     return true;
   }
   
+  private isErrorFinish() {
+    let isend = false;
+
+    switch (TxJobExecutionOptionsChecker.getErrorDirection(this.options)) {
+      case TxDirection.forward:  isend = this.stack.length === 0; break;
+      case TxDirection.backward: isend = this.trace.length === 0; break;
+    }
+
+    return isend;
+  }
+
+  private doErrorFinish(task: TxTask<any>) {
+    const __name = TxJobRegistry.instance.getServiceName();
+          
+    logger.info(`[(${__name}):TxJob:errorCB] [${this.name}/${this.getUuid()}] complete running errors all mount points, trace.length = ${this.trace.length}, stack.length = ${this.stack.length}`);
+          
+    this.services.error(task);
+    this.isCompleted.error(task);
+    this.notify(task);
+    TxJobRegistry.instance.emit('job:error: ' + this.getUuid(), {job: this, task})    
+  }
+
   toJSON(): TxJobJSON {
     return {
       name: this.name,
@@ -738,6 +814,14 @@ export class TxJob {
 
   getIsCompleted() {
     return this.isCompleted;
+  }
+
+  get isCompleted() {
+    return this._isCompleted;
+  }
+
+  set isCompleted(_isCompleted) {
+    this._isCompleted = _isCompleted;
   }
 
   getIsStopped() {

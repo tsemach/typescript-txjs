@@ -4,7 +4,7 @@ const logger = createLogger('Job-Execute-Id-Test');
 import 'mocha';
 import {expect} from 'chai';
 
-import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
+import { TxMountPointRxJSRegistry } from '../../src/tx-mountpointrxjs-registry';
 import { TxJobExecutionOptions } from "../../src/tx-job-execution-options";
 import { TxTask } from '../../src/tx-task';
 import { TxJob } from '../../src/tx-job';

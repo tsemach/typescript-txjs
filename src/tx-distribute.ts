@@ -1,5 +1,5 @@
 
-import { TxMountPointName } from './tx-mounpoint-name';
+import { TxMountPointName } from './tx-mountpoint-name';
 import { TxTask } from './tx-task';
 import { TxJobJSON } from './tx-job-json';
 import { TxJobExecutionOptions } from './tx-job-execution-options';

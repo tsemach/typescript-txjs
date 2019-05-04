@@ -7,12 +7,13 @@ import { TxJobComponentOptions, TxJobComponentOptionsChecker, defaultComponentOp
 import { TxJob } from './tx-job';
 
 export class TxDoublePoint implements TxMountPoint {
-  
+  type = 'TxDoublePoint';
+
   private _name: string | Symbol;
   private _job: TxJob = null;
 
-  sender: TxSinglePoint<TxMountPoint>; // mount point use to send from me to others
-  recver: TxSinglePoint<TxMountPoint>; // mount point use to recv from others to me  
+  private _sender: TxSinglePoint<TxMountPoint>; // mount point use to send from me to others
+  private _recver: TxSinglePoint<TxMountPoint>; // mount point use to recv from others to me  
 
   _options = defaultComponentOptions;
 
@@ -24,9 +25,9 @@ export class TxDoublePoint implements TxMountPoint {
       fullname = _sender.name + ':' + _suffix
     }
 
-    this.sender = <TxSinglePoint<TxMountPoint>>_sender
-    this.recver = new TxSinglePoint<TxMountPoint>(fullname);
-    this.recver.setFrom(this)
+    this._sender = <TxSinglePoint<TxMountPoint>>_sender
+    this._recver = new TxSinglePoint<TxMountPoint>(fullname);
+    this._recver.setFrom(this)
   }
 
   get name() {
@@ -37,15 +38,15 @@ export class TxDoublePoint implements TxMountPoint {
   }
 
   tasks() {
-    return this.sender.tasks();
+    return this._sender.tasks();
   }
 
   reply() {    
-    return this.recver.tasks();
+    return this._recver.tasks();
   }
 
   undos() {
-    return this.sender.undos();
+    return this._sender.undos();
   }
 
   set options(_options: TxJobComponentOptions) {
@@ -54,9 +55,13 @@ export class TxDoublePoint implements TxMountPoint {
       this._options = _options;
     }
   }
-
+  
   get options() {
     return this._options;
+  }
+
+  get sender() {
+    return this._sender;
   }
 
   private checkOptions(_options: TxJobComponentOptions) {

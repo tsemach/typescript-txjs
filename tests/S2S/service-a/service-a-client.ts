@@ -3,7 +3,7 @@
 
 const { fork } = require('child_process');
 
-import { TxMountPointRegistry } from './../../../src/tx-mountpoint-registry';
+import { TxMountPointRxJSRegistry } from './../../../src/tx-mountpointrxjs-registry';
 
 import createLogger from 'logging';
 const logger = createLogger('service-a');

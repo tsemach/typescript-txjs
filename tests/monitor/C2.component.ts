@@ -2,11 +2,11 @@
 import createLogger from 'logging'; 
 const logger = createLogger('C2');
 
-import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
+import { TxMountPointRxJSRegistry } from '../../src/tx-mountpointrxjs-registry';
 import { TxTask } from '../../src/tx-task';
 
 export class C2Component {
-  private mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C2');    
+  private mountpoint = TxMountPointRxJSRegistry.instance.create('GITHUB::GIST::C2');    
   method = '';
   //task: any;
 

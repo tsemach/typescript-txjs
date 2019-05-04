@@ -32,6 +32,7 @@ describe('Job Class Execute Test', () => {
 
     job.add(TxSinglePointRegistry.instance.get('GITHUB::S1'));
     job.add(TxSinglePointRegistry.instance.get('GITHUB::S2'));
+    //job.add(TxSinglePointRegistry.instance.arr(['GITHUB::S3']));
     job.add(TxSinglePointRegistry.instance.get('GITHUB::S3'));
 
     job.getIsCompleted().subscribe(

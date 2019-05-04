@@ -37,6 +37,7 @@ export class TxSubject extends Subject<TxTask<any>> {
  * A component receive task by the mount-point's tasks Subject and return reply by reply subject.
  */
 export class TxMountPointRxJS implements TxMountPoint {
+   type = 'TxMountPointRxJS';
 
   _tasks = new TxSubject();
   _reply = new TxSubject();

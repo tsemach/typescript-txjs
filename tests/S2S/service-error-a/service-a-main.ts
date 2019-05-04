@@ -1,7 +1,7 @@
 import createLogger from 'logging';
 const logger = createLogger('service-error-a:main');
 
-import { TxJobRegistry, TxJob, TxTask, TxJobExecutionOptions, TxMountPointRegistry } from '../../../src/';
+import { TxJobRegistry, TxJob, TxTask, TxJobExecutionOptions, TxMountPointRxJSRegistry } from '../../../src/';
 import { TxJobServicesComponent } from '../../../src/tx-job-services-component';
 
 import { A3Component } from '../components/A3.component';
@@ -19,7 +19,7 @@ async function init() {
 
   await new TxJobServicesComponent().init();  
 
-  let mp = TxMountPointRegistry.instance.create('SERVICE-A::S2S::COMPLETED');  
+  let mp = TxMountPointRxJSRegistry.instance.create('SERVICE-A::S2S::COMPLETED');  
   mp.reply().subscribe(
     (task) => {
       logger.error("service-error-a: ERROR (task) got data from TxJobServicesComponent: " + JSON.stringify(task.get(), undefined, 2));

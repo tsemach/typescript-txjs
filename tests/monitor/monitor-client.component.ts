@@ -3,11 +3,11 @@ import createLogger from 'logging';
 const logger = createLogger('C1');
 
 import { TxTask } from '../../src/tx-task';
-import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
+import { TxMountPointRxJSRegistry } from '../../src/tx-mountpointrxjs-registry';
 import { TxMonitorServerTaskHeader } from '../../src/tx-monitor-server-task-header';
 
 export class MonitorClientComponent {
-  private mountpoint = TxMountPointRegistry.instance.create('EXAMPLE::MONITOR::CLIENT');
+  private mountpoint = TxMountPointRxJSRegistry.instance.create('EXAMPLE::MONITOR::CLIENT');
 
   method = '';
   reply: any;

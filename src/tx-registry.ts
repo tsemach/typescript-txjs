@@ -14,17 +14,39 @@ export class TxRegistry<T, K extends string | Symbol> {
 
   constructor() {    
   }
+ 
+  add(name: K, object: T, prefix?: string) {    
+    const _prefix = prefix ? "[" + prefix + "] ": '';
 
-  add(name: K, object: T) {    
-    logger.info("[TxRegistry:add] adding object '" + name.toString() + "'" );
+    logger.info(_prefix + "[TxRegistry:add] adding object '" + name.toString() + "'" );
     this.objects.set(name, object);
     this.names.set(name.toString(), name);
 
     return object;
   }
+  
+  // arr(name: K[]) {
+  //   logger.info(`[TxRegistry:get] getting object ${name.toString()}`);
 
-  get(name: K) {
-    logger.info(`[TxRegistry:get] getting object ${name.toString()}`);
+  //   /**
+  //    * in case of name like 'Symbol(SOME-NAME)' then it is coming from serialize
+  //    * (upJSON method of TxJob).
+  //    */
+  //   if (typeof name === 'string') {
+  //     if (this.names.has(name)) {
+  //       return this.objects.get(this.names.get(name));
+  //     }
+  //   }
+
+  //   if ( ! this.objects.has(name[0]) ) {
+  //     throw ReferenceError(`object '${name.toString()}' is not exist in the registry`);
+  //   }
+  //   return this.objects.get(name[0]);   
+  // }
+
+  get(name: K, prefix?: string) {    
+    const _prefix = prefix ? "[" + prefix + "] ": '';    
+    logger.info(`${_prefix}[TxRegistry:get] getting object ${name.toString()}`);
 
     /**
      * in case of name like 'Symbol(SOME-NAME)' then it is coming from serialize
@@ -37,7 +59,7 @@ export class TxRegistry<T, K extends string | Symbol> {
     }
 
     if ( ! this.objects.has(name) ) {
-      throw ReferenceError(`object '${name.toString()}' is not exist in the registry`);
+      throw ReferenceError(`${_prefix}[TxRegistry:get] object '${name.toString()}' is not exist in the registry`);
     }
     return this.objects.get(name);    
   }

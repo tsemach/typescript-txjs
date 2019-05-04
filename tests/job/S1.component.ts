@@ -17,7 +17,7 @@ export class S1Component {
         this.method = task['method'];
 
         // just send the reply to whom is 'setting' on this reply subject        
-        task.reply().next(new TxTask({method: 'from S1', status: 'ok'}, task['data']), {skip: ['MOUNTPOINT::IGNORE']})
+        task.reply().next(new TxTask({method: 'from S1', status: 'ok'}, task['data']));
       },
       (error: TxTask<any>) => {
         logger.info('[S1Component:error] got error = ' + JSON.stringify(error, undefined, 2));

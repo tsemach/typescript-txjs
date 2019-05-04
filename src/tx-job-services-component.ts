@@ -2,7 +2,7 @@ import createLogger from 'logging';
 const logger = createLogger('TxJobServicesComponent');
 
 import { TxQueuePointRegistry } from './tx-queuepoint-registry';
-import { TxMountPointRegistry } from './tx-mountpoint-registry';
+import { TxMountPointRxJSRegistry } from './tx-mountpointrxjs-registry';
 import { TxRoutePointRegistry } from './tx-routepoint-registry';
 import { TxJobRegistry } from './tx-job-resgitry';
 import { TxNames } from './tx-names';
@@ -13,7 +13,7 @@ import { TxTask } from './tx-task';
  * S2S - 
  */
 export class TxJobServicesComponent {
-  mountpoint = TxMountPointRegistry.instance.create('JOB::SERVICES::MOUNTPOINT::COMPONENT');
+  mountpoint = TxMountPointRxJSRegistry.instance.create('JOB::SERVICES::MOUNTPOINT::COMPONENT');
   queuepoint = TxQueuePointRegistry.instance.create('JOB::SERVICES::QUEUEPOINT::COMPONENT');
   routepoint = TxRoutePointRegistry.instance.create('JOB::SERVICES::ROUTEPOINT::COMPONENT');
 

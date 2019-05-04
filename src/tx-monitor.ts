@@ -1,6 +1,6 @@
 
 import { TxJobRegistry } from './tx-job-resgitry';
-import { TxMountPointRegistry } from './tx-mountpoint-registry';
+import { TxMountPointRxJSRegistry } from './tx-mountpointrxjs-registry';
 import { TxTask } from './tx-task';
 import { TxMonitorServerTaskHeader } from './tx-monitor-server-task-header';
 
@@ -21,7 +21,7 @@ class TxMonitor {
   }
 
   runBuiltInServer(host: string, port: number) {
-    let mp = TxMountPointRegistry.instance.get('RX-TXJS::MONITOR::SERVER');
+    let mp = TxMountPointRxJSRegistry.instance.get('RX-TXJS::MONITOR::SERVER');
     
     mp.tasks().next(new TxTask<TxMonitorServerTaskHeader>({method: 'start'}, {host, port}));    
   }

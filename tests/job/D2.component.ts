@@ -2,7 +2,7 @@ import createLogger from 'logging';
 const logger = createLogger('Job-Test');
 
 import { TxComponent } from '../../src/tx-component';
-import {TxMountPointRegistry} from '../../src/tx-mountpoint-registry';
+import {TxMountPointRxJSRegistry} from '../../src/tx-mountpointrxjs-registry';
 import { TxTask } from '../../src/tx-task';
 
 @TxComponent({

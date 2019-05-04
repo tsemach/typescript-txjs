@@ -60,11 +60,16 @@ export class TxSubscribe<T> {
   }
 
   error(error: TxTask<any>, options: TxSubscribeOptions = defaultSubscribeOptions) {
-    if (this.errorCB != null) {    
-      for (let i = 0; i < this.errorCB.length; i++) {
-        this.errorCB[i](error, this.from, options);
-      }
+    if (this.errorCB === null) {    
+      return;
     }
+
+    for (let i = 0; i < this.errorCB.length; i++) {
+      if ( ! this.errorCB[i] ) {
+        throw new Error('error is called but without error calleback defined on subscription, define error callback as well');
+      }
+      this.errorCB[i](error, this.from, options);
+    }  
   }  
 
   unsubscribe(index: number = -1) {
