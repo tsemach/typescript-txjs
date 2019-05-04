@@ -6,6 +6,10 @@
 ## Documentation
 ### more info can be found [here](https://rxjs.gitbook.io/rx-txjs/) 
 
+## What's New
+1. Rx-TXJS is now supporting DAG Job, see tests/job/tx-job-execute-goto-simple.spec.ts for example.
+2. Adding short version of mountpoint subscription, see tests/mountpoint/tx-mountpoint-method.spec.ts for example.
+
 ## Introduction
 Rx-txjs implement an execution model based on decoupling objects (a *Components*) under Nodejs environment. 
 
