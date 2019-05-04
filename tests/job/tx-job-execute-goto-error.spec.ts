@@ -108,7 +108,7 @@ describe('Job Class Execute Test', () => {
       "S1GotoComponent"
     ];
 
-    job.getIsCompleted().subscribe(
+    job.isCompleted.subscribe(
       async (data) => {
         console.error('[tx-job-execute-goto-error] job.getIsCompleted: complete running all tasks  with get S3-or-S4 - data:' + JSON.stringify(data, undefined, 2));
         throw new Error('Should not called to data callback, should be called to error');
@@ -157,7 +157,7 @@ describe('Job Class Execute Test', () => {
       "S6GotoComponent"
     ];
 
-    job.getIsCompleted().subscribe(
+    job.isCompleted.subscribe(
       async (data) => {
         console.error('[tx-job-execute-goto-error] job.getIsCompleted: complete running all tasks forwarding with get S3-or-S4 - data:' + JSON.stringify(data, undefined, 2));
         throw new Error('Should not called to data callback, should be called to error');
