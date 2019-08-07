@@ -1,11 +1,11 @@
-import { TxMountPoint } from './tx-mountpoint';
 import { TxSingleSubscribe } from './tx-singlepoint';
 
 export class TxTask<T> {  
   head: T;
   data: any;
   
-  constructor(head: T, data={}, private _reply?: TxSingleSubscribe<any>) {
+  //constructor(head: T, data={}, protected _reply?: TxSingleSubscribe<any>) {
+  constructor(head: T, data={}, protected _reply?: any) {
     this.head = head; 
     this.data = data;
   }
@@ -26,7 +26,8 @@ export class TxTask<T> {
     this.data = data;
   }
   
-  setReply(_reply: TxSingleSubscribe<any>) {
+  //setReply(_reply: TxSingleSubscribe<any>) {
+  setReply(_reply: any) {
     this._reply = _reply;
     
     return this;
@@ -44,5 +45,12 @@ export class TxTask<T> {
       head: this.head,
       data: this.data
     }
+  }
+
+  set(head: T, data: any) {
+    this.head = head;
+    this.data = data;
+
+    return this;
   }
 }

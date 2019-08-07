@@ -1,54 +1,72 @@
 
 import createLogger from 'logging';
-const logger = createLogger('MountPointRegistry');
+const logger = createLogger('RoutePointRegistry');
 
-import { TxRegistry } from './tx-registry';
 import { TxRoutePoint } from "./tx-routepoint";
-import { TxTYPES } from "./tx-injection-types";
-//import { TxConnectorExpress } from "./tx-connector-express";
-import { TxRegistryContainer, TxRegistryContainerScopeEnum } from "./tx-registry-container";
+import { TxMountPointRegistry } from './tx-mountpoint-registry';
+import { TxRouteServiceConfig } from './tx-route-service-config';
+import { TxRouteApplication } from './tx-route-application';
 
-export class TxRoutePointRegistry extends TxRegistry<TxRoutePoint, string | Symbol> {
-  private static _instance: TxRoutePointRegistry;
-
-  private routeContainer = new TxRegistryContainer<TxRoutePoint>(TxRoutePoint, TxTYPES.TxRoutePoint);
+export class TxRoutePointRegistry<K extends string | Symbol> {
+  private static _instance: TxRoutePointRegistry<string | Symbol>;
+  private _application: TxRouteApplication;
 
   private constructor() {
-    super();
-
-    // set default driver for rabbitMQ and express.
-    //this.routeContainer.setDriver(TxConnectorExpress);
   }
 
   public static get instance() {
     return this._instance || (this._instance = new this());
   }
 
-  create(name: string | Symbol) {
-    return this.route(name);
-  }
-
-  route(name: string | Symbol) {
-    const rp = this.routeContainer.get(name);
+  // if call directly from client then config.mode === 'client'
+  // if called from this.route(..) then config.mode === 'server'
+  create(name: string | Symbol, config: TxRouteServiceConfig) {
+    const rp = new TxRoutePoint(name, config);
 
     if (typeof name === 'string') {
       if (name === undefined || name.length === 0) {
         return rp;
       }
-      return this.add(name, rp);
+      return TxMountPointRegistry.instance.add(name, rp);
     }
 
     if (name === undefined) {
       return rp;
     }
-    return this.add(name, rp);
+
+    TxMountPointRegistry.instance.add(name, rp, 'TxRoutePointRegistry');
+    
+    return rp;
   }
 
-  /**
-   * TxRegistryContainerScopeEnum.TRANSIENT - mean create new instence on every get.
-   * @param type 
-   */
-  setDriver(type) {
-    this.routeContainer.setDriver(type, TxRegistryContainerScopeEnum.TRANSIENT);
+  // call on server side, need to set config.mode = 'server'
+  route(name: string | Symbol, config: TxRouteServiceConfig) {
+    config.mode = 'server';
+    
+    return this.create(name, config);
+    // const rp = new TxRoutePoint(name, config);
+
+    // if (typeof name === 'string') {
+    //   if (name === undefined || name.length === 0) {
+    //     return rp;
+    //   }
+    //   return TxMountPointRegistry.instance.add(name, rp);
+    // }
+
+    // if (name === undefined) {
+    //   return rp;
+    // }
+
+    // TxMountPointRegistry.instance.add(name, rp, 'TxRoutePointRegistry');
+    
+    // return rp;
+  }
+
+  setApplication(_application: TxRouteApplication) {
+    this._application = _application;
+  }
+
+  getApplication() {
+    return this._application;
   }
 }

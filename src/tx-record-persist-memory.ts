@@ -1,5 +1,6 @@
 import createLogger from 'logging';
 const logger = createLogger('TxRecordPersistMemory');
+
 import * as uuid from 'uuid/v4';
 
 import { TxRecordInfoSave, TxRecordPersistAdapter } from './tx-record-persist-adapter';

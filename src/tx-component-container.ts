@@ -75,7 +75,3 @@ export class TxComponentContainer<T> {
   }
 }
 
-//let TxQueueContainer = new TxComponentContainer<TxQueuePoint>(TxQueuePoint, TxTYPES.TxQueuePoint, TxConnectorRabbitMQ);
-//let TxRouteContainer = new TxComponentContainer<TxRoutePoint>(TxRoutePoint, TxTYPES.TxRoutePoint, TxConnectorExpress);
-
-//export { TxQueueContainer, TxRouteContainer }
