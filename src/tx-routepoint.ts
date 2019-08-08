@@ -6,15 +6,27 @@ import { TxRoutePointRegistry } from './tx-routepoint-registry';
 import TxRouteServiceExpressGet from './tx-route-service-express-get';
 
 export class TxRoutePoint implements TxMountPoint {
-  
+  protected config: TxRouteServiceConfig;
+
   private _tasks: TxRouteServiceExpress<any, any>;
   private _reply: TxRouteServiceExpress<any, any>;  
   
-  constructor(private _name: string | Symbol, protected config: TxRouteServiceConfig) {
+  constructor(private _name: string | Symbol, config: TxRouteServiceConfig) {    
+    // const application = TxRoutePointRegistry.instance.getApplication();
+
+    // if (config && config.method.toLowerCase() === 'get') {
+    //   this._tasks = new TxRouteServiceExpressGet<any, any>(application, config);
+    //   this._reply = new TxRouteServiceExpressGet<any, any>(application, config);
+    // }
+    this.init(config);
+  }
+
+  init(config: TxRouteServiceConfig) {
+    this.config = config;
     
     const application = TxRoutePointRegistry.instance.getApplication();
 
-    if (config.method.toLowerCase() === 'get') {
+    if (config && config.method.toLowerCase() === 'get') {
       this._tasks = new TxRouteServiceExpressGet<any, any>(application, config);
       this._reply = new TxRouteServiceExpressGet<any, any>(application, config);
     }

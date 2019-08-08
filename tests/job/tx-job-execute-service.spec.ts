@@ -19,7 +19,7 @@ import { TxConnectorRabbitMQ } from '../connectors/connector-rabbitmq-empty';
 import { TxConnectorExpress } from './../connectors/connector-express-empty';
 
 TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
-TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
+// TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
 
 import { C1Component } from './C1.component';
 import { C2Component } from './C2.component';

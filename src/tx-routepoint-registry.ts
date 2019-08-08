@@ -20,7 +20,7 @@ export class TxRoutePointRegistry<K extends string | Symbol> {
 
   // if call directly from client then config.mode === 'client'
   // if called from this.route(..) then config.mode === 'server'
-  create(name: string | Symbol, config: TxRouteServiceConfig) {
+  create(name: string | Symbol, config: TxRouteServiceConfig = null) {
     const rp = new TxRoutePoint(name, config);
 
     if (typeof name === 'string') {
@@ -40,9 +40,12 @@ export class TxRoutePointRegistry<K extends string | Symbol> {
   }
 
   // call on server side, need to set config.mode = 'server'
-  route(name: string | Symbol, config: TxRouteServiceConfig) {
-    config.mode = 'server';
-    
+  // server side is the one that listen to upcoming request
+  route(name: string | Symbol, config: TxRouteServiceConfig = null) {
+    if (config) {
+      config.mode = 'server';
+    }
+
     return this.create(name, config);
     // const rp = new TxRoutePoint(name, config);
 

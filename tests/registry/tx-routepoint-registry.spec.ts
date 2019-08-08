@@ -48,7 +48,7 @@ export class TxConnectorNoDefaultExpress implements TxConnector {
   }
 }
   
-TxRoutePointRegistry.instance.setDriver(TxConnectorNoDefaultExpress);
+// TxRoutePointRegistry.instance.setDriver(TxConnectorNoDefaultExpress);
 
 describe('Registry Classes - TxRoutePointRegitry', () => {
 
@@ -61,19 +61,19 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
     expect(RP1.name).to.equal('GITHUB::API::AUTH');
     expect(RP2.name).to.equal('GITHUB::API::READ');
 
-    await RP1.listen('localhost:3001', 'listen1');
-    await RP2.listen('localhost:3002', 'listen2');
+    // await RP1.listen('localhost:3001', 'listen1');
+    // await RP2.listen('localhost:3002', 'listen2');
 
-    let set = new Set<string>();
-    set.add(RP1.id);
-    set.add(RP2.id);
+    // let set = new Set<string>();
+    // set.add(RP1.id);
+    // set.add(RP2.id);
 
-    // make sure they all the same UUIDs, because the connector is singleton.
-    expect(set.size).to.equal(2);
+    // // make sure they all the same UUIDs, because the connector is singleton.
+    // expect(set.size).to.equal(2);
 
-    // make sure they all valid UUID
-    assert(isUUID(RP1.id));
-    assert(isUUID(RP2.id));    
+    // // make sure they all valid UUID
+    // assert(isUUID(RP1.id));
+    // assert(isUUID(RP2.id));    
   });
 
   it('tx-routepoint.spec: check creation of TxRoutePoint with Express connector injection', () => {
@@ -85,19 +85,19 @@ describe('Registry Classes - TxRoutePointRegitry', () => {
     expect(RP1.name).to.equal('GITHUB::API::AUTH');
     expect(RP2.name).to.equal('GITHUB::API::READ');
 
-    RP1.listen('CP1:3000', 'listen');
-    RP2.listen('CP2:3001', 'POST:listen');
+    // RP1.listen('CP1:3000', 'listen');
+    // RP2.listen('CP2:3001', 'POST:listen');
 
-    let set = new Set<string>();
-    set.add(RP1.id);
-    set.add(RP2.id);
+    // let set = new Set<string>();
+    // set.add(RP1.id);
+    // set.add(RP2.id);
 
-    // make sure they all the same UUIDs, because the connector is singleton.
-    expect(set.size).to.equal(2);
+    // // make sure they all the same UUIDs, because the connector is singleton.
+    // expect(set.size).to.equal(2);
 
-    // make sure they all valid UUID
-    assert(isUUID(RP1.id));
-    assert(isUUID(RP2.id));
+    // // make sure they all valid UUID
+    // assert(isUUID(RP1.id));
+    // assert(isUUID(RP2.id));
   });
 
 });

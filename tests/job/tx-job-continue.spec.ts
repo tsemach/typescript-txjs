@@ -26,7 +26,7 @@ import {E3Component} from './components/E3.component';
 import * as short from 'short-uuid';
 
 TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
-TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
+// TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
 
 new TxJobServicesComponent().init();  
 

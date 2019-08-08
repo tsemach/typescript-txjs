@@ -15,7 +15,7 @@ import { TxConnectorRabbitMQ } from '../../connectors/connector-rabbitmq-empty';
 import { TxConnectorExpress } from '../../connectors/connector-express-full';
 
 TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
-TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
+// TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
 
 TxJobRegistry.instance.setServiceName('service-c');
 

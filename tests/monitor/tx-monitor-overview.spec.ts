@@ -29,7 +29,7 @@ import './C1.component';
 import './C2.component';
 
 TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
-TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
+// TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
 
 new TxJobServicesComponent().init();  
 
