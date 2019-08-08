@@ -69,7 +69,7 @@ async function sendAndSubscribeServiceGet() {
 
 const port = process.env.PORT || 3100;
 
-TxRoutePointRegistry.instance.setApplication(Application.instance)
+TxRoutePointRegistry.instance.setApplication(Application.instance.app)
 
 Application.instance.listen('localhost', +port, () => {
   console.log(`[backend-server-main::listen] Listening at http://localhost:${port}/`);

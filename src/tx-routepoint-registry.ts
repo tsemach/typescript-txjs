@@ -65,8 +65,9 @@ export class TxRoutePointRegistry<K extends string | Symbol> {
     // return rp;
   }
 
-  setApplication(_application: TxRouteApplication) {
-    this._application = _application;
+  // setApplication(_application: TxRouteApplication) {
+  setApplication(app: Express.Application) {    
+    this._application = new TxRouteApplication(app);
   }
 
   getApplication() {

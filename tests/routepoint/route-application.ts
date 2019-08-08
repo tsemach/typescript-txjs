@@ -1,5 +1,5 @@
 import createLogger from 'logging';
-const logger = createLogger('BackendApplication');
+const logger = createLogger('RouteApplication');
 
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
@@ -9,20 +9,16 @@ import { TxRouteService } from '../../src/tx-route-service';
 import { TxRouteServiceConfig  } from '../../src/tx-route-service-config';
 import { TxRouteApplication } from '../../src/tx-route-application';
 
-class BackendApplication {  
-  private static _instance: BackendApplication = null;
+class RouteApplication {  
+  private static _instance: RouteApplication = null;
   public express: express.Application;
   
   constructor() { 
-    console.log("[BackendApplication::construcot] is called")
+    logger.info("[RouteApplication::construcot] is called")
     this.express = express();
     this.middleware();    
   }
 
-  get app() {
-    return this.express;
-  }
-  
   public static get instance() {                                          
     return this._instance || (this._instance = new this());
   }                                                                          
@@ -41,20 +37,24 @@ class BackendApplication {
    * @param config - service configuration need to return to add call
    */
   register(where: string, service: TxRouteService, config: TxRouteServiceConfig) {
-    console.log("[BackendApplication:register] going to add service path on:" + where);
+    logger.info("[RouteApplication:register] going to add service path on:" + where);
     this.express.use(where, service.add(config));
   }
 
   listen(host: string, port: number, callback = () => {
       // default callback
-      console.log(`[BackendApplication::listen] Listening at http://${host}:${port}/`);
+      logger.info(`[RouteApplication::listen] Listening at http://${host}:${port}/`);
     })
   {    
     this.express.listen(port, callback);
   }
+
+  close() {
+    (<any>this.express).close();
+  }
 }
 
-export default BackendApplication;
+export default RouteApplication;
 
 //export default // let application = new Application();
 
@@ -62,6 +62,6 @@ export default BackendApplication;
 
 // application.express.listen(port, () => {
 //     // success callback;
-//     console.log(`Listening at http://localhost:${port}/`);
+//     logger.info(`Listening at http://localhost:${port}/`);
 // });
 

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { TxRouteServiceExpressGet } from '../../src/tx-route-service-express-get';
 import { TxRouteServiceConfig }  from '../../src/tx-route-service-config';
 import { TxRouteServiceTask } from '../../src/tx-route-service-task';
+import { TxRouteApplication } from '../../src/tx-route-application';
 import { TxTask } from '../../src/tx-task';
 
 import Application from './backend-application'
@@ -19,7 +20,7 @@ const config: TxRouteServiceConfig = {
 function clientSubscribeServiceGet() {
   console.log('[backend-client-main] subscribeServiceGet is called');
 
-  const service = new TxRouteServiceExpressGet(Application.instance, config);
+  const service = new TxRouteServiceExpressGet(new TxRouteApplication(Application.instance.app), config);
   service.subscribe(
     (task: TxRouteServiceTask<any>) => {
       console.log('[backend-client-main] service subscribe called, tasks:', JSON.stringify(task.get(), undefined, 2));
