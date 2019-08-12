@@ -8,8 +8,8 @@ import { TxTYPES } from "./tx-injection-types";
 //import { TxConnectorExpress } from "./tx-connector-express";
 import { TxRegistryContainer, TxRegistryContainerScopeEnum } from "./tx-registry-container";
 
-export class TxRoutePointRegistry extends TxRegistry<TxRoutePoint, string | Symbol> {
-  private static _instance: TxRoutePointRegistry;
+export class TxRoutePointRegistryContainer extends TxRegistry<TxRoutePoint, string | Symbol> {
+  private static _instance: TxRoutePointRegistryContainer;
 
   private routeContainer = new TxRegistryContainer<TxRoutePoint>(TxRoutePoint, TxTYPES.TxRoutePoint);
 

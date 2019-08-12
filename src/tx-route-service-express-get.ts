@@ -20,13 +20,16 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
     application.register('/' + config.service, this, config);
   }
 
+  /**
+   * this method is called by TxRouteApplication app wrapper druing TxRoutePointRegistry.instance.setApplication(app) method
+   * 
+   * @param config is the rooutepoint config object as user define on TxRoutePointRegistry.instance.route(..)
+   */
   public add(config: TxRouteServiceConfig): express.Router {
     let router = express.Router();
 
-    console.log('[TxRouteServiceExpressGet::get] going to call to add, config.route = ', config.service + '/' + config.route);``
+    logger.info('[TxRouteServiceExpressGet::get] add is called, config.route = ', config.service + '/' + config.route);``
     router.get('/' + config.route, (req, res, next) => {
-      console.log(`[TxRouteServiceExpressGet] GET:${config.service+'/'+config.route} got request`);
-      console.log(`[TxRouteServiceExpressGet] GET:${config.service+'/'+config.route} headers:${JSON.stringify(req.headers, undefined, 2)}`);
       logger.info(`[TxRouteServiceExpressGet] GET:${config.service+'/'+config.route} query:${JSON.stringify(req.query, undefined, 2)}`);
 
       const task = 

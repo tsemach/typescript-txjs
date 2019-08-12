@@ -11,6 +11,6 @@ do
 		continue
 	fi
 
-	echo "export * from './$file'" >> src/index.ts
-	echo "export * from './$file'"
+	echo "export * from './$file';" >> src/index.ts
+	echo "export * from './$file';"
 done

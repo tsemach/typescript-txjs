@@ -12,7 +12,7 @@ import { TxRoutePointRegistry } from './../../src/tx-routepoint-registry';
 import { TxTask } from '../../src/tx-task';
 import Application from './route-application';
 
-TxRoutePointRegistry.instance.setApplication(Application.instance);
+TxRoutePointRegistry.instance.setApplication(Application.instance.express);
 
 new R1Component();
 

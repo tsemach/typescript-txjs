@@ -5,7 +5,7 @@
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -sourcemap --declaration",
     "test": "tsc; nyc mocha dist/tests/**/*.spec.js",
     "ts-test": "mocha -r ts-node/register src/**/test.ts"
   },

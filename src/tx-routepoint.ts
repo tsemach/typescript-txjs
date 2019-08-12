@@ -9,26 +9,20 @@ export class TxRoutePoint implements TxMountPoint {
   protected config: TxRouteServiceConfig;
 
   private _tasks: TxRouteServiceExpress<any, any>;
-  private _reply: TxRouteServiceExpress<any, any>;  
+  //private _undos: TxRouteServiceExpress<any, any>;  
   
   constructor(private _name: string | Symbol, config: TxRouteServiceConfig) {    
-    // const application = TxRoutePointRegistry.instance.getApplication();
-
-    // if (config && config.method.toLowerCase() === 'get') {
-    //   this._tasks = new TxRouteServiceExpressGet<any, any>(application, config);
-    //   this._reply = new TxRouteServiceExpressGet<any, any>(application, config);
-    // }
     this.init(config);
   }
 
   init(config: TxRouteServiceConfig) {
     this.config = config;
-    
+
     const application = TxRoutePointRegistry.instance.getApplication();
 
     if (config && config.method.toLowerCase() === 'get') {
       this._tasks = new TxRouteServiceExpressGet<any, any>(application, config);
-      this._reply = new TxRouteServiceExpressGet<any, any>(application, config);
+      // this._undos = new TxRouteServiceExpressGet<any, any>(application, config);
     }
   }
 
@@ -44,11 +38,13 @@ export class TxRoutePoint implements TxMountPoint {
   }
 
   reply() {
-    return this._reply;
+    //return this._reply;
+    throw new Error("reply is not allow on TxRoutePoint");
   }
   
   undos() {
     throw new Error("Method not implemented.");
+    //this._undos;
   }
 
 }

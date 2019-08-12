@@ -31,12 +31,16 @@ function clientSubscribeServiceGet() {
 }
 
 async function clientRoutePoint() {
+  console.log("[clientRoutePoint] called ..")
   // this two line is done nternaly by the publication service
   config.mode = 'client';
+  console.log("going to create");
   TxRoutePointRegistry.instance.create('GITHUB::R1', config)
   //-----------------------------------------------------------
 
-  const routepoint = TxRoutePointRegistry.instance.create('GITHUB::R1', config);
+  console.log("going to get");
+  const routepoint = TxRoutePointRegistry.instance.get('GITHUB::R1');
+  console.log("routepoint=", JSON.stringify(routepoint));
   const reply = routepoint.tasks().next(new TxRouteServiceTask<any>({source: 'back-client-main'}, {from: 'clientRoutePoint'}));
 
   console.log('[backend-client-main] reply: ', JSON.stringify(reply, undefined, 2));  
@@ -64,6 +68,7 @@ async function sendAndSubscribeServiceGet() {
 }
 
 const port = process.env.PORT || 3101;
+TxRoutePointRegistry.instance.setApplication(Application.instance.app)
 
 Application.instance.listen('localhost', +port, () => {
   console.log(`[BackendApplication::listen] Listening at http://localhost:${port}/`);

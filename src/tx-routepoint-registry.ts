@@ -2,20 +2,28 @@
 import createLogger from 'logging';
 const logger = createLogger('RoutePointRegistry');
 
+import * as express from 'express';
+
 import { TxRoutePoint } from "./tx-routepoint";
 import { TxMountPointRegistry } from './tx-mountpoint-registry';
 import { TxRouteServiceConfig } from './tx-route-service-config';
 import { TxRouteApplication } from './tx-route-application';
+import { TxPublisher } from './tx-publisher';
 
 export class TxRoutePointRegistry<K extends string | Symbol> {
   private static _instance: TxRoutePointRegistry<string | Symbol>;
   private _application: TxRouteApplication;
+  private _publisher: TxPublisher;
 
   private constructor() {
   }
 
   public static get instance() {
     return this._instance || (this._instance = new this());
+  }
+
+  get(name: string | Symbol) {
+    return TxMountPointRegistry.instance.get(name);
   }
 
   // if call directly from client then config.mode === 'client'
@@ -45,8 +53,13 @@ export class TxRoutePointRegistry<K extends string | Symbol> {
     if (config) {
       config.mode = 'server';
     }
+    
+    const routepoint = this.create(name, config);
+    if (this._publisher) {
+      this._publisher.publish(name.toString(), config);
+    }
 
-    return this.create(name, config);
+    return routepoint;
     // const rp = new TxRoutePoint(name, config);
 
     // if (typeof name === 'string') {
@@ -66,11 +79,16 @@ export class TxRoutePointRegistry<K extends string | Symbol> {
   }
 
   // setApplication(_application: TxRouteApplication) {
-  setApplication(app: Express.Application) {    
+  setApplication(app: express.Application) {    
     this._application = new TxRouteApplication(app);
   }
 
   getApplication() {
     return this._application;
   }
+
+  setPublisher(_publisher: TxPublisher) {
+    this._publisher = _publisher;
+  }
+
 }
