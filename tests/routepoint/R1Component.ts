@@ -13,8 +13,8 @@ export class R1Component {
       host: 'localhost',
       port: 3001,
       method: 'get',
-      service: 'sanity',
-      route: 'save'
+      service: 'component',
+      route: 'read'
     };
     this.routepoint = TxRoutePointRegistry.instance.route('GITHUB::R1', config);
     
@@ -23,19 +23,19 @@ export class R1Component {
       logger.info('[R1Component::subscribe] got data from service: task = ' + JSON.stringify(task.get(), undefined, 2))        
       
       task.reply().next(new TxRouteServiceTask<any>({
-          headers: {
-            source: 'R1Component',
-            token: '123456780ABCDEF'
-          },
-          response: {
-            status: 200,
-            type: 'json'
-          }},
-          {
+        headers: {
+          source: 'R1Component-server',
+          token: 'FEDCBA0987654321'
+        },
+        response: {
+          status: 200,
+          type: 'json'
+        }},
+        {
           source: 'R1Component', status: "ok"
-        }
+        } 
       ));      
-    });      
+    });
   }
 
 }

@@ -9,6 +9,7 @@ import { TxMountPointRegistry } from './tx-mountpoint-registry';
 import { TxRouteServiceConfig } from './tx-route-service-config';
 import { TxRouteApplication } from './tx-route-application';
 import { TxPublisher } from './tx-publisher';
+import { TxRoutpointIndicator } from './tx-routepint-indicator';
 
 export class TxRoutePointRegistry<K extends string | Symbol> {
   private static _instance: TxRoutePointRegistry<string | Symbol>;
@@ -22,8 +23,23 @@ export class TxRoutePointRegistry<K extends string | Symbol> {
     return this._instance || (this._instance = new this());
   }
 
-  get(name: string | Symbol) {
-    return TxMountPointRegistry.instance.get(name);
+  async get(name: string | Symbol) {    
+    try {
+      return TxMountPointRegistry.instance.get(name);
+    }
+    catch (e) {
+      if (e.name === 'TxMountPointNotFoundException' && this._publisher) {
+        // routepoint is not found in my registry try invoke the publisher
+        // to search on other services.
+        const indicator: TxRoutpointIndicator = await this._publisher.discover(name);
+        if (indicator && indicator.config) {
+          const rp = this.create(indicator.name, indicator.config);
+
+          return rp;
+        }
+      }
+      throw e;
+    }
   }
 
   // if call directly from client then config.mode === 'client'
@@ -76,6 +92,10 @@ export class TxRoutePointRegistry<K extends string | Symbol> {
     // TxMountPointRegistry.instance.add(name, rp, 'TxRoutePointRegistry');
     
     // return rp;
+  }
+
+  has(name: string | Symbol) {
+    return TxMountPointRegistry.instance.has(name);
   }
 
   // setApplication(_application: TxRouteApplication) {

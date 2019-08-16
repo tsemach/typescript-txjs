@@ -1,5 +1,6 @@
 //import logger = require('logging');
 import createLogger from 'logging'; 
+import { TxMountPointNotFoundException } from './tx-mountpoint-exception';
 const logger = createLogger('Regsitry');
 
 /**
@@ -59,7 +60,8 @@ export class TxRegistry<T, K extends string | Symbol> {
     }
 
     if ( ! this.objects.has(name) ) {
-      throw ReferenceError(`${_prefix}[TxRegistry:get] object '${name.toString()}' is not exist in the registry`);
+      //throw ReferenceError(`${_prefix}[TxRegistry:get] object '${name.toString()}' is not exist in the registry`);
+      throw new TxMountPointNotFoundException(`${_prefix}[TxRegistry:get] object '${name.toString()}' is not exist in the registry`);
     }
     return this.objects.get(name);    
   }

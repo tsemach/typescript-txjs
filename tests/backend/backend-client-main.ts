@@ -39,7 +39,7 @@ async function clientRoutePoint() {
   //-----------------------------------------------------------
 
   console.log("going to get");
-  const routepoint = TxRoutePointRegistry.instance.get('GITHUB::R1');
+  const routepoint = await TxRoutePointRegistry.instance.get('GITHUB::R1');
   console.log("routepoint=", JSON.stringify(routepoint));
   const reply = routepoint.tasks().next(new TxRouteServiceTask<any>({source: 'back-client-main'}, {from: 'clientRoutePoint'}));
 

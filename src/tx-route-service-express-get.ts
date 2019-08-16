@@ -26,11 +26,16 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
    * @param config is the rooutepoint config object as user define on TxRoutePointRegistry.instance.route(..)
    */
   public add(config: TxRouteServiceConfig): express.Router {
+    if (config.mode === 'client') {
+      logger.info('[TxRouteServiceExpressGet::get] client side no need to register in the express application');
+
+      return;
+    }
     let router = express.Router();
 
     logger.info('[TxRouteServiceExpressGet::get] add is called, config.route = ', config.service + '/' + config.route);``
     router.get('/' + config.route, (req, res, next) => {
-      logger.info(`[TxRouteServiceExpressGet] GET:${config.service+'/'+config.route} query:${JSON.stringify(req.query, undefined, 2)}`);
+      logger.info(`[TxRouteServiceExpressGet] GET:${config.service+'/'+config.route} query: ${JSON.stringify(req.query, undefined, 2)}`);
 
       const task = 
         new TxRouteServiceTask<TxRouteHeaders>(req.headers, req.query)
@@ -68,7 +73,7 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
    * @param task a task from subscriber need to reply it back client using response
    */
   send(from: TxRouteServiceTask<any>, task: TxRouteServiceTask<any>) {
-    console.log('[TxRouteServiceExpressGet::send] is called, task = ', JSON.stringify(task.get(), undefined, 2));
+    logger.info('[TxRouteServiceExpressGet::send] is called, task = ', JSON.stringify(task.get(), undefined, 2));
     
     let head = task.getHead();
     if (head) {
@@ -92,7 +97,7 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
    * @param task - tast need to send to service
    */
   async next(task: TxTask<any>) {
-    console.log('[TxRouteServiceExpressGet::next] is called, task = ', JSON.stringify(task.get(), undefined, 2));      
+    logger.info('[TxRouteServiceExpressGet::next] is called, task = ', JSON.stringify(task.get(), undefined, 2));      
 
     let options = {
       method: this.config.method,
@@ -107,19 +112,8 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
       .set('query', task.getData())
       .toString();
 
-    console.log(":UUUUUUUUUUUUUUUU : ", url.toString());
-
-    // const url = this.buildUrl('http://localhost:3100/sanity/save', task);
-
-    console.log("[TxRouteServiceExpressGet::next] NEXT: OPTION + " + JSON.stringify(options, undefined, 2));
-    console.log("[TxRouteServiceExpressGet::next] NEXT: URL + " + url);  
-  
+    logger.info(`[TxRouteServiceExpressGet::next] call with options: ${JSON.stringify(options, undefined, 2)}, url: ${url}`);      
     const reply = await axios.get(url, options);
-
-    console.log("[TxRouteServiceExpressGet::next] NEXT: REPLY = " + JSON.stringify(reply.data, undefined, 2));
-    // console.log("[TxRouteServiceExpressGet::next] NEXT: REPLY = " + JSON.stringify(new TxRouteServiceTask<any>(reply.data.head, reply.data.data).get(), undefined, 2));
-
-    //this.callbacks.next(new TxRouteServiceTask<any>(reply.data.head, reply.data.data));
 
     return reply;
   }
@@ -133,8 +127,7 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
     const { data } = task.get();
 
     let first = true;
-    for (let name in data) {
-      console.log(`${name}: ${data[name]}`);      
+    for (let name in data) {      
       if (name === undefined || data[name] === undefined) {
           continue;
       }
@@ -150,15 +143,6 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
     return base;
   }
 
-  // async next(data: TxRouteServiceTask<any>) {
-  //   let options = {
-  //     method: this.config.method,
-  //     //headers: data.getHead().headers,      
-  //   };
-  //   console.log("[TxRouteServiceExpressGet::next] NEXT: OPTION + " + JSON.stringify(options, undefined, 2));
-  
-  //   await axios.get('http://localhost:3100/sanity/save', options);
-  // }  
 }
 
 export default TxRouteServiceExpressGet;

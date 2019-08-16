@@ -47,6 +47,9 @@ export class TxRoutePoint implements TxMountPoint {
     //this._undos;
   }
 
+  getConfig() {
+    return this.config;
+  }
 }
 
 // import { injectable, inject } from "inversify";

@@ -1,21 +1,21 @@
 import createLogger from 'logging';
-const logger = createLogger('RouteApplication');
+const logger = createLogger('RouteClientApplication');
 
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 
-import { TxRouteService } from '../../src/tx-route-service';
-import { TxRouteServiceConfig  } from '../../src/tx-route-service-config';
-import { TxRouteApplication } from '../../src/tx-route-application';
+import { TxRouteService } from '../../../src/tx-route-service';
+import { TxRouteServiceConfig  } from '../../../src/tx-route-service-config';
+import { TxRouteApplication } from '../../../src/tx-route-application';
 
-class RouteApplication {  
-  private static _instance: RouteApplication = null;
-  public express: express.Application;
+class RouteClientApplication {  
+  private static _instance: RouteClientApplication = null;
+  public app: express.Application;
   
   constructor() { 
-    logger.info("[RouteApplication::construcot] is called")
-    this.express = express();
+    logger.info("[RouteClientApplication::construcot] is called")
+    this.app = express();
     this.middleware();    
   }
 
@@ -26,9 +26,9 @@ class RouteApplication {
   // configure express middleware.
   private middleware(): void {
     //this.express.use(logger);
-    this.express.use(cors());
-    this.express.use(bodyParser.json());
-    this.express.use(bodyParser.urlencoded({extended: false}));
+    this.app.use(cors());
+    this.app.use(bodyParser.json());
+    this.app.use(bodyParser.urlencoded({extended: false}));
   }
 
   /**
@@ -37,24 +37,24 @@ class RouteApplication {
    * @param config - service configuration need to return to add call
    */
   register(where: string, service: TxRouteService, config: TxRouteServiceConfig) {
-    logger.info("[RouteApplication:register] going to add service path on:" + where);
-    this.express.use(where, service.add(config));
+    logger.info("[RouteClientApplication:register] going to add service path on:" + where);
+    this.app.use(where, service.add(config));
   }
 
   listen(host: string, port: number, callback = () => {
       // default callback
-      logger.info(`[RouteApplication::listen] Listening at http://${host}:${port}/`);
+      logger.info(`[RouteClientApplication::listen] Listening at http://${host}:${port}/`);
     })
   {    
-    this.express.listen(port, callback);
+    return this.app.listen(port, callback);
   }
 
   close() {
-    (<any>this.express).close();
+    (<any>this.app).close();
   }
 }
 
-export default RouteApplication;
+export default RouteClientApplication;
 
 //export default // let application = new Application();
 
