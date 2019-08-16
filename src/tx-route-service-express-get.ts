@@ -17,7 +17,9 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
 
   constructor(application: TxRouteApplication, config: TxRouteServiceConfig) {
     super(config)
-    application.register('/' + config.service, this, config);
+    if (config.mode === 'server') {    
+      application.register('/' + config.service, this, config);
+    }
   }
 
   /**
@@ -27,9 +29,7 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
    */
   public add(config: TxRouteServiceConfig): express.Router {
     if (config.mode === 'client') {
-      logger.info('[TxRouteServiceExpressGet::get] client side no need to register in the express application');
-
-      return;
+      throw Error(`client side can't register on express application, name: ${JSON.stringify(config)}`);
     }
     let router = express.Router();
 
