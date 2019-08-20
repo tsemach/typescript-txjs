@@ -2,14 +2,14 @@
 import createLogger from 'logging'; 
 const logger = createLogger('TxMonitorServerComponent');
 
-import { TxMountPointRxJSRegistry } from './tx-mountpointrxjs-registry';
+import { TxMountPointRegistry } from './tx-mountpoint-registry';
 import { TxTask } from './tx-task';
 import { TxMonitorServerTaskHeader } from "./tx-monitor-server-task-header";
 import { TxMonitorServerApplication } from "./tx-monitor-server-application";
 import TxMonitorServerService from './tx-monitor-server-service';
 
 export class TxMonitorServerComponent {
-  private mountpoint = TxMountPointRxJSRegistry.instance.create('RX-TXJS::MONITOR::SERVER');
+  private mountpoint = TxMountPointRegistry.instance.create('RX-TXJS::MONITOR::SERVER');
 
   constructor() {
     logger.info("TxMonitorServerComponent:con't is called, no need to subscribe, the method will take care of it");

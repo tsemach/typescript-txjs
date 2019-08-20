@@ -9,7 +9,6 @@ const uuid = short();
 import { TxTask } from "./tx-task";
 import { Subject } from 'rxjs';
 import { TxMountPoint } from './tx-mountpoint';
-import { TxMountPointRxJSRegistry } from './tx-mountpointrxjs-registry';
 import { TxSinglePointRegistry } from './tx-singlepoint-registry';
 import { TxJobRegistry } from './tx-job-resgitry';
 import { TxJobJSON } from "./tx-job-json";
@@ -625,7 +624,7 @@ export class TxJob {
     if (this.options.execute.notify.from !== TxJobRegistry.instance.getServiceName()) {
       return;
     }  
-    let mp = TxMountPointRxJSRegistry.instance.get(this.options.execute.notify.name);
+    let mp = TxMountPointRegistry.instance.get(this.options.execute.notify.name);
 
     if (this.error) {        
       mp.reply().error(data);

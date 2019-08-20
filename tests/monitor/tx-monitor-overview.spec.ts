@@ -12,7 +12,7 @@ import waitOn = require('wait-on');
 
 import { TxJob } from '../../src';
 import { TxTask } from '../../src';
-import { TxMountPointRxJSRegistry } from '../../src/tx-mountpointrxjs-registry';
+import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
 import { TxJobRegistry } from './../../src/tx-job-resgitry';
 import { TxJobServicesComponent } from '../../src/tx-job-services-component';
 import { TxQueuePointRegistry } from '../../src/tx-queuepoint-registry'
@@ -35,24 +35,24 @@ new TxJobServicesComponent().init();
 
 let registry = TxJobRegistry.instance;
 
-TxMountPointRxJSRegistry.instance.create('GITHUB::APIS::C1');
-TxMountPointRxJSRegistry.instance.create('GITHUB::APIS::C2');
-TxMountPointRxJSRegistry.instance.create('GITHUB::APIS::C3');
-TxMountPointRxJSRegistry.instance.create('GITHUB::GIST::C3');
-TxMountPointRxJSRegistry.instance.create('GITHUB::GIST::C4');
+TxMountPointRegistry.instance.create('GITHUB::APIS::C1');
+TxMountPointRegistry.instance.create('GITHUB::APIS::C2');
+TxMountPointRegistry.instance.create('GITHUB::APIS::C3');
+TxMountPointRegistry.instance.create('GITHUB::GIST::C3');
+TxMountPointRegistry.instance.create('GITHUB::GIST::C4');
 
 let job1 = new TxJob('Job-1');
 
-job1.add(TxMountPointRxJSRegistry.instance.get('GITHUB::GIST::C1'));
-job1.add(TxMountPointRxJSRegistry.instance.get('GITHUB::GIST::C2'));
-job1.add(TxMountPointRxJSRegistry.instance.get('GITHUB::GIST::C3'));
-job1.add(TxMountPointRxJSRegistry.instance.get('GITHUB::GIST::C4'));
+job1.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C1'));
+job1.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C2'));
+job1.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C3'));
+job1.add(TxMountPointRegistry.instance.get('GITHUB::GIST::C4'));
 
 let job2 = new TxJob('Job-2');
 
-job2.add(TxMountPointRxJSRegistry.instance.get('GITHUB::APIS::C1'));
-job2.add(TxMountPointRxJSRegistry.instance.get('GITHUB::APIS::C2'));
-job2.add(TxMountPointRxJSRegistry.instance.get('GITHUB::APIS::C3'));
+job2.add(TxMountPointRegistry.instance.get('GITHUB::APIS::C1'));
+job2.add(TxMountPointRegistry.instance.get('GITHUB::APIS::C2'));
+job2.add(TxMountPointRegistry.instance.get('GITHUB::APIS::C3'));
 
 let overview = {
   "name": "github",

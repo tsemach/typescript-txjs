@@ -32,7 +32,6 @@ export * from './tx-monitor';
 export * from './tx-mountpoint-exception';
 export * from './tx-mountpoint-name';
 export * from './tx-mountpoint-registry';
-export * from './tx-mountpointrxjs-registry';
 export * from './tx-mountpoint-rxjs';
 export * from './tx-mountpoint';
 export * from './tx-multipoint-registry';

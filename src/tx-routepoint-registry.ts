@@ -98,6 +98,10 @@ export class TxRoutePointRegistry<K extends string | Symbol> {
     return TxMountPointRegistry.instance.has(name);
   }
 
+  del(name: string | Symbol) {      
+    return TxMountPointRegistry.instance.del(name);
+  }
+
   // setApplication(_application: TxRouteApplication) {
   setApplication(app: express.Application) {    
     this._application = new TxRouteApplication(app);

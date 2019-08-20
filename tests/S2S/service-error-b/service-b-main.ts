@@ -1,7 +1,7 @@
 import createLogger from 'logging';
 const logger = createLogger('service-error-b:main');
 
-import { TxMountPointRxJSRegistry, TxJobRegistry } from '../../../src/';
+import { TxMountPointRegistry, TxJobRegistry } from '../../../src/';
 import { TxJobServicesComponent } from '../../../src/tx-job-services-component';
 
 import { E3Component } from '../components/E3.component';

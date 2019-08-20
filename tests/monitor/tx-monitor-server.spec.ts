@@ -11,7 +11,7 @@ import waitOn = require('wait-on');
 
 import { TxTask } from '../../src';
 import TxMonitor from '../../src/tx-monitor';
-import { TxMountPointRxJSRegistry } from '../../src/tx-mountpointrxjs-registry';
+import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
 import { TxMonitorServerTaskHeader } from '../../src/tx-monitor-server-task-header';
 
 import './monitor-client.component';
@@ -28,7 +28,7 @@ describe('tx-monitor-server.spec.ts: Monitor Server Tests', () => {
     logger.info('[monitor.spec] going to test monitor built in server on localhost:' + port + ' ...');
     logger.info('');
 
-    let mp = TxMountPointRxJSRegistry.instance.get('RX-TXJS::MONITOR::SERVER');
+    let mp = TxMountPointRegistry.instance.get('RX-TXJS::MONITOR::SERVER');
 
     const mpReplySubscribe = mp.reply().subscribe(async (task) => {
       if (task.head.method !== 'start') {
@@ -70,7 +70,7 @@ describe('tx-monitor-server.spec.ts: Monitor Server Tests', () => {
     logger.info('[tx-monitor-server.spec.ts] going to test closing monitor built in server on localhost:3002 ..');
     logger.info('');
 
-    let mp = TxMountPointRxJSRegistry.instance.get('RX-TXJS::MONITOR::SERVER');
+    let mp = TxMountPointRegistry.instance.get('RX-TXJS::MONITOR::SERVER');
 
     mp.reply().subscribe(async (task) => {
       if (task.head.method !== 'close') {      

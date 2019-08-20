@@ -8,11 +8,10 @@ import { TxSinglePoint } from './tx-singlepoint';
 import { TxDoublePoint } from './tx-doublepoint';
 import { TxMountPointRegistry } from './tx-mountpoint-registry';
 
-export class TxSinglePointRegistry extends TxRegistry<TxMountPoint, string | Symbol> {
+export class TxSinglePointRegistry {
   private static _instance: TxSinglePointRegistry;
   
   private constructor() {
-    super();
   }
 
   public static get instance() {
@@ -27,34 +26,41 @@ export class TxSinglePointRegistry extends TxRegistry<TxMountPoint, string | Sym
         return sp;
       }
 
-      if (this.has(name)) {
+      if (TxMountPointRegistry.instance.has(name)) {
         throw Error('already got singlepoint under the name ' + name.toString());
       }
 
-      // until all *PointRegistry will save their mountpoint with in TxMountRegistry.
-      TxMountPointRegistry.instance.add(name, sp, 'TxSinglePointRegistry');
-
-      return <TxMountPoint>this.add(name, sp, 'TxSinglePointRegistry');
+      return <TxMountPoint>TxMountPointRegistry.instance.add(name, sp, 'TxSinglePointRegistry');
     }
 
     if (name === undefined) {
       return sp;
     }
 
-    if (this.has(name)) {
+    if (TxMountPointRegistry.instance.has(name)) {
       throw Error('already got singlepoint under the name ' + name.toString());
     }
 
-    // until all *PointRegistry will save their mountpoint with in TxMountRegistry.
     TxMountPointRegistry.instance.add(name, sp, 'TxSinglePointRegistry');
 
-    return <TxMountPoint>this.add(name, sp, 'TxSinglePointRegistry');
+    return <TxMountPoint>TxMountPointRegistry.instance.add(name, sp, 'TxSinglePointRegistry');
   }  
 
+  get(name: string | Symbol) {    
+    return TxMountPointRegistry.instance.get(name);
+  }
+
+  has(name: string | Symbol) {
+    return TxMountPointRegistry.instance.has(name);
+  }
+
+  del(name: string | Symbol) {      
+    return TxMountPointRegistry.instance.del(name);
+  }
   double(name: string | Symbol, suffix = '') {
     logger.info(`[TxRegistry:get] getting object ${name.toString()}`);    
 
-    return new TxDoublePoint(this.get(name), 'TxSinglePointRegistry');
+    return new TxDoublePoint(TxMountPointRegistry.instance.get(name), 'TxSinglePointRegistry');
   }
     
 }

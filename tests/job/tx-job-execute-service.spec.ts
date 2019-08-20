@@ -5,7 +5,7 @@ import 'mocha';
 import { expect } from 'chai';
 import { assert } from 'chai';
 
-import { TxMountPointRxJSRegistry } from '../../src/tx-mountpointrxjs-registry';
+import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
 import { TxJobExecutionOptions } from "../../src/tx-job-execution-options";
 import { TxTask } from '../../src/tx-task';
 import { TxJob } from '../../src/tx-job';
@@ -29,13 +29,13 @@ import * as short from 'short-uuid';
 
 describe('S2S: Job With Service', () => {
 
-  TxMountPointRxJSRegistry.instance.create('GITHUB::GIST::A1');
-  TxMountPointRxJSRegistry.instance.create('GITHUB::GIST::A2');
-  TxMountPointRxJSRegistry.instance.create('GITHUB::GIST::A3');
+  TxMountPointRegistry.instance.create('GITHUB::GIST::A1');
+  TxMountPointRegistry.instance.create('GITHUB::GIST::A2');
+  TxMountPointRegistry.instance.create('GITHUB::GIST::A3');
 
-  TxMountPointRxJSRegistry.instance.create('GITHUB::GIST::B1');
-  TxMountPointRxJSRegistry.instance.create('GITHUB::GIST::B2');
-  TxMountPointRxJSRegistry.instance.create('GITHUB::GIST::B3');
+  TxMountPointRegistry.instance.create('GITHUB::GIST::B1');
+  TxMountPointRegistry.instance.create('GITHUB::GIST::B2');
+  TxMountPointRegistry.instance.create('GITHUB::GIST::B3');
 
   // TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
   // TxMountPointRegistry.instance.create('GITHUB::GIST::C2');
