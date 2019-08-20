@@ -58,6 +58,8 @@ export * from './tx-route-service';
 export * from './tx-singlepoint-registry';
 export * from './tx-singlepoint-rxjs';
 export * from './tx-singlepoint';
+export * from './tx-subject-options';
+export * from './tx-subject';
 export * from './tx-subscribe-options';
 export * from './tx-subscribe';
 export * from './tx-task';

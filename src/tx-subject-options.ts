@@ -3,8 +3,8 @@ export interface TxSubjectOptions {
   goto?: string;
 }
 
-const defaultSubscribeOptions: TxSubjectOptions = {
+const defaultSubjectOptions: TxSubjectOptions = {
   goto: null,   // select a mountpoint from a selected group (multipoint)  
 } as TxSubjectOptions;
 
-export { defaultSubscribeOptions }; 
+export { defaultSubjectOptions }; 
