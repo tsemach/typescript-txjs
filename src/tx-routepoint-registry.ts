@@ -10,36 +10,35 @@ import { TxRouteServiceConfig } from './tx-route-service-config';
 import { TxRouteApplication } from './tx-route-application';
 import { TxPublisher } from './tx-publisher';
 import { TxRoutpointIndicator } from './tx-routepint-indicator';
+import { TxMountPointNotFoundException } from './tx-mountpoint-exception';
 
 export class TxRoutePointRegistry<K extends string | Symbol> {
   private static _instance: TxRoutePointRegistry<string | Symbol>;
   private _application: TxRouteApplication;
   private _publisher: TxPublisher;
+  private cname: string;
 
   private constructor() {
+    this.cname = this.constructor.name;
   }
 
   public static get instance() {
     return this._instance || (this._instance = new this());
   }
 
-  async get(name: string | Symbol) {    
-    try {
+  async get(name: string | Symbol) {        
+    if (TxMountPointRegistry.instance.has(name)) {
       return TxMountPointRegistry.instance.get(name);
     }
-    catch (e) {
-      if (e.name === 'TxMountPointNotFoundException' && this._publisher) {
-        // routepoint is not found in my registry try invoke the publisher
-        // to search on other services.
-        const indicator: TxRoutpointIndicator = await this._publisher.discover(name);
-        if (indicator && indicator.config) {
-          const rp = this.create(indicator.name, indicator.config);
+    // routepoint is not found in my registry try invoke the publisher
+    // to search on other services.
+    const indicator: TxRoutpointIndicator = await this._publisher.discover(name);
+    if (indicator && indicator.config) {
+      const rp = this.create(indicator.name, indicator.config);
 
-          return rp;
-        }
-      }
-      throw e;
+      return rp;
     }
+    throw new TxMountPointNotFoundException(`[${this.cname}:get] object '${name.toString()}' is not exist in the registry`);
   }
 
   // if call directly from client then config.mode === 'client'
@@ -101,8 +100,7 @@ export class TxRoutePointRegistry<K extends string | Symbol> {
   del(name: string | Symbol) {      
     return TxMountPointRegistry.instance.del(name);
   }
-
-  // setApplication(_application: TxRouteApplication) {
+  
   setApplication(app: express.Application) {    
     this._application = new TxRouteApplication(app);
   }
