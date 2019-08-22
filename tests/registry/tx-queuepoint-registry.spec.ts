@@ -14,7 +14,7 @@ import * as uuid from 'uuid/v4';
 import {injectable} from "inversify";
 import "reflect-metadata";
 
-import { TxMountPointRxJSRegistry } from '../../src/tx-mountpointrxjs-registry';
+import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
 import { TxQueuePointRegistry } from '../../src/';
 import { TxConnector } from "../../src/";
 import { TxConnectorRabbitMQ } from "../connectors/connector-rabbitmq-empty"
@@ -100,8 +100,8 @@ describe('Registry Classes - TxMountPointRegitry', () => {
     logger.info('translator.fromUUID = ' + translator.fromUUID('08690cfa-95df-4c76-aa3b-fb715830d6e4'));
     logger.info('translator.fromUUID = ' + short().new());
     
-    let MP1 = TxMountPointRxJSRegistry.instance.create('WORK::C1');
-    let MP2 = TxMountPointRxJSRegistry.instance.get('WORK::C1');
+    let MP1 = TxMountPointRegistry.instance.create('WORK::C1');
+    let MP2 = TxMountPointRegistry.instance.get('WORK::C1');
 
      expect(MP1.name).to.equal('WORK::C1');
      expect(MP2.name).to.equal('WORK::C1');

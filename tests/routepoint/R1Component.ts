@@ -1,28 +1,41 @@
 import createLogger from 'logging';
 const logger = createLogger('R1Component');
 
-import { TxRoutePoint, TxTask } from '../../src';
+import { TxMountPoint } from '../../src/tx-mountpoint';
 import { TxRoutePointRegistry } from '../../src/tx-routepoint-registry';
+import { TxRouteServiceTask } from '../../src/tx-route-service-task';
 
 export class R1Component {
-  private routepoint: TxRoutePoint;
+  private routepoint: TxMountPoint;
   
   constructor() {
-    this.routepoint = TxRoutePointRegistry.instance.create('GITHUB::R1')    
+    const config = {
+      host: 'localhost',
+      port: 3001,
+      method: 'get',
+      service: 'component',
+      route: 'read'
+    };
+    this.routepoint = TxRoutePointRegistry.instance.route('GITHUB::R1', config);
     
-    this.routepoint.listen('localhost:3001', '/test1').subscribe(
-      (task) => {
-        logger.info('[subscribe] got data from service: task = ' + JSON.stringify(task.get(), undefined, 2))        
-
-        let host = 'localhost:'+task.head.port
-        let path = task.head.path
-
-        console.log(`R1Component:subscribe going to send to ${host} path ${path}`)
-
-        this.routepoint.next(host, path, new TxTask<any>({from: 'localhost:3001:/test2'}, 'this is the data send from remote server R1 to localhost'))
-        this.routepoint.close()
-      }
-    )
+    this.routepoint.tasks().subscribe(
+    (task: TxRouteServiceTask<any>) => {
+      logger.info('[R1Component::subscribe] got data from service: task = ' + JSON.stringify(task.get(), undefined, 2))        
+      
+      task.reply().next(new TxRouteServiceTask<any>({
+        headers: {
+          source: 'R1Component-server',
+          token: 'FEDCBA0987654321'
+        },
+        response: {
+          status: 200,
+          type: 'json'
+        }},
+        {
+          source: 'R1Component', status: "ok"
+        } 
+      ));      
+    });
   }
 
 }

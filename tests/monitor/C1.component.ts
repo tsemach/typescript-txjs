@@ -1,12 +1,12 @@
 import createLogger from 'logging'; 
 const logger = createLogger('C1');
 
-import { TxMountPointRxJSRegistry } from '../../src/tx-mountpointrxjs-registry';
+import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
 import { TxMountPoint } from '../../src/tx-mountpoint';
 import { TxTask } from '../../src/tx-task';
 
 export class C1Component {
-  mountpoint = TxMountPointRxJSRegistry.instance.create('GITHUB::GIST::C1');
+  mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
 
   method = '';
   reply: any;

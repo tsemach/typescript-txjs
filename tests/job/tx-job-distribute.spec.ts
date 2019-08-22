@@ -8,7 +8,7 @@ import { assert } from 'chai';
 import * as sinon from 'sinon';
 
 import { TxSinglePointRegistry } from '../../src/tx-singlepoint-registry';
-import { TxMountPointRxJSRegistry } from './../../src/tx-mountpointrxjs-registry';
+import { TxMountPointRegistry } from './../../src/tx-mountpoint-registry';
 import { TxJobExecutionOptions } from "../../src/tx-job-execution-options";
 import { TxTask } from '../../src/tx-task';
 import { TxJob } from '../../src/tx-job';
@@ -41,7 +41,7 @@ class TxDistributeBull implements TxDistribute {
 
   bypass(data: {from: TxDistributeSourceType, type: TxDistributeType, task: any, options: TxJobExecutionOptions}) {    
     logger.info(`[TxDistributeBull::byoass] job process callback  from '${JSON.stringify(data, undefined, 2)}`)
-    TxMountPointRxJSRegistry
+    TxMountPointRegistry
       .instance
       .get(TxNames.RX_TXJS_DISTRIBUTE_COMPONENT)
       .tasks()

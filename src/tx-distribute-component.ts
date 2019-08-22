@@ -3,7 +3,7 @@ const logger = createLogger('TxDistributeComponent');
 
 import { TxJob } from './tx-job';
 import { TxNames } from './tx-names';
-import { TxMountPointRxJSRegistry } from './tx-mountpointrxjs-registry';
+import { TxMountPointRegistry } from './tx-mountpoint-registry';
 import { TxTask } from './tx-task';
 import { TxDistributeComponentHead } from './tx-distribute-component-head';
 
@@ -11,7 +11,7 @@ import { TxDistributeComponentHead } from './tx-distribute-component-head';
  * TxDistributeComponent - 
  */
 export class TxDistributeComponent {
-  private mp = TxMountPointRxJSRegistry.instance.create(TxNames.RX_TXJS_DISTRIBUTE_COMPONENT);
+  private mp = TxMountPointRegistry.instance.create(TxNames.RX_TXJS_DISTRIBUTE_COMPONENT);
 
   constructor() {     
     this.mp.tasks().method('run', this);

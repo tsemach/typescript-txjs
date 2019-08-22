@@ -2,7 +2,7 @@ import createLogger from 'logging';
 const logger = createLogger('service-a:main');
 //const { fork } = require('child_process');
 
-import { TxMountPointRxJSRegistry, TxJobRegistry, TxQueuePointRegistry } from '../../../src';
+import { TxMountPointRegistry, TxJobRegistry, TxQueuePointRegistry } from '../../../src';
 import { TxJobServicesComponent } from '../../../src/tx-job-services-component';
 
 import { A3Component } from '../components/A3.component';
@@ -26,7 +26,7 @@ new A3Component();
 async function run() {
   await new TxJobServicesComponent().init();  
 
-  let mp = TxMountPointRxJSRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
+  let mp = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
   mp.reply().subscribe(
     (data) => {
       //logger.info("run: status of TxJobServicesComponent: " + data.head);

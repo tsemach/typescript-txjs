@@ -1,11 +1,11 @@
 {
   "name": "rx-txjs",
-  "version": "0.2.21",
+  "version": "0.3.0",
   "description": "An applicaiton execution model using RxJS",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -sourcemap --declaration",
     "test": "tsc; nyc mocha dist/tests/**/*.spec.js",
     "ts-test": "mocha -r ts-node/register src/**/test.ts"
   },
@@ -48,6 +48,7 @@
     "@types/request-promise": "^4.1.42",
     "@types/request-promise-native": "^1.0.15",
     "assert": "^1.4.1",
+    "axios": "^0.18.0",
     "bull": "^3.7.0",
     "chai-http": "^4.2.0",
     "child_process": "^1.0.2",
@@ -68,6 +69,7 @@
     "short-uuid": "^3.0.0",
     "typescript": "^3.0.3",
     "typescript-rabbitmq": "0.0.8",
+    "url-parse": "^1.4.7",
     "validator": "^10.7.1",
     "wait-on": "^3.1.0"
   },

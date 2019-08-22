@@ -4,7 +4,7 @@ const logger = createLogger('Job-Decorator-Test');
 import 'mocha';
 import {expect} from 'chai';
 
-import {TxMountPointRxJSRegistry} from '../../src/tx-mountpointrxjs-registry';
+import {TxMountPointRegistry} from '../../src/tx-mountpoint-registry';
 import {TxTask} from '../../src/tx-task';
 import {TxJob} from '../../src/tx-job';
 
@@ -28,8 +28,8 @@ describe('Component Decorator Class', () => {
     
     let job = new TxJob('Job-1'); // or create througth the TxJobRegistry
 
-    job.add(TxMountPointRxJSRegistry.instance.get('GITHUB::GIST::D1'));
-    job.add(TxMountPointRxJSRegistry.instance.get('GITHUB::GIST::D2'));
+    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::D1'));
+    job.add(TxMountPointRegistry.instance.get('GITHUB::GIST::D2'));
 
     let waitfor = {
       method: '[D2Component:tasks] tasks from D1',

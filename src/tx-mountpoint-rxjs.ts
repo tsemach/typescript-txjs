@@ -1,32 +1,75 @@
-import { TxTask } from './tx-task';
-import { Subject } from 'rxjs/Subject'
+// import { TxTask } from './tx-task';
+// import { Subject } from 'rxjs/Subject'
+import { TxSubject } from './tx-subject';
 import { TxMountPoint } from "./tx-mountpoint";
 
-export class TxSubject extends Subject<TxTask<any>> {
-  private methods = new Map<string, any>();
-    isSubscribe = false;
+// export class TxSubject<T> extends Subject<TxTask<any>> {
+//   private methods = new Map<string, any>();
+//   isSubscribe = false;
+//   from: T = null;
 
-  constructor() {
-    super();
-  }
+//   constructor() {
+//     super();
+//   }
 
-  method(name, target) {
-    this.methods.set(name, target);    
+//   methodOld(name, target) {
+//     this.methods.set(name, target);    
     
-    if ( ! this.isSubscribe ) {
-      this.subscribe((task) => {
-        if ( ! this.methods.has(task.head.method) ) {
-          throw new Error(`method ${task.head.method} can't find in target object`);
-        }
+//     if ( ! this.isSubscribe ) {
+//       this.subscribe((task) => {
+//         if ( ! this.methods.has(task.head.method) ) {
+//           throw new Error(`method ${task.head.method} can't find in target object`);
+//         }
 
-        let object = this.methods.get(task.head.method);
-        object[task.head.method](task);
-      });
-    }
-    this.isSubscribe = true;
-  }
+//         let object = this.methods.get(task.head.method);
+//         object[task.head.method](task);
+//       });
+//     }
+//     this.isSubscribe = true;
+//   }
 
-}
+//   /**
+//    * two cases:
+//    * 1) name is string - then task.head.method => point to dataCB.
+//    * 2) name is [dataCB, errorCB] then:
+//    *    task.head.method[0] => point to dataCB.
+//    *    task.head.method[1] => point to errorCB.
+//    */
+//   method(name: string | string[], target: any, errorCB?: TxCallback<T>) {
+//     if (typeof name === 'string') {
+//       this.methods.set(name, target);      
+//     }
+//     if (this.isNamesArray(name)) {
+//       (<string[]>name).forEach(n => this.methods.set(n, target));
+//     }
+    
+//     if ( ! this.isSubscribe ) {
+//       const dataCB = (task: TxTask<any>) => {
+//         if ( ! this.methods.has(task.head.method) ) {
+//           throw new Error(`method ${task.head.method} can't find in target object`);
+//         }
+
+//         let object = this.methods.get(task.head.method);
+//         object[task.head.method](task);
+//       }
+
+//       return this.subscribe(dataCB, errorCB);
+//     }
+//     this.isSubscribe = true;
+//   }
+
+//   setCallbacks(dataCB: TxCallback<T>, errorCB?: TxCallback<T>) {
+//     return this.subscribe(dataCB, errorCB);  
+//   }
+
+//   private isNamesArray(names: any): boolean {
+//     return Array.isArray(names) && names.length > 0 && names.every(item => typeof item === "string");
+//   }
+
+//   setFrom(from: T) {
+//     this.from = from;
+//   }
+// }
 
 /**
  * TxMountPoint: class is usually used by a component. 
@@ -36,12 +79,12 @@ export class TxSubject extends Subject<TxTask<any>> {
  *
  * A component receive task by the mount-point's tasks Subject and return reply by reply subject.
  */
-export class TxMountPointRxJS implements TxMountPoint {
+export class TxMountPointRxJS<T> implements TxMountPoint {
    type = 'TxMountPointRxJS';
 
-  _tasks = new TxSubject();
-  _reply = new TxSubject();
-  _undos = new TxSubject();
+  _tasks = new TxSubject<T>();
+  _reply = new TxSubject<T>();
+  _undos = new TxSubject<T>();
 
   constructor(private _name: string | Symbol) {    
   }
@@ -57,7 +100,7 @@ export class TxMountPointRxJS implements TxMountPoint {
    * Use this subject to send back reply of some tasks.
    * @returns {TxSubject<any>}
    */
-  reply() {
+  reply(): TxSubject<T> {
     return this._reply;
   }
 
@@ -66,12 +109,18 @@ export class TxMountPointRxJS implements TxMountPoint {
    * then reply on the reply subject about the result.
    * @returns {TxSubject<TxTask<any>>}
    */
-  tasks() {
+  tasks(): TxSubject<T> {
     return this._tasks;
   }
 
-  undos() {
+  undos(): TxSubject<T> {
     return this._undos;
+  }
+
+  setFrom(from: T) {
+    this._tasks.setFrom(from);
+    this._reply.setFrom(from);
+    this._undos.setFrom(from);    
   }
 
 }

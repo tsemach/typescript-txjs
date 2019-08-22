@@ -1,50 +1,103 @@
-import { injectable, inject } from "inversify";
-import "reflect-metadata";
 
-import * as uuid from 'uuid/v4';
+import { TxMountPoint } from './tx-mountpoint';
+import { TxRouteServiceExpress } from './tx-route-service-express';
+import { TxRouteServiceConfig } from "./tx-route-service-config";
+import { TxRoutePointRegistry } from './tx-routepoint-registry';
+import TxRouteServiceExpressGet from './tx-route-service-express-get';
 
-import { TxConnector } from "./tx-connector"
+export class TxRoutePoint implements TxMountPoint {
+  protected config: TxRouteServiceConfig;
 
-import { TxTYPES } from "./tx-injection-types";
-//import { TxConnectorExpressService } from './tx-connector-express-service';
-import { TxCallback } from "./tx-callback";
-import { TxConnectorConnection } from "./tx-connector-connection";
-
-@injectable()
-export class TxRoutePoint {
-  @inject(TxTYPES.TxConnector) private _route: TxConnector;
-  @inject(TxTYPES.TxPointName) private _name: string | Symbol = '';
-  private _service: TxConnector = null;
-  private _connection = new TxConnectorConnection();
+  private _tasks: TxRouteServiceExpress<any, any>;
+  //private _undos: TxRouteServiceExpress<any, any>;  
   
-  id = uuid();
+  constructor(private _name: string | Symbol, config: TxRouteServiceConfig) {    
+    this.init(config);
+  }
 
-  constructor() {
+  init(config: TxRouteServiceConfig) {
+    this.config = config;
+
+    const application = TxRoutePointRegistry.instance.getApplication();
+
+    if (config && config.method.toLowerCase() === 'get') {
+      this._tasks = new TxRouteServiceExpressGet<any, any>(application, config);
+      // this._undos = new TxRouteServiceExpressGet<any, any>(application, config);
+    }
   }
 
   get name() {
-    return this._name;
+    if (typeof this._name === 'string') {
+      return this._name;
+    }
+    return this._name.toString();
   }
 
-  listen(service: string, path: string) {
-    this._service = this._route.listen(service, path);
-    this._connection.parse(service, path);
-
-    return this._service;
+  tasks() {
+    return this._tasks;
   }
 
-  subscribe(dataCB: TxCallback<any>, errorCB?: TxCallback<any>, completeCB?: (any?: any) => void) {  
-    this._service.subscribe(dataCB, errorCB, completeCB);
-
-    return this;
+  reply() {
+    //return this._reply;
+    throw new Error("reply is not allow on TxRoutePoint");
+  }
+  
+  undos() {
+    throw new Error("Method not implemented.");
+    //this._undos;
   }
 
-  async next(service: string, route: string, data: any) {
-    await this._service.next(service, route, data);
+  getConfig() {
+    return this.config;
   }
-
-  close() {
-    this._route.close(this._connection.service, this._connection.path);
-  }
-
 }
+
+// import { injectable, inject } from "inversify";
+// import "reflect-metadata";
+
+// import * as uuid from 'uuid/v4';
+
+// import { TxConnector } from "./tx-connector"
+
+// import { TxTYPES } from "./tx-injection-types";
+// import { TxCallback } from "./tx-callback";
+// import { TxConnectorConnection } from "./tx-connector-connection";
+
+// @injectable()
+// export class TxRoutePoint {
+//   @inject(TxTYPES.TxConnector) private _route: TxConnector;
+//   @inject(TxTYPES.TxPointName) private _name: string | Symbol = '';
+//   private _service: TxConnector = null;
+//   private _connection = new TxConnectorConnection();
+  
+//   id = uuid();
+
+//   constructor() {
+//   }
+
+//   get name() {
+//     return this._name;
+//   }
+
+//   listen(service: string, path: string) {
+//     this._service = this._route.listen(service, path);
+//     this._connection.parse(service, path);
+
+//     return this._service;
+//   }
+
+//   subscribe(dataCB: TxCallback<any>, errorCB?: TxCallback<any>, completeCB?: (any?: any) => void) {  
+//     this._service.subscribe(dataCB, errorCB, completeCB);
+
+//     return this;
+//   }
+
+//   async next(service: string, route: string, data: any) {
+//     await this._service.next(service, route, data);
+//   }
+
+//   close() {
+//     this._route.close(this._connection.service, this._connection.path);
+//   }
+
+// }

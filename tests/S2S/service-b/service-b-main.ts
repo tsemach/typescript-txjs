@@ -1,7 +1,7 @@
 import createLogger from 'logging';
 const logger = createLogger('service-b:main');
 
-import { TxMountPointRxJSRegistry, TxJobRegistry } from '../../../src/';
+import { TxMountPointRegistry, TxJobRegistry } from '../../../src/';
 import { TxJobServicesComponent } from '../../../src/tx-job-services-component';
 
 import { B3Component } from '../components/B3.component';
@@ -15,7 +15,7 @@ import { TxConnectorRabbitMQ } from '../../connectors/connector-rabbitmq-empty';
 import { TxConnectorExpress } from '../../connectors/connector-express-full';
 
 TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
-TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
+// TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
 
 TxJobRegistry.instance.setServiceName('service-b');
 
@@ -28,7 +28,7 @@ async function init() {
 
   await new TxJobServicesComponent().init();  
 
-  let mp = TxMountPointRxJSRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
+  let mp = TxMountPointRegistry.instance.get('JOB::SERVICES::MOUNTPOINT::COMPONENT');
   mp.reply().subscribe(
     (task) => {
       //logger.info("run: status of TxJobServicesComponent: " + data.head);

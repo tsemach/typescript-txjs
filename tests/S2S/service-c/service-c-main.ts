@@ -1,7 +1,7 @@
 import createLogger from 'logging';
 const logger = createLogger('service-c:main');
 
-import { TxMountPointRxJSRegistry, TxJobRegistry } from '../../../src/';
+import { TxMountPointRegistry, TxJobRegistry } from '../../../src/';
 import { TxJobServicesComponent } from '../../../src/tx-job-services-component';
 
 import { C3Component } from '../components/C3.component';
@@ -15,7 +15,7 @@ import { TxConnectorRabbitMQ } from '../../connectors/connector-rabbitmq-empty';
 import { TxConnectorExpress } from '../../connectors/connector-express-full';
 
 TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
-TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
+//TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
 
 TxJobRegistry.instance.setServiceName('service-c');
 
@@ -28,7 +28,7 @@ async function init() {
 
   await new TxJobServicesComponent().init();  
 
-  let mp = TxMountPointRxJSRegistry.instance.create('SERVICE-C::JOB::COMPLETED');
+  let mp = TxMountPointRegistry.instance.create('SERVICE-C::JOB::COMPLETED');
   mp.reply().subscribe(
     (task) => {
       logger.info("service-c: got data from TxJobServicesComponent: " + JSON.stringify(task, undefined, 2));

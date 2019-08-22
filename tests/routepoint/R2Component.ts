@@ -1,27 +1,22 @@
+import createLogger from 'logging';
+const logger = createLogger('R1Component');
 
-import {TxTYPES} from "../../src/tx-injection-types";
-import {inject, injectable} from "inversify";
+import { TxMountPoint } from '../../src/tx-mountpoint';
+import { TxRoutePointRegistry } from '../../src/tx-routepoint-registry';
+import { TxRouteServiceTask } from '../../src/tx-route-service-task';
 
-@injectable()
 export class R2Component {
-  @inject(TxTYPES.TxRoutePoint) routepoint;
-
+  private routepoint: TxMountPoint;
+  
   constructor() {
+    const config = {
+      host: 'localhost',
+      port: 3001,
+      method: 'get',
+      service: 'component',
+      route: 'read'
+    };
+    this.routepoint = TxRoutePointRegistry.instance.create('GITHUB::R2', config);        
   }
 
-  async init() {
-    await this.routepoint.route().listen('example-1.routepoint', 'R1Component.tasks');
-
-    await this.routepoint.route().subscribe(
-      async (data) => {
-        console.log("[R1Component:subscribe] got data = " + data);
-        await this.routepoint.route().next('example-2.routepoint', 'R2Component.tasks', {from: 'example-1.routepoint', data: 'data'});
-      });
-
-    return this;
-  }
-
-  description() {
-    return "This is R1Component";
-  }
 }
