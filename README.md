@@ -7,6 +7,14 @@
 ### more info can be found [here](https://rxjs.gitbook.io/rx-txjs/) 
 
 ## What's New
+`version 0.3.0`
+Refactory of the routepoint code. New API is present for using C2C (Component-2-Component) communcation.
+Add support for routepoint publication and discovery services.
+
+You can use [typescript-publication]([typescript-publisher](https://github.com/tsemach/typescript-publisher)) as publication and discovery sevice.
+See below for more details.
+
+`version 0.2.21`
 1. Rx-TXJS is now supporting DAG Job, see tests/job/tx-job-execute-goto-simple.spec.ts for example.
 2. Adding short version of mountpoint subscription, see tests/mountpoint/tx-mountpoint-method.spec.ts for example.
 
@@ -279,4 +287,112 @@ job.execute(new TxTask({
   } as TxJobExecutionOptions
 );        
 ````
+
+## Routepoint, Publication and Discovery
+Rx-TXJS support a typeof mountpoint which is `routepoint`. This routepoint enable to communction between two Components on two different services with the same next/subscribe API as use locally in a service. 
+
+Defining routepoint involving defining two components one for the server and one for the client.
+
+#### `server-side` - component may looks like that:
+````Typescript
+import { 
+  TxMountPoint,
+  TxRoutePointRegistry,
+  TxRouteServiceTask,
+  TxRouteServiceConfig
+} from 'rx-txjs';
+
+class R1Component {
+  private mountpoint: TxMountPoint;
+
+  // a routepoint configuration object
+  private config: TxRouteServiceConfig = {
+      host: 'localhost',
+      port: 3100,
+      method: 'get',
+      service: 'user',
+      route: 'add'
+  };
+
+  constructor() {  
+    // create the routepoint, the regitry keep track of the routepoint instance by it's name
+    this.mountpoint = TxRoutePointRegistry.instance.route('GITHUB::R1', this.config);
+
+    // subscribe to upcoming calls from other services
+    this.mountpoint.tasks().subscribe(
+      (task: TxRouteServiceTask<any>) => {
+        console.log('[R1Component::subscribe] subscribe called, task:', JSON.stringify(task.get(), undefined, 2));
+
+        // send reply back to caller
+        task.reply().next(new TxRouteServiceTask<any>({
+          headers: {
+            source: 'R1Component',
+            token: '123456780ABCDEF'
+          },
+          response: {
+            status: 200,
+            type: 'json'
+          }},
+          {
+            source: 'R1Component', status: "ok"
+          }
+        ));      
+      });
+  }
+}
+````
+1. `GITHUB::R1`: is the name of the component must be unique among ALL services.
+2. `Headers`: this goes to the HTTP header in the reqeust.
+3. `reponse`: this define how to send the response to the client.
+4. `source: 'R1Component', status: "ok"`: any data object return back to client.
+
+`client-side` - may looks like that, this routepoint internally or from another service use:
+````Typescript
+  // first create the client side routepoint. This is done once on initialization
+  const config: TxRouteServiceConfig = {
+    mode = 'client',    // I am on the client side
+    host: 'localhost',  // <-- this is the host of other service
+    port: 3100,         // <-- this is the port of other service
+    method: 'get',      // <-- the method to use is 'get'
+    service: 'sanity',  // the endpoint of other service is on /sanity/save
+    route: 'save'
+  }
+  TxRoutePointRegistry.instance.create('GITHUB::R1', config);
+
+  // then use it in where you want to get an already define routepoint on the client side
+  const routepoint = TxRoutePointRegistry.instance.get('GITHUB::R1');
+
+  // subscribe to reply from the receiver (the server)
+  routepoint.subscribe(
+    (task: TxTask<any>) => {
+      console.log('[sendAndSubscribeServiceGet] got reply from service: ', JSON.stringify(task, undefined, 2));
+    }
+  );
+
+  // make the call, send {source: 'back-client-main'}, {from: 'clientRoutePoint'} to the server
+  const reply = routepoint.tasks().next(new TxRouteServiceTask<any>({source: 'back-client-main'}, {from: 'clientRoutePoint'}));
+````
+
+#### The publication and discovery enable you not to worry where the routepoint is. It save you from defining `const config = TxRouteServiceConfig {...}, TxRoutePointRegistry.instance.create('GITHUB::R1', config);`
+
+So now you can build a complete micro-service architecture with business logic based on route point with great flexibility.
+
+#### See https://github.com/tsemach/typescript-publisher for more details.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
