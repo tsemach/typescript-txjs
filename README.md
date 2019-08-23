@@ -11,7 +11,7 @@
 Refactory of the routepoint code. New API is present for using C2C (Component-2-Component) communcation.
 Add support for routepoint publication and discovery services.
 
-You can use [typescript-publication]([typescript-publisher](https://github.com/tsemach/typescript-publisher)) as publication and discovery sevice.
+You can use [typescript-publisher](https://www.npmjs.com/package/typescript-publisher) as publication and discovery sevice.
 See below for more details.
 
 `version 0.2.21`
@@ -294,7 +294,7 @@ Rx-TXJS support a typeof mountpoint which is `routepoint`. This routepoint enabl
 Defining routepoint involving defining two components one for the server and one for the client.
 
 #### `server-side` - component may looks like that:
-````Typescript
+````typescript
 import { 
   TxMountPoint,
   TxRoutePointRegistry,
@@ -347,7 +347,7 @@ class R1Component {
 4. `source: 'R1Component', status: "ok"`: any data object return back to client.
 
 `client-side` - may looks like that, this routepoint internally or from another service use:
-````Typescript
+````typescript
   // first create the client side routepoint. This is done once on initialization
   const config: TxRouteServiceConfig = {
     mode = 'client',    // I am on the client side
