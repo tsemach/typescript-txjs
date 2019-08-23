@@ -12,7 +12,7 @@ describe('Mount Point Class', () => {
 
   it('tx-singlepoint-set-callback.spec: check mountpoint methods callback', (done) => {
     logger.info('tx-singlepoint-set-callback.spec: check mountpoint methods callback');
-
+    
     let whatIsCalled = 0;
     class C1Component {      
       private singlepoint = TxSinglePointRegistry.instance.create('GITHUB::GISTP::C1');    
@@ -44,7 +44,8 @@ describe('Mount Point Class', () => {
     }    
 
     logger.info('[tx-singlepoint-set-callback.spec]: check mountpoint methods callback');
-
+    
+    TxSinglePointRegistry.instance.del('GITHUB::GISTP::C1');
     new C1Component();
     let singlepoint = TxSinglePointRegistry.instance.get('GITHUB::GISTP::C1');
     

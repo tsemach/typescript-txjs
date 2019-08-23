@@ -37,7 +37,9 @@ describe('Job Class Execute Test', () => {
     logger.info('tx-job-execute-goto-simple.spec: check running S1-S2-S3 job chain');
 
     let job = new TxJob('job-1'); // or create through the TxJobRegistry
-
+  
+    TxMultiPointRegistry.instance.del('GITHUB::S3-OR-S4');
+    
     job.add(TxMountPointRegistry.instance.get('GITHUB::S1::Goto'));
     job.add(TxMountPointRegistry.instance.get('GITHUB::S2::Goto'));    
     job.add(TxMultiPointRegistry.instance.new('GITHUB::S3-OR-S4', ['GITHUB::S3::Goto', 'GITHUB::S4::Goto']));

@@ -28,7 +28,7 @@ import { TxConnectorExpress } from './../connectors/connector-express-empty';
 TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
 // TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
 
-new TxJobServicesComponent().init();  
+// new TxJobServicesComponent().init();  
 
 describe('Job Class Execute Test', () => {
   try {
@@ -87,7 +87,7 @@ describe('Job Class Execute Test', () => {
         persist: {ison: true}
       } as TxJobExecutionOptions
     );        
-  });
+});
 
   it('tx-job-continue-spec: check S1-S2-S3 upJSON with execute', (done) => {
     logger.info('running: tx-job-execute.spec: check S1-S2-S3 upJSON with execute');

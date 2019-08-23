@@ -55,10 +55,10 @@ export class TxSingleSubscribe<T> extends TxSubscribe<T> {
         let object = this.methods.get(task.head.method);
         object[task.head.method](task);
       }
+      this.isSubscribe = true;
 
       return this.subscribe(dataCB, errorCB);
     }
-    this.isSubscribe = true;
   }
 
   setCallbacks(dataCB: TxCallback<T>, errorCB?: TxCallback<T>) {

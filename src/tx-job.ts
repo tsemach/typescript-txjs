@@ -599,7 +599,8 @@ export class TxJob {
     this.single = false;
     this.error = false;
     this.revert = false;
-
+    
+    this.isCompleted.unsubscribe();
     this.executionId = {uuid: '', sequence: 0};
   }
 

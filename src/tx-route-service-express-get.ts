@@ -3,7 +3,7 @@ const logger = createLogger('TxRouteServiceExpressGet');
 
 import * as express from 'express';
 import * as URL from 'url-parse';
-import axios from 'axios';
+import axios, { Method } from 'axios';
 
 import { TxRouteApplication } from './tx-route-application';
 import { TxRouteService } from './tx-route-service';
@@ -100,7 +100,7 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
     logger.info('[TxRouteServiceExpressGet::next] is called, task = ', JSON.stringify(task.get(), undefined, 2));      
 
     let options = {
-      method: this.config.method,
+      method: <Method>this.config.method,
       headers: task.getHead(),      
     };
 

@@ -42,7 +42,7 @@ describe('Job Class', () => {
 
             logger.info('[job-reset-test] job.getIsCompleted: complete running all tasks - data:' + JSON.stringify(task.get(), undefined, 2));
             expect(task['head']['method']).to.equal("from C3");
-            expect(task['head']['status']).to.equal("ok");
+            expect(task['head']['status']).to.equal("ok");            
 
             done();
           }

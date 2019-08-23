@@ -15,6 +15,7 @@ describe('Single Point Class', () => {
   it('tx-singlepoint.spec: simple subscribe tasks test', (done) => {
     logger.info('tx-singlepoint.spec: simple subscribe tasks test')
 
+    TxSinglePointRegistry.instance.del('GITHUB::GIST::C1');
     let singlepoint = TxSinglePointRegistry.instance.create('GITHUB::GIST::C1');
 
     singlepoint.tasks().subscribe(
@@ -42,6 +43,9 @@ describe('Single Point Class', () => {
   it('tx-singlepoint.spec: singlepoint with reply subscribe tasks test', (done) => {
     logger.info('tx-singlepoint.spec: singlepoint with reply subscribe tasks test')
     
+    TxSinglePointRegistry.instance.del('GITHUB::RECVER_1');
+    TxSinglePointRegistry.instance.del('GITHUB::SENDER_1');
+
     let recver = TxSinglePointRegistry.instance.create('GITHUB::RECVER_1');
     let sender = TxSinglePointRegistry.instance.create('GITHUB::SENDER_1');
 
@@ -89,6 +93,10 @@ describe('Single Point Class', () => {
 
   it('tx-singlepoint.spec: multiple reciever listen on differnet singlepoints test', (done) => {
     logger.info('tx-singlepoint.spec: multiple singlepoints listen on differnet singlepoints test')
+
+    TxSinglePointRegistry.instance.del('GITHUB::RECVER_3');
+    TxSinglePointRegistry.instance.del('GITHUB::SEND-1');
+    TxSinglePointRegistry.instance.del('GITHUB::SEND-2');    
 
     let recver = TxSinglePointRegistry.instance.create('GITHUB::RECVER_3');
     let send_1 = TxSinglePointRegistry.instance.create('GITHUB::SEND-1');

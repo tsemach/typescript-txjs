@@ -42,6 +42,7 @@ describe('Mount Point Class', () => {
 
     logger.info('[tx-mountpoint-method.spec]: check mountpoint methods callback');
 
+    TxMountPointRegistry.instance.del('MOUNTPOINT::METHOD::SPEC::C1');
     let C1 = new C1Component();
     let mountpoint = TxMountPointRegistry.instance.get('MOUNTPOINT::METHOD::SPEC::C1');
     
@@ -90,6 +91,7 @@ describe('Mount Point Class', () => {
 
     logger.info('[tx-mountpoint-method.spec]: check mountpoint methods callback');
 
+    TxMountPointRegistry.instance.del('MOUNTPOINT::METHOD::SPEC::C2');
     let C1 = new C2Component();
     let mountpoint = TxMountPointRegistry.instance.get('MOUNTPOINT::METHOD::SPEC::C2');
     

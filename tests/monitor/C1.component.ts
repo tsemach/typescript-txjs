@@ -5,13 +5,16 @@ import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
 import { TxMountPoint } from '../../src/tx-mountpoint';
 import { TxTask } from '../../src/tx-task';
 
-export class C1Component {
-  mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
+export class C1Component {  
+  mountpoint: TxMountPoint;
 
   method = '';
   reply: any;
 
   constructor() {
+    TxMountPointRegistry.instance.del('GITHUB::GIST::C1');
+    this.mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
+
     this.mountpoint.tasks().subscribe(
       (task) => {
         logger.info('[C1Component:tasks] got task = ' + JSON.stringify(task, undefined, 2));          

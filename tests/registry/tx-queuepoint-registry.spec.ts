@@ -100,6 +100,7 @@ describe('Registry Classes - TxMountPointRegitry', () => {
     logger.info('translator.fromUUID = ' + translator.fromUUID('08690cfa-95df-4c76-aa3b-fb715830d6e4'));
     logger.info('translator.fromUUID = ' + short().new());
     
+    TxMountPointRegistry.instance.del('WORK::C1');
     let MP1 = TxMountPointRegistry.instance.create('WORK::C1');
     let MP2 = TxMountPointRegistry.instance.get('WORK::C1');
 

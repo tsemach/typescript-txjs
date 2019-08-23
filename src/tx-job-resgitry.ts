@@ -1,5 +1,7 @@
 
-import logger = require('logging');
+import createLogger from 'logging';
+const logger = createLogger('Job-Registry');
+
 import { TxRegistry } from './tx-registry';
 import { TxJob } from './tx-job';
 import { TxTask } from './tx-task';

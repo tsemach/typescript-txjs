@@ -25,7 +25,7 @@ import { TxConnectorExpress } from './../connectors/connector-express-empty';
 TxQueuePointRegistry.instance.setDriver(TxConnectorRabbitMQ);
 // TxRoutePointRegistry.instance.setDriver(TxConnectorExpress);
 
-new TxJobServicesComponent().init();  
+///new TxJobServicesComponent().init();  
 
 describe('Job Class', () => {
 

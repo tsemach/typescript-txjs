@@ -1,7 +1,7 @@
 
 //import logger = require('logging');
 import createLogger from 'logging'; 
-const logger = createLogger('MountPoint-Method-Test');
+const logger = createLogger('MountPoint-Method-Error-Test');
 
 import 'mocha';
 import { expect, assert } from 'chai';
@@ -12,7 +12,7 @@ describe('Mount Point Class', () => {
 
   it('tx-mountpoint-method-error.spec: check mountpoint methods callback', (done) => {
     logger.info('tx-mountpoint-method-error.spec: check mountpoint methods callback');
-
+    
     class S1Component {
       private singlepoint = TxMountPointRegistry.instance.create('GITHUB::GISTP::S1');
 
@@ -40,6 +40,7 @@ describe('Mount Point Class', () => {
 
     logger.info('[tx-mountpoint-method-error.spec]: check mountpoint methods callback');
 
+    TxMountPointRegistry.instance.del('GITHUB::GISTP::S1');
     new S1Component();
     let singlepoint = TxMountPointRegistry.instance.get('GITHUB::GISTP::S1');
     

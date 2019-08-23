@@ -1,7 +1,7 @@
 
 //import logger = require('logging');
 import createLogger from 'logging'; 
-const logger = createLogger('MountPoint-Method-Test');
+const logger = createLogger('SinglePoint-Method-Test');
 
 import 'mocha';
 import { expect, assert } from 'chai';
@@ -26,6 +26,7 @@ describe('Mount Point Class', () => {
         logger.info("[C1Component:run] is called .. task = ", task);
         expect(task.data.from).to.equal('https://api.github.com/doit');
 
+        console.log("EEEEEEEEEEEEEEEE")
         done();
       }
 
@@ -97,6 +98,8 @@ describe('Mount Point Class', () => {
     }    
 
     logger.info('[tx-mountpoint-method.spec]: check mountpoint methods callback');
+    
+    TxSinglePointRegistry.instance.del('GITHUB::GISTP::S1');
 
     let C1 = new S1Component();
     let singlepoint = TxSinglePointRegistry.instance.get('GITHUB::GISTP::S1');
@@ -123,6 +126,7 @@ describe('Mount Point Class', () => {
 
     let numberOfCalles = 0;
 
+    TxSinglePointRegistry.instance.del('GITHUB::GISTP::S3');
     class S3Component {      
       private singlepoint = TxSinglePointRegistry.instance.create('GITHUB::GISTP::S3');    
 
@@ -154,6 +158,8 @@ describe('Mount Point Class', () => {
     }    
 
     logger.info('[tx-mountpoint-method.spec]: check mountpoint methods callback');
+    
+    TxSinglePointRegistry.instance.del('GITHUB::GISTP::S3');
 
     let C1 = new S3Component();
     let singlepoint = TxSinglePointRegistry.instance.get('GITHUB::GISTP::S3');

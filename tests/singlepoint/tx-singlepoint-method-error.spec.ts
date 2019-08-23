@@ -54,6 +54,7 @@ describe('Mount Point Class', () => {
 
     logger.info('[tx-mountpoint-method.spec]: check mountpoint methods callback');
 
+    TxSinglePointRegistry.instance.del('GITHUB::GISTP::S1');
     new S1Component();
     let singlepoint = TxSinglePointRegistry.instance.get('GITHUB::GISTP::S1');
     

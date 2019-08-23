@@ -27,6 +27,10 @@ describe('Mount Point Class', () => {
    */
 
   before(() => {
+    TxMountPointRegistry.instance.del('GITHUB::GIST::C1');
+    TxMountPointRegistry.instance.del('GITHUB::GIST::C2');
+    TxMountPointRegistry.instance.del('GITHUB::GIST::C3');
+    
     class C1Component {
       mountpoint: TxMountPoint = <TxMountPoint>TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
       reply: any;
@@ -81,6 +85,7 @@ describe('Mount Point Class', () => {
       }
     }  
 
+    TxMountPointRegistry.instance.del('GITHUB::GIST::C4');
     class C4Component {
       mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C4');
       task: any;

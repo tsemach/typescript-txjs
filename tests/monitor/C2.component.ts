@@ -3,14 +3,17 @@ import createLogger from 'logging';
 const logger = createLogger('C2');
 
 import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
+import { TxMountPoint } from '../../src/tx-mountpoint';
 import { TxTask } from '../../src/tx-task';
 
 export class C2Component {
-  private mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C2');    
+  mountpoint: TxMountPoint;
   method = '';
   //task: any;
 
   constructor() {
+    TxMountPointRegistry.instance.del('GITHUB::GIST::C2');    
+    this.mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C2');    
     this.mountpoint.tasks().subscribe(
       (task) => {
         logger.info('[C2Component:task] got task = ' + JSON.stringify(task, undefined, 2));
