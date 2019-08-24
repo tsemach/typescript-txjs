@@ -75,22 +75,6 @@ export class TxRoutePointRegistry<K extends string | Symbol> {
     }
 
     return routepoint;
-    // const rp = new TxRoutePoint(name, config);
-
-    // if (typeof name === 'string') {
-    //   if (name === undefined || name.length === 0) {
-    //     return rp;
-    //   }
-    //   return TxMountPointRegistry.instance.add(name, rp);
-    // }
-
-    // if (name === undefined) {
-    //   return rp;
-    // }
-
-    // TxMountPointRegistry.instance.add(name, rp, 'TxRoutePointRegistry');
-    
-    // return rp;
   }
 
   has(name: string | Symbol) {

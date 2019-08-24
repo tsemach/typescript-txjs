@@ -1,7 +1,6 @@
 import { TxTask } from './tx-task';
 import { TxSubject } from './tx-subject';
 import { TxMountPoint } from "./tx-mountpoint";
-import { TxMountPointGetOptions, TxMountPointGetOptionsEnum } from './tx-mountpoint-get-option';
 
 enum TxMountPointRxJSWrapperEnum {
   TASKS,
@@ -15,11 +14,6 @@ class TxMountPointRxJSWrapper<T> extends TxSubject<T> {
   }
 
   subscribe(...args: any[]) {
-    // no need to manipulate the origin
-    // if (this.mode === TxMountPointRxJSWrapperEnum.PUBLIC) {
-    //   return this.origin.subscribe(...args);
-    // }
-
     // this when the receiver subscribe on the task
     if (this.mode === TxMountPointRxJSWrapperEnum.TASKS) {
       return this.origin.subscribe(...args);
@@ -32,11 +26,6 @@ class TxMountPointRxJSWrapper<T> extends TxSubject<T> {
   }
 
   next(task: TxTask<any>) {    
-    // no need to manipulate the origin
-    // if (this.mode === TxMountPointRxJSWrapperEnum.PUBLIC) {
-    //   return this.origin.next(task);    
-    // }
-
     // this when the sender send the task, need to take the reply subject and add it to the task.
     if (this.mode === TxMountPointRxJSWrapperEnum.TASKS) {
       if ( ! task.isReply() ) {
@@ -48,18 +37,12 @@ class TxMountPointRxJSWrapper<T> extends TxSubject<T> {
     // this when the receiver send the task, 
     // receiver is not allow to use the mountpoint reply directlry. it need to use the task object
     if (this.mode === TxMountPointRxJSWrapperEnum.REPLY) {
-      console.log("WWWWWWWWWWWWWWW NEXT CALL ON REPLY ")
       this.origin.next(task);
       //throw Error(`Can't call next direct on mountpoint ${this.mountpoint.name} reply, use task.getReply().next(..)`);
     }
   }
 
   error(err: TxTask<any>) {
-    // no need to manipulate the origin
-    // if (this.mode === TxMountPointRxJSWrapperEnum.PUBLIC) {
-    //   return this.origin.subscribe(...args);
-    // }
-
     // this when the sender send the task, need to take the reply subject and add it to the task.
     if (this.mode === TxMountPointRxJSWrapperEnum.TASKS) {
       if ( ! err.isReply() ) {
@@ -75,10 +58,6 @@ class TxMountPointRxJSWrapper<T> extends TxSubject<T> {
       //throw Error(`Can't call next direct on mountpoint ${this.mountpoint.name} reply, use task.getReply().next(..)`);
     }
   }
-
-  // setMode(mode: TxMountPointRxJSWrapperEnum) {
-  //   this.mode = mode;
-  // }
 
   getOrigin(from?: string) {
     return this.origin;
@@ -97,7 +76,6 @@ export class TxMountPointRxJS<T> implements TxMountPoint {
    type = 'TxMountPointRxJS';
 
   _tasks = new TxSubject<T>();  
-  //_reply = new TxSubject<T>();
   _reply = new TxMountPointRxJSWrapper<T>(this, new TxSubject<T>(), TxMountPointRxJSWrapperEnum.REPLY);
   _undos = new TxSubject<T>();
 

@@ -18,7 +18,8 @@ const server = Application.instance.listen('localhost', +port, async () => {
   const routepoint = await TxRoutePointRegistry.instance.get('GITHUB::R1');
   const reply = await routepoint.tasks().next(new TxRouteServiceTask<any>({source: 'routepoint-client-main'}, {from: 'clientRoutePoint'}));
 
-  console.log('[routepoint-client-main] reply: ', reply.data);
+  console.log('[routepoint-client-main] reply: ', JSON.stringify(reply.data, undefined, 2));
+  
 
   server.close();
 });

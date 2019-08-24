@@ -9,7 +9,7 @@ export class TxRoutePoint implements TxMountPoint {
   protected config: TxRouteServiceConfig;
 
   private _tasks: TxRouteServiceExpress<any, any>;
-  //private _undos: TxRouteServiceExpress<any, any>;  
+  private _undos: TxRouteServiceExpress<any, any>;  
   
   constructor(private _name: string | Symbol, config: TxRouteServiceConfig) {    
     this.init(config);
@@ -22,7 +22,7 @@ export class TxRoutePoint implements TxMountPoint {
 
     if (config && config.method.toLowerCase() === 'get') {
       this._tasks = new TxRouteServiceExpressGet<any, any>(application, config);
-      // this._undos = new TxRouteServiceExpressGet<any, any>(application, config);
+      this._undos = new TxRouteServiceExpressGet<any, any>(application, config);
     }
   }
 
@@ -44,7 +44,7 @@ export class TxRoutePoint implements TxMountPoint {
   
   undos() {
     throw new Error("Method not implemented.");
-    //this._undos;
+    this._undos;
   }
 
   getConfig() {
