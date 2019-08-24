@@ -121,7 +121,7 @@ describe('TxRoutePoint Testing', () => {
     }    
 
     C2.reply().subscribe(
-      (task: TxTask<any>) => {    
+      (task: TxRouteServiceTask<any>) => {    
         console.log('[x-routepoint.spec.ts::test-2::listen-C2] got reply from C2:', JSON.stringify(task.get(), undefined, 2));
 
         assert.deepEqual(expectedC2, task.getData());    
@@ -132,7 +132,7 @@ describe('TxRoutePoint Testing', () => {
     );
 
     C1.reply().subscribe(
-      (task: TxTask<any>) => {    
+      (task: TxRouteServiceTask<any>) => {    
         console.log('[x-routepoint.spec.ts::test-2::listen-C1] got reply from C1:', JSON.stringify(task.get(), undefined, 2));
 
         assert.fail('[x-routepoint.spec.ts::test-2::listen-C1] C1 should not be called on C2.next()')
@@ -223,7 +223,7 @@ describe('TxRoutePoint Testing', () => {
     }    
 
     C2.reply().subscribe(
-      (task: TxTask<any>) => {    
+      (task: TxRouteServiceTask<any>) => {    
         console.log('[x-routepoint.spec.ts::listen-C2] got reply from C2:', JSON.stringify(task.get(), undefined, 2));
 
         assert.deepEqual(expectedC2, task.getData());    
@@ -234,7 +234,7 @@ describe('TxRoutePoint Testing', () => {
     );
 
     C1.reply().subscribe(
-      (task: TxTask<any>) => {    
+      (task: TxRouteServiceTask<any>) => {    
         console.log('[x-routepoint.spec.ts::listen-C1] got reply from C1:', JSON.stringify(task.get(), undefined, 2));
 
         assert.deepEqual(expectedC1, task.getData());    

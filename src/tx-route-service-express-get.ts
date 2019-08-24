@@ -128,7 +128,7 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
 
     logger.info(`[TxRouteServiceExpressGet::next] call with options: ${JSON.stringify(options, undefined, 2)}, url: ${url}`);      
     const reply = await axios.get(url, options);
-    this.callbacks.next(new TxTask<any>({url, ...options}, reply.data));
+    this.callbacks.next(new TxRouteServiceTask<any>({url, ...options}, reply.data));
 
     return reply;
   }
