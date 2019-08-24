@@ -11,10 +11,12 @@ import { TxRouteServiceConfig } from './tx-route-service-config';
 import { TxRouteServiceTask } from './tx-route-service-task';
 import { TxRouteServiceExpress } from './tx-route-service-express';
 import { TxRouteHeaders } from './tx-route-headers';
+
 import { TxTask } from './tx-task';
+import { TxCallback } from './tx-callback';
 
 export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> implements TxRouteService {
-
+  
   constructor(application: TxRouteApplication, config: TxRouteServiceConfig) {
     super(config)
     if (config.mode === 'server') {    
@@ -92,6 +94,18 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
   }
 
   /**
+   * client side: client want to get callback when data is coming from server
+   * 
+   * @param dataCB - callback to all, same goes for errorCB and completeCB
+   */
+  subscribe(dataCB: TxCallback<any>, errorCB?: TxCallback<any>, completeCB?: (any?: any) => void) {  
+    return this.callbacks.subscribe(dataCB, errorCB, completeCB);
+  }
+
+  unsubscribe() {
+    this.callbacks.unsubscribe();
+  }
+  /**
    * client side: use to send request to service using axios 
    * 
    * @param task - tast need to send to service
@@ -114,6 +128,7 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
 
     logger.info(`[TxRouteServiceExpressGet::next] call with options: ${JSON.stringify(options, undefined, 2)}, url: ${url}`);      
     const reply = await axios.get(url, options);
+    this.callbacks.next(new TxTask<any>({url, ...options}, reply.data));
 
     return reply;
   }

@@ -11,6 +11,7 @@ import { TxRouteApplication } from './tx-route-application';
 import { TxPublisher } from './tx-publisher';
 import { TxRoutpointIndicator } from './tx-routepint-indicator';
 import { TxMountPointNotFoundException } from './tx-mountpoint-exception';
+import { TxMountPoint } from './tx-mountpoint';
 
 export class TxRoutePointRegistry<K extends string | Symbol> {
   private static _instance: TxRoutePointRegistry<string | Symbol>;
@@ -26,10 +27,25 @@ export class TxRoutePointRegistry<K extends string | Symbol> {
     return this._instance || (this._instance = new this());
   }
 
+  // private adject(routepoint: TxMountPoint) {   
+
+  //   if (routepoint.constructor.name === 'TxRoutePoint') {
+  //     const origin = <TxRoutePoint>routepoint;
+  //     const rp = new TxRoutePoint(origin.name, origin.getConfig());
+      
+  //     return (new TxRoutePoint(origin.name, origin.getConfig())).adjust(origin);
+  //   }
+
+  //   return routepoint;
+  // }
+
   async get(name: string | Symbol) {        
     if (TxMountPointRegistry.instance.has(name)) {
-      return TxMountPointRegistry.instance.get(name);
+      const rp = <TxRoutePoint>TxMountPointRegistry.instance.get(name)
+
+      return (new TxRoutePoint(rp.name, rp.getConfig())).adjust(rp);
     }
+    
     // routepoint is not found in my registry try invoke the publisher
     // to search on other services.
     const indicator: TxRoutpointIndicator = await this._publisher.discover(name);
