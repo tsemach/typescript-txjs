@@ -23,7 +23,6 @@ describe('Mount Point Class', () => {
       }
       
       doit(task: TxTask<any>) {
-        console.log('DDDDDDDDDDDDDDDD I SCALLED DOIT')
         logger.info("[S1Component:doit] is called .. task = ", task);
         expect(task.data.from).to.equal('https://api.github.com/doit');
 
@@ -31,7 +30,6 @@ describe('Mount Point Class', () => {
       }
 
       error(task: TxTask<any>) {
-        console.log('EEEEEEEEEEEEEEEEEEE IS CALLED ')
         logger.info("[S1Component:error] is called .. task = ", task);
         expect(task.data.from).to.equal('https://api.github.com/doit');
 
