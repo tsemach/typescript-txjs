@@ -1,4 +1,3 @@
-import { TxSingleSubscribe } from './tx-singlepoint';
 
 export class TxTask<T> {  
   head: T;
@@ -26,7 +25,6 @@ export class TxTask<T> {
     this.data = data;
   }
   
-  //setReply(_reply: TxSingleSubscribe<any>) {
   setReply(_reply: any) {
     this._reply = _reply;
     
@@ -35,9 +33,13 @@ export class TxTask<T> {
 
   reply() {
     if ( ! this._reply ) {
-      throw Error('[TxTask::reply] reply singlepoint is null, add reply object in the constructor')
+      throw Error('[TxTask::reply] reply is null, add reply object in the constructor')
     }
     return this._reply;
+  }
+
+  isReply() {
+    return this._reply !== null && this._reply !== undefined;
   }
 
   get() {

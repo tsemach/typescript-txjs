@@ -1,75 +1,89 @@
-// import { TxTask } from './tx-task';
-// import { Subject } from 'rxjs/Subject'
+import { TxTask } from './tx-task';
 import { TxSubject } from './tx-subject';
 import { TxMountPoint } from "./tx-mountpoint";
+import { TxMountPointGetOptions, TxMountPointGetOptionsEnum } from './tx-mountpoint-get-option';
 
-// export class TxSubject<T> extends Subject<TxTask<any>> {
-//   private methods = new Map<string, any>();
-//   isSubscribe = false;
-//   from: T = null;
+enum TxMountPointRxJSWrapperEnum {
+  TASKS,
+  REPLY,
+}
 
-//   constructor() {
-//     super();
-//   }
+class TxMountPointRxJSWrapper<T> extends TxSubject<T> {  
+  
+  constructor(private mountpoint: TxMountPointRxJS<T>, private origin: TxSubject<T>, private mode: TxMountPointRxJSWrapperEnum) {
+    super(); 
+  }
 
-//   methodOld(name, target) {
-//     this.methods.set(name, target);    
-    
-//     if ( ! this.isSubscribe ) {
-//       this.subscribe((task) => {
-//         if ( ! this.methods.has(task.head.method) ) {
-//           throw new Error(`method ${task.head.method} can't find in target object`);
-//         }
+  subscribe(...args: any[]) {
+    // no need to manipulate the origin
+    // if (this.mode === TxMountPointRxJSWrapperEnum.PUBLIC) {
+    //   return this.origin.subscribe(...args);
+    // }
 
-//         let object = this.methods.get(task.head.method);
-//         object[task.head.method](task);
-//       });
-//     }
-//     this.isSubscribe = true;
-//   }
+    // this when the receiver subscribe on the task
+    if (this.mode === TxMountPointRxJSWrapperEnum.TASKS) {
+      return this.origin.subscribe(...args);
+    }
 
-//   /**
-//    * two cases:
-//    * 1) name is string - then task.head.method => point to dataCB.
-//    * 2) name is [dataCB, errorCB] then:
-//    *    task.head.method[0] => point to dataCB.
-//    *    task.head.method[1] => point to errorCB.
-//    */
-//   method(name: string | string[], target: any, errorCB?: TxCallback<T>) {
-//     if (typeof name === 'string') {
-//       this.methods.set(name, target);      
-//     }
-//     if (this.isNamesArray(name)) {
-//       (<string[]>name).forEach(n => this.methods.set(n, target));
-//     }
-    
-//     if ( ! this.isSubscribe ) {
-//       const dataCB = (task: TxTask<any>) => {
-//         if ( ! this.methods.has(task.head.method) ) {
-//           throw new Error(`method ${task.head.method} can't find in target object`);
-//         }
+    // this when the sender subscribe on the reply
+    if (this.mode === TxMountPointRxJSWrapperEnum.REPLY) {
+      return this.origin.subscribe(...args);
+    }
+  }
 
-//         let object = this.methods.get(task.head.method);
-//         object[task.head.method](task);
-//       }
+  next(task: TxTask<any>) {    
+    // no need to manipulate the origin
+    // if (this.mode === TxMountPointRxJSWrapperEnum.PUBLIC) {
+    //   return this.origin.next(task);    
+    // }
 
-//       return this.subscribe(dataCB, errorCB);
-//     }
-//     this.isSubscribe = true;
-//   }
+    // this when the sender send the task, need to take the reply subject and add it to the task.
+    if (this.mode === TxMountPointRxJSWrapperEnum.TASKS) {
+      if ( ! task.isReply() ) {
+        task.setReply(this.mountpoint.reply().getOrigin('FROM TASKS'));
+      }
+      return this.origin.next(task);
+    }
 
-//   setCallbacks(dataCB: TxCallback<T>, errorCB?: TxCallback<T>) {
-//     return this.subscribe(dataCB, errorCB);  
-//   }
+    // this when the receiver send the task, 
+    // receiver is not allow to use the mountpoint reply directlry. it need to use the task object
+    if (this.mode === TxMountPointRxJSWrapperEnum.REPLY) {
+      console.log("WWWWWWWWWWWWWWW NEXT CALL ON REPLY ")
+      this.origin.next(task);
+      //throw Error(`Can't call next direct on mountpoint ${this.mountpoint.name} reply, use task.getReply().next(..)`);
+    }
+  }
 
-//   private isNamesArray(names: any): boolean {
-//     return Array.isArray(names) && names.length > 0 && names.every(item => typeof item === "string");
-//   }
+  error(err: TxTask<any>) {
+    // no need to manipulate the origin
+    // if (this.mode === TxMountPointRxJSWrapperEnum.PUBLIC) {
+    //   return this.origin.subscribe(...args);
+    // }
 
-//   setFrom(from: T) {
-//     this.from = from;
-//   }
-// }
+    // this when the sender send the task, need to take the reply subject and add it to the task.
+    if (this.mode === TxMountPointRxJSWrapperEnum.TASKS) {
+      if ( ! err.isReply() ) {
+        err.setReply(this.mountpoint.reply().getOrigin());
+      }
+      return this.origin.error(err);      
+    }
+
+    // this when the receiver send the task, 
+    // receiver is not allow to use the mountpoint reply directlry. it need to use the task object
+    if (this.mode === TxMountPointRxJSWrapperEnum.REPLY) {
+      this.origin.error(err);
+      //throw Error(`Can't call next direct on mountpoint ${this.mountpoint.name} reply, use task.getReply().next(..)`);
+    }
+  }
+
+  // setMode(mode: TxMountPointRxJSWrapperEnum) {
+  //   this.mode = mode;
+  // }
+
+  getOrigin(from?: string) {
+    return this.origin;
+  }
+}
 
 /**
  * TxMountPoint: class is usually used by a component. 
@@ -82,11 +96,12 @@ import { TxMountPoint } from "./tx-mountpoint";
 export class TxMountPointRxJS<T> implements TxMountPoint {
    type = 'TxMountPointRxJS';
 
-  _tasks = new TxSubject<T>();
-  _reply = new TxSubject<T>();
+  _tasks = new TxSubject<T>();  
+  //_reply = new TxSubject<T>();
+  _reply = new TxMountPointRxJSWrapper<T>(this, new TxSubject<T>(), TxMountPointRxJSWrapperEnum.REPLY);
   _undos = new TxSubject<T>();
 
-  constructor(private _name: string | Symbol) {    
+  constructor(private _name: string | Symbol) {
   }
 
   get name() {
@@ -100,7 +115,7 @@ export class TxMountPointRxJS<T> implements TxMountPoint {
    * Use this subject to send back reply of some tasks.
    * @returns {TxSubject<any>}
    */
-  reply(): TxSubject<T> {
+  reply(): TxMountPointRxJSWrapper<T> {
     return this._reply;
   }
 
@@ -122,6 +137,22 @@ export class TxMountPointRxJS<T> implements TxMountPoint {
     this._reply.setFrom(from);
     this._undos.setFrom(from);    
   }
+  
+  adjust(from: TxMountPointRxJS<T>) {
+    this._name = from._name;
 
+    this._tasks = new TxMountPointRxJSWrapper(this, from._tasks, TxMountPointRxJSWrapperEnum.TASKS);
+    this._undos = new TxMountPointRxJSWrapper(this, from._undos, TxMountPointRxJSWrapperEnum.TASKS);;
+    this._reply = new TxMountPointRxJSWrapper(this, new TxSubject<T>(), TxMountPointRxJSWrapperEnum.REPLY);
+
+    return this;
+  }
+
+  // setOptions(options: TxMountPointGetOptions) {
+  //   if (options.reply === TxMountPointGetOptionsEnum.PUBLIC) {
+  //     console.log('IIIIN SET OPTION : PUBNLIC')
+  //     this._reply.setMode(TxMountPointRxJSWrapperEnum.PUBLIC);
+  //   }
+  // }
 }
 

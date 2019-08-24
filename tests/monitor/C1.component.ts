@@ -16,29 +16,29 @@ export class C1Component {
     this.mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
 
     this.mountpoint.tasks().subscribe(
-      (task) => {
+      (task: TxTask<any>) => {
         logger.info('[C1Component:tasks] got task = ' + JSON.stringify(task, undefined, 2));          
         this.method = task['method'];
 
         // just send the reply to whom is 'setting' on this reply subject
-        this.mountpoint.reply().next(new TxTask({method: 'from C1', status: 'ok'}, task['data']))
+        task.reply().next(new TxTask({method: 'from C1', status: 'ok'}, task['data']))
       },
-      (error) => {
+      (error: TxTask<any>) => {
         logger.info('[C1Component:error] got error = ' + JSON.stringify(error, undefined, 2));
         this.method = error['method'];
 
         // just send the reply to whom is 'setting' on this reply subject
-        this.mountpoint.reply().error(new TxTask({method: 'from C1', status: 'ERROR'}, error['data']))
+        error.reply().error(new TxTask({method: 'from C1', status: 'ERROR'}, error['data']))
       }
     );
 
     this.mountpoint.undos().subscribe(
-      (task) => {
+      (task: TxTask<any>) => {
           logger.info('[C1Component:undo] undo got task = ' + JSON.stringify(task, undefined, 2));
           this.method = task['method'];
 
           // just send the reply to whom is 'setting' on this reply subject
-          this.mountpoint.reply().next(new TxTask({method: 'undo from C1', status: 'ok'}, task['data']))
+          task.reply().next(new TxTask({method: 'undo from C1', status: 'ok'}, task['data']))
       }
     );
 

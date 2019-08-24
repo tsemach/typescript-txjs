@@ -32,56 +32,32 @@ describe('Mount Point Class', () => {
     TxMountPointRegistry.instance.del('GITHUB::GIST::C3');
     
     class C1Component {
-      mountpoint: TxMountPoint = <TxMountPoint>TxMountPointRegistry.instance.create('GITHUB::GIST::C1');
-      reply: any;
+      mountpoint: TxMountPoint = <TxMountPoint>TxMountPointRegistry.instance.create('GITHUB::GIST::C1');      
 
       constructor() {
         this.mountpoint.tasks().subscribe(
           (task: TxTask<any>) => {
-            logger.info('[C1Component:tasks] got task = ' + JSON.stringify(task, undefined, 2));          
+            logger.info('[C1Component:tasks] got task = ' + JSON.stringify(task.get(), undefined, 2));          
 
             // C1 got a task then send it C2.
-            let M2 = <TxMountPoint>TxMountPointRegistry.instance.get('GITHUB::GIST::C2');
-
-            M2.tasks().next(new TxTask({method: 'get', status: ''}, task['data']));
+            const M2 = TxMountPointRegistry.instance.get('GITHUB::GIST::C2');          
+            M2.tasks().next(new TxTask({method: 'get', source: 'C1Component'}, task['data'], task.reply()));
           }
-        )
-
-        this.mountpoint.reply().subscribe(
-          (reply: TxTask<any>) => {
-            logger.info('[C1Component:reply] got reply = ' + JSON.stringify(reply, undefined, 2));                    
-
-            this.reply = reply;
-          }
-        )
-      }
-
-      getReply() {
-        return JSON.stringify(this.reply);
-      }
-
+        )        
+      }      
     }  
 
     class C2Component {
       mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C2');    
-      task: any;
 
       constructor() {
         this.mountpoint.tasks().subscribe(
           (task: TxTask<any>) => {
-            logger.info('[C2Component:task] got task = ' + JSON.stringify(task, undefined, 2));
-            this.task = task;
-            
-            // C2 got a task from C1, then send it back to C1 on the reply Subject of M1 mount-point
-            let M1 = TxMountPointRegistry.instance.get('GITHUB::GIST::C1');
-
-            M1.reply().next(new TxTask({method: 'get', status: ''}, task['data']));
+            logger.info('[C2Component:task] got task = ' + JSON.stringify(task.get(), undefined, 2));
+       
+            task.reply().next(new TxTask({method: 'reply', source: 'C2Component'}, task['data']));
           }
         )  
-      }
-
-      getTask() {
-        return this.task;
       }
     }  
 
@@ -93,10 +69,10 @@ describe('Mount Point Class', () => {
       constructor() {
         this.mountpoint.tasks().subscribe(
           (task: TxTask<any>) => {
-            logger.info('[C4Component:task] got task = ' + JSON.stringify(task, undefined, 2));
+            logger.info('[C4Component:task] got task = ' + JSON.stringify(task.get(), undefined, 2));
             this.task = task;
             
-            this.mountpoint.reply().next(new TxTask({method: 'get', status: ''}, {from: 'C4Component', ...task['data']}));
+            task.reply().next(new TxTask({method: 'get', status: ''}, {from: 'C4Component', ...task['data']}));
           }
         )  
       }
@@ -110,24 +86,41 @@ describe('Mount Point Class', () => {
     C2 = new C2Component();
     C4 = new C4Component();
   })
-  it('mountpoint.spec: send task from gist-get-filename to gist-get-raw-url', () => {
+  it('mountpoint.spec: send task from gist-get-filename to gist-get-raw-url', (done) => {
    
     // create the two components and let them register themselfs.
     
-    let M1 = <TxMountPoint>TxMountPointRegistry.instance.get('GITHUB::GIST::C1');
-    let task = new TxTask({method: 'get', status: ''}, {from: 'https://api.github.com'});
+    let M1 = <TxMountPoint>TxMountPointRegistry.instance.get('GITHUB::GIST::C1');    
 
-    // send task on C1 then C1 -> C2 -> C1.
+    M1.reply().subscribe(
+      (task: TxTask<any>) => {
+        logger.info('M2: ', JSON.stringify(task.get(), undefined, 2) );
+        const expected = {
+          head: {
+            method: "reply",
+            source: "C2Component"
+          },
+          data: {
+            from: "https://api.github.com"
+          }
+        }
+        assert.deepEqual(expected, task.get());
+
+        done();
+      }
+    );
+
+    // send task on C1 then C1 -> C2.
+    let task = new TxTask({method: 'get', status: ''}, {from: 'https://api.github.com'});
     M1.tasks().next(task);
         
-    expect(C1.getReply()).to.equal(JSON.stringify(task));
   });
 
   it('tx-mountpoint.spec: check mountpoint name as string | symbol', () => {
 
     let mountpoint: TxMountPoint;
 
-    mountpoint = <TxMountPoint>TxMountPointRegistry.instance.create('GITHUB::GIST::C3');
+    mountpoint = TxMountPointRegistry.instance.create('GITHUB::GIST::C3');
 
     console.log('mountpoint name is - \'' + mountpoint.name + '\'');
     expect(mountpoint.name).to.equal('GITHUB::GIST::C3');
@@ -142,7 +135,7 @@ describe('Mount Point Class', () => {
   it('tx-mountpoint.spec: simple next subscribe call', () => {
     const mp = TxMountPointRegistry.instance.get('GITHUB::GIST::C4');
 
-    logger.info('C3 - mountpoint name is - \'' + mp.name + '\'');
+    logger.info('C4 - mountpoint name is - \'' + mp.name + '\'');
     expect(mp.name).to.equal('GITHUB::GIST::C4');
 
     const expected = {

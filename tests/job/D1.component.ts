@@ -15,14 +15,14 @@ export class D1Component {
       logger.info("[D1Component:constructor] ctor ..");      
   }
 
-  tasks(data) {
+  tasks(data: TxTask<any>) {
     logger.info('[D1Component:tasks] is called, data = ' + JSON.stringify(data.get()));
-    this.mountpoint().reply().next(new TxTask({method: '[D1Component:tasks] tasks from D1', status: 'ok'}, data['data']));
+    data.reply().next(new TxTask({method: '[D1Component:tasks] tasks from D1', status: 'ok'}, data['data']));
   }
 
-  undos(data) {
+  undos(data: TxTask<any>) {
     logger.info('[D1Component:undos] is called, data = ' + JSON.stringify(data.get()));
-    this.mountpoint().reply().next(new TxTask({method: '[D1Component:undos] undos from D1', status: 'ok'}, data['data']));
+    data.reply().next(new TxTask({method: '[D1Component:undos] undos from D1', status: 'ok'}, data['data']));
   }
 
 }

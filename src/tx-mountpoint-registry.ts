@@ -39,4 +39,20 @@ export class TxMountPointRegistry extends TxRegistry<TxMountPoint, string | Symb
 
     return <TxMountPoint>this.add(name, mp);
   }
+
+  use(name: string | Symbol, prefix?: string) {    
+    return super.get(name, prefix);      
+  }
+
+  get(name: string | Symbol, prefix?: string) {    
+    const mountpoint = super.get(name, prefix);
+      
+    if (mountpoint.constructor.name === 'TxMountPointRxJS') {
+      const mp = new TxMountPointRxJS(name);
+
+      return mp.adjust(<TxMountPointRxJS<any>>mountpoint);          
+    }
+
+    return mountpoint;
+  }
 }
