@@ -7,7 +7,7 @@
 ### more info can be found [here](https://rxjs.gitbook.io/rx-txjs/) 
 
 ## What's New
-`version 0.3.3`
+`version 0.3.4`
 Change `TxMountPoint` such as reply is send back only to the sender. This is similar to `TxDoublePoint` but you have stil the option of sending reply back to all subscribers on the reply channel
 
 `version 0.3.0`

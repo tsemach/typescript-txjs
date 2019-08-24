@@ -30,6 +30,7 @@ export * from './tx-monitor-server-service';
 export * from './tx-monitor-server-task-header';
 export * from './tx-monitor';
 export * from './tx-mountpoint-exception';
+export * from './tx-mountpoint-get-option';
 export * from './tx-mountpoint-name';
 export * from './tx-mountpoint-registry';
 export * from './tx-mountpoint-rxjs';
