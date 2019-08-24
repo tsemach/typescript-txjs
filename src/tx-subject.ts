@@ -11,22 +11,6 @@ export class TxSubject<T> extends Subject<TxTask<any>> {
     super();
   }
 
-  methodOld(name: string, target: any) {
-    this.methods.set(name, target);    
-    
-    if ( ! this.isSubscribe ) {
-      this.subscribe((task) => {
-        if ( ! this.methods.has(task.head.method) ) {
-          throw new Error(`method ${task.head.method} can't find in target object`);
-        }
-
-        let object = this.methods.get(task.head.method);
-        object[task.head.method](task);
-      });
-    }
-    this.isSubscribe = true;
-  }
-
   /**
    * two cases:
    * 1) name is string - then task.head.method => point to dataCB.

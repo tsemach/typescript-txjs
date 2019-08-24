@@ -45,11 +45,12 @@ export class TxMonitorServerComponent {
 
   }
 
-  async start(task) {
+  async start(task: TxTask<any>) {
     try {
       TxMonitorServerApplication.instance.register('/rx-txjs/monitor', TxMonitorServerService);
       TxMonitorServerApplication.instance.listen(task.data.host, task.data.port);
 
+      console.log("IN  MONITOR SERVER GOING TO CALL TO mp.reply()")
       this.mountpoint.reply().next(new TxTask<TxMonitorServerTaskHeader>({method: 'start'}, {status: 'ok'}));
     }
     catch (e) {

@@ -14,11 +14,11 @@ describe('Mount Point Class', () => {
     logger.info('tx-mountpoint-method-error.spec: check mountpoint methods callback');
     
     class S1Component {
-      private singlepoint = TxMountPointRegistry.instance.create('GITHUB::GISTP::S1');
+      private mountpoint = TxMountPointRegistry.instance.create('GITHUB::GISTP::S1');
 
       constructor() {
         logger.info("S1Component:constructor is called, no need to subscribe, the method will take care of it");            
-        this.singlepoint.tasks().method(['doit', 'more'], this, this.error);
+        this.mountpoint.tasks().method(['doit', 'more'], this, this.error);
       }
       
       doit(task: TxTask<any>) {
@@ -42,21 +42,21 @@ describe('Mount Point Class', () => {
 
     TxMountPointRegistry.instance.del('GITHUB::GISTP::S1');
     new S1Component();
-    let singlepoint = TxMountPointRegistry.instance.get('GITHUB::GISTP::S1');
+    let mountpoint = TxMountPointRegistry.instance.get('GITHUB::GISTP::S1');
     
-    logger.info('[tx-mountpoint-method-error.spec]: mountpoint name is - \'' + singlepoint.name + '\'');
-    expect(singlepoint.name).to.equal('GITHUB::GISTP::S1');
+    logger.info('[tx-mountpoint-method-error.spec]: mountpoint name is - \'' + mountpoint.name + '\'');
+    expect(mountpoint.name).to.equal('GITHUB::GISTP::S1');
     
     let task: TxTask<any>;
 
     task = new TxTask({method: 'doit'}, {from: 'https://api.github.com/doit'});
-    singlepoint.tasks().next(task);
+    mountpoint.tasks().next(task);
 
     task = new TxTask({method: 'more'}, {from: 'https://api.github.com/more'});
-    singlepoint.tasks().next(task);
+    mountpoint.tasks().next(task);
     
     task = new TxTask({method: 'more'}, {from: 'https://api.github.com/doit'});
-    singlepoint.tasks().error(task);
+    mountpoint.tasks().error(task);
   });
 
 });
