@@ -7,7 +7,7 @@
 ### more info can be found [here](https://rxjs.gitbook.io/rx-txjs/) 
 
 ## What's New
-`version 0.3.5`
+`version 0.3.6`
 Add subscribe to routepoint, to get reply from route you can do: `reply = await routepoint.tasks().next(new TxRouteServiceTask<any>({..}, {..}));` 
 Now you can subscribe on the reply channel. See RoutePoint for more details
 
