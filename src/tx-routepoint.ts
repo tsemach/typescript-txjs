@@ -4,13 +4,16 @@ import { TxRouteServiceExpress } from './tx-route-service-express';
 import { TxRouteServiceConfig } from "./tx-route-service-config";
 import { TxRoutePointRegistry } from './tx-routepoint-registry';
 import TxRouteServiceExpressGet from './tx-route-service-express-get';
+import { TxSubject } from './tx-subject';
+import { TxTask } from './tx-task';
 
 export class TxRoutePoint implements TxMountPoint {
   protected config: TxRouteServiceConfig;
 
   private _tasks: TxRouteServiceExpress<any, any>;
-  private _undos: TxRouteServiceExpress<any, any>;  
-  
+  private _undos: TxRouteServiceExpress<any, any>;
+  private _reply = new TxSubject<TxRoutePoint>();  
+    
   constructor(private _name: string | Symbol, config: TxRouteServiceConfig) {    
     this.init(config);
   }
@@ -26,6 +29,13 @@ export class TxRoutePoint implements TxMountPoint {
     }
   }
 
+  adjust(from: TxRoutePoint) {
+    this._name = from._name;
+    this.init(from.config);
+
+    return this;
+  }
+
   get name() {
     if (typeof this._name === 'string') {
       return this._name;
@@ -38,13 +48,11 @@ export class TxRoutePoint implements TxMountPoint {
   }
 
   reply() {
-    //return this._reply;
-    throw new Error("reply is not allow on TxRoutePoint");
+    return this._tasks;
   }
   
   undos() {
-    throw new Error("Method not implemented.");
-    this._undos;
+    return this._undos;
   }
 
   getConfig() {

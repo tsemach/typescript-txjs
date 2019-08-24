@@ -13,7 +13,6 @@ import { TxTask } from '../../src';
 import TxMonitor from '../../src/tx-monitor';
 import { TxMountPointRegistry } from '../../src/tx-mountpoint-registry';
 import { TxMonitorServerTaskHeader } from '../../src/tx-monitor-server-task-header';
-import { TxMountPointGetOptionsEnum } from '../../src/tx-mountpoint-get-option';
 
 import './monitor-client.component';
 import './C1.component';

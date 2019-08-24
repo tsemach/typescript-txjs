@@ -1,11 +1,10 @@
 import createLogger from 'logging';
-const logger = createLogger('R1Component');
+const logger = createLogger('C1Component');
 
 import { TxMountPoint } from '../../src/tx-mountpoint';
 import { TxRoutePointRegistry } from '../../src/tx-routepoint-registry';
-import { TxRouteServiceTask } from '../../src/tx-route-service-task';
 
-export class R2Component {
+export class C1Component {
   private routepoint: TxMountPoint;
   
   constructor() {
@@ -16,7 +15,7 @@ export class R2Component {
       service: 'component',
       route: 'read'
     };
-    this.routepoint = TxRoutePointRegistry.instance.create('GITHUB::R2', config);        
+    this.routepoint = TxRoutePointRegistry.instance.create('GITHUB::C1', config);        
   }
 
 }

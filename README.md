@@ -7,6 +7,10 @@
 ### more info can be found [here](https://rxjs.gitbook.io/rx-txjs/) 
 
 ## What's New
+`version 0.3.5`
+Add subscribe to routepoint, to get reply from route you can do: `reply = await routepoint.tasks().next(new TxRouteServiceTask<any>({..}, {..}));` 
+Now you can subscribe on the reply channel. See RoutePoint for more details
+
 `version 0.3.4`
 Change `TxMountPoint` such as reply is send back only to the sender. This is similar to `TxDoublePoint` but you have stil the option of sending reply back to all subscribers on the reply channel
 
@@ -255,6 +259,169 @@ mountpoint.tasks().subscribe(
 
 
 * **TxQueuePoint**  a kind of MountPoint that implement Class-2-Class direct communication over queue system.
+
+## RoutePoint
+RoutePoint able to connect your two components on two different services by using Express.
+You have to define two routepoint one on the server and other on the client.
+
+RotuePoint is wrapping the express request, response but you have full access / control on those two.
+
+### Server Side
+Component `S1Component` define server side as follow:
+
+````typescript
+// server side routepoint configuration paramerts
+const config = {
+  host: 'localhost',    // my hostname
+  port: 3001,           // I am listen to this port
+  method: 'get',        // the HTTP method
+  service: 'component', // a group of rotues
+  route: 'read'         // a route under the group, /component/read
+};
+````
+
+````typescript
+// create a routepoint on the server side
+routepoint = TxRoutePointRegistry.instance.route('GITHUB::S2', config);
+````
+
+Then define the subscription, the data coming from the client side:
+````typescript
+  routepoint.tasks().subscribe(
+    (task: TxRouteServiceTask<any>) => {
+      
+      // do you stuff here
+
+      task.reply().next(new TxRouteServiceTask<any>({
+        // the headers goes to the HTTP headers on the response
+        headers: {
+          source: 'S1Component-server',
+          token: 'FEDCBA0987654321'
+        },
+        // how to response look's like
+        response: {
+          status: 200,
+          type: 'json'
+        }},
+        // the data of the response
+        {
+          source: 'S1Component', status: "ok",
+          originData: task.get()
+        } 
+      ));      
+    });
+  }
+````
+The whole code is looks like that:
+````typescript
+import { TxMountPoint } from '../../src/tx-mountpoint';
+import { TxRoutePointRegistry } from '../../src/tx-routepoint-registry';
+import { TxRouteServiceTask } from '../../src/tx-route-service-task';
+
+export class S1Component {    
+  constructor() {
+    const config = {
+      host: 'localhost',
+      port: 3001,
+      method: 'get',
+      service: 'component',
+      route: 'read'
+    };
+    const routepoint = TxRoutePointRegistry.instance.route('GITHUB::S2', config);
+    
+    routepoint.tasks().subscribe(
+    (task: TxRouteServiceTask<any>) => {
+      logger.info('[S1Component::subscribe] got data from service: task = ' + JSON.stringify(task.get(), undefined, 2))        
+      
+      // task.request => this return the express request object
+      // to you stuff here
+
+      task.reply().next(new TxRouteServiceTask<any>({
+        headers: {
+          source: 'S1Component-server',
+          token: 'FEDCBA0987654321'
+        },
+        response: {
+          status: 200,
+          type: 'json'
+        }},
+        {
+          source: 'S1Component', status: "ok",
+          originData: task.get()
+        } 
+      ));      
+    });
+  }
+}
+
+new S1Component();
+````
+### Client side 
+The client side able to communcation with the server.
+
+Define configuration object as folllow
+````typescript
+// server side routepoint configuration paramerts
+const config = {
+  host: 'localhost',    // my hostname
+  port: 3001,           // I am listen to this port
+  method: 'get',        // the HTTP method
+  service: 'component', // a group of rotues
+  route: 'read'         // a route under the group, /component/read
+};
+````
+Create the rotuepoint on the registry as follow
+````typescript
+routepoint = TxRoutePointRegistry.instance.create('GITHUB::C1', config);        
+````
+> **NOTE:** on the client side you use the **`create`** not the *`route`* as in the server.
+
+To use this client routepoint any where on the code:
+````typescript
+const routepoint = await TxRoutePointRegistry.instance.get('GITHUB::C1');
+const reply = await routepoint.tasks().next(new TxRouteServiceTask<any>({source: 'service-a', token: '1234'}, data));
+````
+> **NOTE:** The object {source: 'service-a', token: '1234'} is goes to the http headers of the request.
+
+The whole code may looks like that:
+import { TxMountPoint } from '../../src/tx-mountpoint';
+import { TxRoutePointRegistry } from '../../src/tx-routepoint-registry';
+
+````typescript
+export class C1Component {
+  private routepoint: TxMountPoint;
+  
+  constructor() {
+    const config = {
+      host: 'localhost',
+      port: 3001,
+      method: 'get',
+      service: 'component',
+      route: 'read'
+    };
+    this.routepoint = TxRoutePointRegistry.instance.create('GITHUB::C1', config);        
+  }
+}
+````
+
+````typescript
+const routepoint = await TxRoutePointRegistry.instance.get('GITHUB::C1');
+const reply = await routepoint.tasks().next(new TxRouteServiceTask<any>({source: 'service-a', token: '1234'}, {command: 'do-something'})); 
+````
+Or you can subscribe to the reply as follow:
+
+````typescript
+routepoint.reply().subscribe(
+  (task: TxRouteServiceTask<any>) => {    
+    // got reply from server.    
+    console.log(task.get());      // both head and data
+    console.log(task.getHead());  // just the head, the http headers is under task.getHead().headers
+    console.log(task.getData());  // the body
+
+    // task.repsonse  => this return the express response object.
+  }
+);
+````
 
 ## Task
 A task is a generic object of head and data, something like that:

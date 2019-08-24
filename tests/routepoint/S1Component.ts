@@ -1,11 +1,11 @@
 import createLogger from 'logging';
-const logger = createLogger('R1Component');
+const logger = createLogger('S1Component');
 
 import { TxMountPoint } from '../../src/tx-mountpoint';
 import { TxRoutePointRegistry } from '../../src/tx-routepoint-registry';
 import { TxRouteServiceTask } from '../../src/tx-route-service-task';
 
-export class R1Component {
+export class S1Component {
   private routepoint: TxMountPoint;
   
   constructor() {
@@ -16,15 +16,15 @@ export class R1Component {
       service: 'component',
       route: 'read'
     };
-    this.routepoint = TxRoutePointRegistry.instance.route('GITHUB::R1', config);
+    this.routepoint = TxRoutePointRegistry.instance.route('GITHUB::S2', config);
     
     this.routepoint.tasks().subscribe(
     (task: TxRouteServiceTask<any>) => {
-      logger.info('[R1Component::subscribe] got data from service: task = ' + JSON.stringify(task.get(), undefined, 2))        
+      logger.info('[S1Component::subscribe] got data from service: task = ' + JSON.stringify(task.get(), undefined, 2))        
       
       task.reply().next(new TxRouteServiceTask<any>({
         headers: {
-          source: 'R1Component-server',
+          source: 'S1Component-server',
           token: 'FEDCBA0987654321'
         },
         response: {
@@ -32,7 +32,8 @@ export class R1Component {
           type: 'json'
         }},
         {
-          source: 'R1Component', status: "ok"
+          source: 'S1Component', status: "ok",
+          originData: task.get()
         } 
       ));      
     });

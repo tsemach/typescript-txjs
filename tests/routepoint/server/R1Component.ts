@@ -32,7 +32,8 @@ export class R1Component {
             type: 'json'
           }},
           {
-            source: 'R1Component', status: "ok"
+            source: 'R1Component', status: "ok",
+            originData: task.getData()
           } 
         ));
       }
