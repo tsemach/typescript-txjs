@@ -12,24 +12,6 @@ export class TxSingleSubscribe<T> extends TxSubscribe<T> {
   constructor(from?: T) {
     super(from);
   }
-  
-  methodOld(name: string, target: any) {
-    this.methods.set(name, target);    
-    
-    if ( ! this.isSubscribe ) {
-      const dataCB = (task: TxTask<any>) => {
-        if ( ! this.methods.has(task.head.method) ) {
-          throw new Error(`method ${task.head.method} can't find in target object`);
-        }
-
-        let object = this.methods.get(task.head.method);
-        object[task.head.method](task);
-      }
-      
-      return this.subscribe(dataCB);
-    }
-    this.isSubscribe = true;
-  }
 
   /**
    * two cases:

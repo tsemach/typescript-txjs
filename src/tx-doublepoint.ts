@@ -1,3 +1,4 @@
+import { TxRoutePoint } from './tx-routepoint';
 import createLogger from 'logging'; 
 const logger = createLogger('DoublePoint');
 
@@ -26,7 +27,12 @@ export class TxDoublePoint implements TxMountPoint {
     }
 
     this._sender = <TxSinglePoint<TxMountPoint>>_sender
-    this._recver = new TxSinglePoint<TxMountPoint>(fullname);
+    if (_sender instanceof TxRoutePoint) {
+      this._recver = _sender as any;
+    }
+    else {
+      this._recver = new TxSinglePoint<TxMountPoint>(fullname);
+    }
     this._recver.setFrom(this)
   }
 

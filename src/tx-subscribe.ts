@@ -28,6 +28,7 @@ export class TxSubscribe<T> {
 
   from: T = null;
   limit = 0;
+  name = '';
 
   /**
    * 
@@ -51,7 +52,7 @@ export class TxSubscribe<T> {
     return new TxUnSubscribe<T>(this, this.dataCB.length-1);
   }
 
-  next(data: TxTask<any>, options: TxSubscribeOptions = defaultSubscribeOptions) {
+  next(data: TxTask<any>, options: TxSubscribeOptions = defaultSubscribeOptions) {      
     if (this.dataCB != null) {
       for (let i = 0; i < this.dataCB.length; i++) {
         this.dataCB[i](data, this.from, options);
@@ -88,6 +89,14 @@ export class TxSubscribe<T> {
     this.dataCB.splice(index, 1);
     this.errorCB.splice(index, 1);
     this.completeCB.splice(index, 1);
+  }
+
+  setName(name: string) {
+    this.name = name;
+  }
+
+  getName() {
+    return this.name;
   }
 
   setFrom(from: T) {

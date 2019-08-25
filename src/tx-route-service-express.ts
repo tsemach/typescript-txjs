@@ -12,8 +12,25 @@ export abstract class TxRouteServiceExpress<H, D> {
   constructor(protected config: TxRouteServiceConfig) {    
   }
   
+  set name(name: string) {
+    this.callbacks.name = name;
+  }
+
+  get name() {
+    return this.callbacks.name;
+  }
+  
+  setFrom(from: any) {
+    this.callbacks.setFrom(from);
+  }
+
+  /**
+   * client side: client want to get callback when data is coming from server
+   * 
+   * @param dataCB - callback to all, same goes for errorCB and completeCB
+   */
   subscribe(dataCB: TxCallback<any>, errorCB?: TxCallback<any>, completeCB?: TxCallback<any>) {
-    this.callbacks.subscribe(dataCB, errorCB, completeCB);
+    return this.callbacks.subscribe(dataCB, errorCB, completeCB);
   }
 
   // this will call when user call to task.reply().next(..), it send reply by response onject 

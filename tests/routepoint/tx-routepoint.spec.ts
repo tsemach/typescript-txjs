@@ -81,6 +81,7 @@ describe('TxRoutePoint Testing', () => {
 
     const expectedC2 = {
       head: {
+        url: "http://localhost:3001/component/read?from=C2",
         headers: {
           source: "S1Component-server",
           token: "FEDCBA0987654321"
@@ -124,7 +125,7 @@ describe('TxRoutePoint Testing', () => {
       (task: TxRouteServiceTask<any>) => {    
         console.log('[x-routepoint.spec.ts::test-2::listen-C2] got reply from C2:', JSON.stringify(task.get(), undefined, 2));
 
-        assert.deepEqual(expectedC2, task.getData());    
+        assert.deepEqual(expectedC2, task.get());    
         gotC2Subscribe = true;
 
         isDone();
@@ -154,6 +155,7 @@ describe('TxRoutePoint Testing', () => {
 
     const expectedC1 = {
       head: {
+        url: "http://localhost:3001/component/read?from=C1",
         headers: {
           source: "S1Component-server",
           token: "FEDCBA0987654321"
@@ -183,6 +185,7 @@ describe('TxRoutePoint Testing', () => {
 
     const expectedC2 = {
       head: {
+        url: "http://localhost:3001/component/read?from=C2",
         headers: {
           source: "S1Component-server",
           token: "FEDCBA0987654321"
@@ -226,7 +229,7 @@ describe('TxRoutePoint Testing', () => {
       (task: TxRouteServiceTask<any>) => {    
         console.log('[x-routepoint.spec.ts::listen-C2] got reply from C2:', JSON.stringify(task.get(), undefined, 2));
 
-        assert.deepEqual(expectedC2, task.getData());    
+        assert.deepEqual(expectedC2, task.get());    
         gotC2Subscribe = true;
 
         isDone();
@@ -237,7 +240,7 @@ describe('TxRoutePoint Testing', () => {
       (task: TxRouteServiceTask<any>) => {    
         console.log('[x-routepoint.spec.ts::listen-C1] got reply from C1:', JSON.stringify(task.get(), undefined, 2));
 
-        assert.deepEqual(expectedC1, task.getData());    
+        assert.deepEqual(expectedC1, task.get());    
         gotC1Subscribe = true;
         
         isDone();
@@ -249,7 +252,9 @@ describe('TxRoutePoint Testing', () => {
     const reply = await C1.tasks().next(new TxRouteServiceTask<any>({source: 'tx-routepoint.spec.ts:C1'}, {from: 'C1'}));    
     logger.info('[tx-routepoint.spec.ts::test-3] test-3 reply.data after next: ', JSON.stringify(reply.data, undefined, 2));
 
-    assert.deepEqual(expectedC1, reply.data);
+    let expectedC1Next = Object.assign({}, expectedC1);
+    delete expectedC1Next.head.url;
+    assert.deepEqual(expectedC1Next, reply.data);
     gotC1Next = true;
 
     isDone();

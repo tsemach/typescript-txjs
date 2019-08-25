@@ -6,13 +6,16 @@ import { TxRoutePointRegistry } from './tx-routepoint-registry';
 import TxRouteServiceExpressGet from './tx-route-service-express-get';
 import { TxSubject } from './tx-subject';
 import { TxTask } from './tx-task';
+import * as short from 'short-uuid';
+const uuid = short();
 
 export class TxRoutePoint implements TxMountPoint {
+  type = 'TxRoutePoint';
+
   protected config: TxRouteServiceConfig;
 
   private _tasks: TxRouteServiceExpress<any, any>;
   private _undos: TxRouteServiceExpress<any, any>;
-  private _reply = new TxSubject<TxRoutePoint>();  
     
   constructor(private _name: string | Symbol, config: TxRouteServiceConfig) {    
     this.init(config);
@@ -26,6 +29,8 @@ export class TxRoutePoint implements TxMountPoint {
     if (config && config.method.toLowerCase() === 'get') {
       this._tasks = new TxRouteServiceExpressGet<any, any>(application, config);
       this._undos = new TxRouteServiceExpressGet<any, any>(application, config);
+
+      this._tasks.name = uuid.new();
     }
   }
 
@@ -57,6 +62,10 @@ export class TxRoutePoint implements TxMountPoint {
 
   getConfig() {
     return this.config;
+  }
+
+  setFrom(from: any) {
+    this._tasks.setFrom(from);
   }
 }
 

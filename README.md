@@ -384,8 +384,10 @@ const reply = await routepoint.tasks().next(new TxRouteServiceTask<any>({source:
 > **NOTE:** The object {source: 'service-a', token: '1234'} is goes to the http headers of the request.
 
 The whole code may looks like that:
+````typescript
 import { TxMountPoint } from '../../src/tx-mountpoint';
 import { TxRoutePointRegistry } from '../../src/tx-routepoint-registry';
+````
 
 ````typescript
 export class C1Component {

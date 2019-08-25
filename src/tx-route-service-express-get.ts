@@ -16,9 +16,12 @@ import { TxTask } from './tx-task';
 import { TxCallback } from './tx-callback';
 
 export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> implements TxRouteService {
-  
+  private cname: string;
+
   constructor(application: TxRouteApplication, config: TxRouteServiceConfig) {
     super(config)
+
+    this.cname = this.constructor.name;
     if (config.mode === 'server') {    
       application.register('/' + config.service, this, config);
     }
@@ -75,7 +78,7 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
    * @param task a task from subscriber need to reply it back client using response
    */
   send(from: TxRouteServiceTask<any>, task: TxRouteServiceTask<any>) {
-    logger.info('[TxRouteServiceExpressGet::send] is called, task = ', JSON.stringify(task.get(), undefined, 2));
+    logger.info(`${this.prefix('send')} is called, task = ${JSON.stringify(task.get(), undefined, 2)}`);
     
     let head = task.getHead();
     if (head) {
@@ -93,15 +96,6 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
     from.response.json(task.get());
   }
 
-  /**
-   * client side: client want to get callback when data is coming from server
-   * 
-   * @param dataCB - callback to all, same goes for errorCB and completeCB
-   */
-  subscribe(dataCB: TxCallback<any>, errorCB?: TxCallback<any>, completeCB?: (any?: any) => void) {  
-    return this.callbacks.subscribe(dataCB, errorCB, completeCB);
-  }
-
   unsubscribe() {
     this.callbacks.unsubscribe();
   }
@@ -111,7 +105,7 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
    * @param task - tast need to send to service
    */
   async next(task: TxTask<any>) {
-    logger.info('[TxRouteServiceExpressGet::next] is called, task = ', JSON.stringify(task.get(), undefined, 2));      
+    logger.info(`${this.prefix('name')} is called, task = ${JSON.stringify(task.get(), undefined, 2)}`);      
 
     let options = {
       method: <Method>this.config.method,
@@ -126,9 +120,9 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
       .set('query', task.getData())
       .toString();
 
-    logger.info(`[TxRouteServiceExpressGet::next] call with options: ${JSON.stringify(options, undefined, 2)}, url: ${url}`);      
+    logger.info(`${this.prefix('next')} call with options: ${JSON.stringify(options, undefined, 2)}, url: ${url}`);      
     const reply = await axios.get(url, options);
-    this.callbacks.next(new TxRouteServiceTask<any>({url, ...options}, reply.data));
+    this.callbacks.next(new TxRouteServiceTask<any>({url, ...reply.data.head}, reply.data.data));
 
     return reply;
   }
@@ -156,6 +150,10 @@ export class TxRouteServiceExpressGet<H, D> extends TxRouteServiceExpress<H,D> i
     }
 
     return base;
+  }
+
+  prefix(method: string) {
+    return `[${this.cname}::${method}::${this.callbacks.name}]`;
   }
 
 }
