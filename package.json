@@ -47,7 +47,7 @@
     "@types/request-promise": "^4.1.44",
     "@types/request-promise-native": "^1.0.16",
     "assert": "^2.0.0",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "bull": "^3.10.0",
     "chai-http": "^4.3.0",
     "child_process": "^1.0.2",
